@@ -1,0 +1,67 @@
+{
+  "common": {
+    "title": "Greenify - Phần mềm tối ưu hóa hiệu suất và tiết kiệm pin cho Android",
+    "description": "Greenify giúp bạn tối ưu hóa hiệu suất và tiết kiệm pin cho thiết bị Android của bạn. Tải về miễn phí ngay hôm nay!"
+  },
+  "metadata": {
+    "title": "Greenify — Hành động vì môi trường",
+    "description": "Nền tảng ghi nhận hành vi xanh, kết nối cộng đồng với các điểm thu gom và tổ chức môi trường."
+  },
+  "landing": {
+    "title": "Trang chủ",
+    "description": "Chào mừng đến với Greenify - Nền tảng hành động vì môi trường tại Việt Nam!",
+    "navbar": {
+      "features": "Tính năng",
+      "stats": "Thống kê",
+      "download": "Tải về",
+      "admin": "Admin Portal"
+    },
+    "hero": {
+      "badge": "Hệ sinh thái hành động xanh",
+      "headline_1": "Hành động nhỏ.",
+      "headline_2": "Tác động lớn.",
+      "description": "Greenify biến thói quen xanh hàng ngày thành điểm thưởng, thành cộng đồng, thành thay đổi thật sự cho môi trường Việt Nam.",
+      "download_btn": "Tải về miễn phí",
+      "explore_btn": "Khám phá tính năng"
+    },
+    "features": {
+      "title": "Tính năng",
+      "headline_1": "Mọi thứ bạn cần",
+      "headline_2": "để sống xanh hơn"
+    },
+    "download": {
+      "headline_1": "Tải Greenify",
+      "headline_2": "hoàn toàn miễn phí",
+      "description": "Có mặt trên iOS và Android. Bắt đầu hành trình xanh ngay hôm nay.",
+      "cta_prefix": "Tải trên",
+      "stores": {
+        "app_store": "App Store",
+        "google_play": "Google Play"
+      },
+      "platforms": {
+        "ios": "iOS",
+        "android": "Android"
+      },
+      "qr_label": "Quét để tải",
+      "qr_instruction": "Quét mã QR bằng camera điện thoại"
+    },
+    "footer": {
+      "brand": "Greenify",
+      "copyright": "© 2026 Greenify — Hệ sinh thái hành động vì môi trường",
+      "admin": "Quản trị viên →"
+    },
+    "testimonials": {
+      "title": "Cộng đồng nói gì?"
+    }
+  },
+  "admin": {
+    "login": {
+      "title": "Đăng nhập Admin",
+      "subtitle": "Quản lý hệ thống Greenify",
+      "email_label": "Email / Tên đăng nhập",
+      "password_label": "Mật khẩu",
+      "submit_btn": "Đăng nhập hệ thống",
+      "back_to_home": "Quay lại trang chủ"
+    }
+  }
+}

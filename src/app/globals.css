@@ -1,26 +1,190 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+/* =========================================
+   1. ROOT VARIABLES (Light/Dark Mode)
+   ========================================= */
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
+    --card: #f3f4f6;
+    --border: #e5e7eb;
+
+    /* --- Semantic Primary Colors (LIGHT MODE) --- */
+    --primary-surface: #f0fdf4; /* primary-50: Nền nhạt nhất (Card, Widget) */
+    --primary-element: #dcfce7; /* primary-100: Nền cho Button phụ, Input */
+    --primary-border: #bbf7d0; /* primary-200: Viền (Border, Divider) */
+    --primary-hover: #86efac; /* primary-300: Hiệu ứng hover/focus */
+    --primary-content: #15803d; /* primary-700: Chữ nhấn mạnh, Icon */
+    --primary-heading: #052e16; /* primary-950: Tiêu đề lớn */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #0a0a0a;
+      --foreground: #ededed;
+      --card: #171717;
+      --border: #262626;
+
+      /* --- Semantic Primary Colors (DARK MODE INVERTED) --- */
+      --primary-surface: #052e16; /* primary-950: Nền tối cho Card/Widget */
+      --primary-element: #14532d; /* primary-900: Nền tối cho Button phụ */
+      --primary-border: #15803d; /* primary-700: Viền (đậm để nổi trên nền đen) */
+      --primary-hover: #16a34a; /* primary-600: Hiệu ứng hover/focus */
+      --primary-content: #86efac; /* primary-300: Chữ sáng để dễ đọc */
+      --primary-heading: #f0fdf4; /* primary-50: Tiêu đề lớn sáng chói */
+    }
+  }
+
+  /* Base Reset & Custom Scrollbar */
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  ::selection {
+    background: #bbf7d0;
+    color: #14532d;
+  }
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f0fdf4;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #86efac;
+    border-radius: 3px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* =========================================
+   2. TAILWIND THEME CONFIGURATION
+   ========================================= */
+@theme {
+  /* Ép font sans mặc định thành font Inter */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Ánh xạ màu sắc */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+
+  --color-primary-50: #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-200: #bbf7d0;
+  --color-primary-300: #86efac;
+  --color-primary-400: #4ade80;
+  --color-primary: #22c55e;
+  --color-primary-500: #22c55e;
+  --color-primary-600: #16a34a;
+  --color-primary-700: #15803d;
+  --color-primary-800: #166534;
+  --color-primary-900: #14532d;
+  --color-primary-950: #052e16;
+
+  --color-primary-surface: var(--primary-surface);
+  --color-primary-element: var(--primary-element);
+  --color-primary-border: var(--primary-border);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-content: var(--primary-content);
+  --color-primary-heading: var(--primary-heading); 
+
+  /* Đăng ký Animation (v4 tự động tạo class .animate-fade-up, v.v.) */
+  --animate-fade-up: fadeUp 0.7s ease forwards;
+  --animate-fade-in: fadeIn 0.5s ease forwards;
+  --animate-float: float 4s ease-in-out infinite;
+  --animate-pulse-ring: pulseRing 2s ease-out infinite;
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  @keyframes pulseRing {
+    0% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
+}
+
+/* =========================================
+   3. CUSTOM UTILITIES (Cú pháp @utility của v4)
+   ========================================= */
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility gradient-text {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 50%, #86efac 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Noise texture overlay */
+@utility noise {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    border-radius: inherit;
+  }
+}
+
+/* Animation Delays */
+@utility delay-100 {
+  animation-delay: 0.1s;
+}
+@utility delay-200 {
+  animation-delay: 0.2s;
+}
+@utility delay-300 {
+  animation-delay: 0.3s;
+}
+@utility delay-400 {
+  animation-delay: 0.4s;
+}
+
+/* Sidebar hover */
+@utility sidebar-item {
+  transition:
+    background 0.15s,
+    color 0.15s,
+    padding-left 0.15s;
+
+  &:hover {
+    padding-left: 1.25rem;
+  }
 }

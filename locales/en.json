@@ -1,0 +1,66 @@
+{
+  "common": {
+    "title": "Greenify - ",
+    "description": "Greenify !"
+  },
+  "metadata": {
+    "title": "Greenify — Action for the Environment",
+    "description": "A platform that records green behaviors, connecting the community with collection points and environmental organizations."
+  },
+  "landing": {
+    "title": "Home",
+    "description": "Welcome to Greenify - The Environmental Action Platform in Vietnam!",
+    "navbar": {
+      "features": "Features",
+      "stats": "Statistics",
+      "download": "Download",
+      "admin": "Admin Portal"
+    },
+    "hero": {
+      "badge": "Green Action Ecosystem",
+      "headline_1": "Small Actions.",
+      "headline_2": "Big Impact.",
+      "description": "Greenify turns daily green habits into rewards, into community, into real change for the environment in Vietnam.",
+      "download_btn": "Download for Free",
+      "explore_btn": "Explore Features"
+    },
+    "features": {
+      "title": "Features",
+      "headline_1": "Everything You Need",
+      "headline_2": "to Live Greener"
+    },
+    "download": {
+      "headline_1": "Download Greenify",
+      "headline_2": "completely free",
+      "description": "Available on iOS and Android. Start your green journey today.",
+      "cta_prefix": "Download on",
+      "stores": {
+        "app_store": "App Store",
+        "google_play": "Google Play"
+      },
+      "platforms": {
+        "ios": "iOS",
+        "android": "Android"
+      },
+      "qr_label": "Scan to download",
+      "qr_instruction": "Scan the QR code with your phone camera"
+    },
+    "footer": {
+      "copyright": "© 2026 Greenify — Eco action ecosystem",
+      "admin": "Admin Portal →"
+    },
+    "testimonials": {
+      "title": "What the Community Says?"
+    }
+  },
+  "admin": {
+    "login": {
+      "title": "Admin Login",
+      "subtitle": "Manage the Greenify System",
+      "email_label": "Email / Username",
+      "password_label": "Password",
+      "submit_btn": "Sign In",
+      "back_to_home": "Back to Home"
+    }
+  }
+}
