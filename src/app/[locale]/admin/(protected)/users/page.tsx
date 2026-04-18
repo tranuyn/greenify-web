@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { UserRole, UserStatus } from "@/types/user.type";
 
-
 interface AdminUser {
   id: string;
   name: string;

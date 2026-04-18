@@ -4,36 +4,36 @@
 //              post_reviews, post_appeals
 // ============================================================
 
-import { SortOption } from '@/constants/enums/sortOptions.enum';
-import { BaseQueryParams, PaginationParams } from './common.types';
-import { MediaDto } from './media.types';
+import { SortOption } from "@/constants/enums/sortOptions.enum";
+import { BaseQueryParams } from "./common.types";
+import { MediaDto } from "./media.types";
 
 export type PostStatus =
-  | 'DRAFT'
-  | 'PENDING_REVIEW'
-  | 'PARTIALLY_APPROVED'
-  | 'VERIFIED'
-  | 'REJECTED'
-  | 'FLAGGED'
-  | 'REVOKED';
+  | "DRAFT"
+  | "PENDING_REVIEW"
+  | "PARTIALLY_APPROVED"
+  | "VERIFIED"
+  | "REJECTED"
+  | "FLAGGED"
+  | "REVOKED";
 
-export type ReviewDecision = 'APPROVE' | 'REJECT' | 'REPORT_SUSPICIOUS';
+export type ReviewDecision = "APPROVE" | "REJECT" | "REPORT_SUSPICIOUS";
 
 export type AppealStatus =
-  | 'APPEAL_SUBMITTED'
-  | 'UNDER_REVIEW'
-  | 'APPEAL_ACCEPTED'
-  | 'APPEAL_REJECTED';
+  | "APPEAL_SUBMITTED"
+  | "UNDER_REVIEW"
+  | "APPEAL_ACCEPTED"
+  | "APPEAL_REJECTED";
 
 // ---- Entities ----
 
 export interface GreenActionType {
   id: string;
-  group_name: string;
-  action_name: string;
-  suggested_points: number;
-  location_required: boolean;
-  is_active: boolean;
+  groupName: string;
+  actionName: string;
+  suggestedPoints: number;
+  locationRequired: boolean;
+  isActive: boolean;
 }
 
 export interface GreenActionPost {
@@ -79,6 +79,14 @@ export interface PostAppeal {
 }
 
 // ---- API Request shapes ----
+export interface CreateActionTypeRequest {
+  groupName: string;
+  actionName: string;
+  suggestedPoints: number;
+  locationRequired: boolean;
+  isActive: boolean;
+}
+export type UpdateActionTypeRequest = Partial<CreateActionTypeRequest>;
 // FEED PARAMS
 export interface FeedQueryParams extends BaseQueryParams {
   search?: string;
@@ -97,11 +105,14 @@ export interface FeedApiRequestParams {
 }
 //ui
 export interface MyPostsQueryParams extends BaseQueryParams {
-  status?: PostStatus | 'all';
+  status?: PostStatus | "all";
   sort?: SortOption;
 }
 //api
-export interface MyPostsApiRequestParams extends Omit<MyPostsQueryParams, 'status' | 'sort'> {
+export interface MyPostsApiRequestParams extends Omit<
+  MyPostsQueryParams,
+  "status" | "sort"
+> {
   status?: string; // Convert 'all' thành undefined trước khi gửi
   sort?: string[]; // Convert SortOption object thành ["createdAt,desc"]
 }
@@ -133,10 +144,15 @@ export interface CreatePostApiRequest {
 
 export interface ReviewPostRequest {
   decision: ReviewDecision;
-  reject_reason_code?: string;
-  reject_reason_note?: string;
+  rejectReason?: string;
 }
-
+export interface ReviewPostResponse {
+  reviewId: string;
+  postId: string;
+  decision: ReviewDecision;
+  postStatus: PostStatus;
+  message: string;
+}
 export interface PostReviewDto {
   reviewId: string;
   reviewerId: string;
@@ -150,17 +166,21 @@ export interface GreenActionPostDetailDto {
   id: string;
   authorDisplayName: string;
   authorAvatarUrl: string | null;
+  // actionTypeId: string;
   actionTypeName: string;
   groupName: string;
   caption: string;
   mediaUrl: string;
   approveCount: number;
   rejectCount: number;
+  // latitude: number;
+  // longitude: number;
   location: string | null;
   reviews: PostReviewDto[];
   actionDate: string;
   status: PostStatus;
   createdAt: string;
+  // alreadyReviewed?: boolean;
 }
 
 export interface AppealPostRequest {
@@ -174,17 +194,17 @@ export interface AppealPostRequest {
 // ============================================================
 
 export enum PointSourceType {
-  GREEN_ACTION = 'GREEN_ACTION',
-  REVIEW_REWARD = 'REVIEW_REWARD',
-  EVENT_ATTEND = 'EVENT_ATTEND',
-  LEADERBOARD = 'LEADERBOARD',
-  VOUCHER_REDEEM = 'VOUCHER_REDEEM',
-  LEADERBOARD_REWARD = 'LEADERBOARD_REWARD',
+  GREEN_ACTION = "GREEN_ACTION",
+  REVIEW_REWARD = "REVIEW_REWARD",
+  EVENT_ATTEND = "EVENT_ATTEND",
+  LEADERBOARD = "LEADERBOARD",
+  VOUCHER_REDEEM = "VOUCHER_REDEEM",
+  LEADERBOARD_REWARD = "LEADERBOARD_REWARD",
 }
 
-export type LedgerStatus = 'REWARDED' | 'REVERSED' | 'FROZEN';
+export type LedgerStatus = "REWARDED" | "REVERSED" | "FROZEN";
 
-export type WalletStatus = 'ACTIVE' | 'FROZEN';
+export type WalletStatus = "ACTIVE" | "FROZEN";
 
 export interface PointWallet {
   id: string;

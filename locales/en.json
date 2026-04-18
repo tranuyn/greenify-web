@@ -61,6 +61,94 @@
       "password_label": "Password",
       "submit_btn": "Sign In",
       "back_to_home": "Back to Home"
+    },
+    "vouchers": {
+      "title": "Voucher Management",
+      "subtitle": "{count} vouchers managed",
+      "createBtn": "Create Voucher",
+      "status": {
+        "ALL": "All",
+        "DRAFT": "Draft",
+        "ACTIVE": "Active",
+        "INACTIVE": "Inactive",
+        "EXPIRED": "Expired",
+        "DEPLETED": "Depleted"
+      },
+      "table": {
+        "voucher": "Voucher",
+        "partner": "Partner",
+        "points": "Required Points",
+        "stock": "Stock",
+        "validUntil": "Valid Until",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "empty": "No vouchers found.",
+      "toggleActivate": "Activate",
+      "toggleDeactivate": "Deactivate",
+      "edit": "Edit",
+      "form": {
+        "createTitle": "Create New Voucher",
+        "editTitle": "Edit Voucher",
+        "name": "Voucher Name *",
+        "namePlaceholder": "e.g. 20% Off Grab...",
+        "partner": "Partner *",
+        "partnerPlaceholder": "e.g. Grab",
+        "description": "Description",
+        "descPlaceholder": "Detailed description...",
+        "points": "Required Points *",
+        "pointsPlaceholder": "100",
+        "stock": "Total Stock *",
+        "stockPlaceholder": "500",
+        "conditions": "Usage Conditions",
+        "condPlaceholder": "Applies to...",
+        "validUntil": "Valid Until *",
+        "cancel": "Cancel",
+        "create": "Create",
+        "save": "Save Changes",
+        "saving": "Saving..."
+      }
+    },
+    "leaderboard": {
+      "title": "Leaderboard",
+      "subtitle": "Current week · {count} participants",
+      "addPrizeBtn": "Add Prize",
+      "tabs": {
+        "ranking": "Ranking",
+        "prizes": "Prize Config"
+      },
+      "rankingTable": {
+        "rank": "Rank",
+        "user": "User",
+        "points": "Weekly Points",
+        "prize": "Prize"
+      },
+      "prizesTable": {
+        "rank": "Rank",
+        "scope": "Scope",
+        "voucher": "Voucher Reward",
+        "quantity": "Quantity",
+        "actions": "Actions"
+      },
+      "scopes": {
+        "NATIONAL": "National",
+        "PROVINCIAL": "Provincial"
+      },
+      "distribute": "Distribute",
+      "delete": "Delete",
+      "emptyPrizes": "No prize configurations yet.",
+      "addFirstPrize": "Add your first prize",
+      "form": {
+        "title": "Add Prize",
+        "rank": "Target Rank *",
+        "scope": "Scope *",
+        "voucher": "Voucher *",
+        "selectVoucher": "-- Select a voucher --",
+        "quantity": "Quantity *",
+        "cancel": "Cancel",
+        "submit": "Add Prize",
+        "saving": "Saving..."
+      }
     }
   }
 }

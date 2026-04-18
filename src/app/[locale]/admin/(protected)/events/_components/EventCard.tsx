@@ -28,7 +28,6 @@ export function EventCard({
 }: Props) {
   const s = STATUS_CONFIG[event.status];
   const isPending = event.status === 'PENDING_APPROVAL';
-  // address có thể là nested object
   const locationLabel = event.address
     ? `${event.address.addressDetail}, ${event.address.ward}`
     : '—';
@@ -38,7 +37,6 @@ export function EventCard({
       {/* Thumbnail */}
       <div className="relative h-36 bg-primary-50">
         {event.thumbnail?.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={event.thumbnail.imageUrl}
             alt={event.title}
