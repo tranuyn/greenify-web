@@ -25,7 +25,15 @@ import type { CreateLeaderboardPrizeRequest } from "@/types/gamification.types";
 import { LeaderboardScope } from "@/types/gamification.types";
 import { useAvailableVouchers } from "@/hooks/queries/useGamification";
 import { PrizeFormModal } from "@/components/admin/leaderboard/PrizeFormModal";
-
+import {
+  TableContainer,
+  Table,
+  TableHeader,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/admin/ui/table";
 // ── Rank medal ─────────────────────────────────────────────────
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) return <Crown size={20} className="text-amber-500 drop-shadow-sm" />;
@@ -113,133 +121,126 @@ export default function LeaderboardAdminPage() {
 
       {/* ── Tab: Ranking ── */}
       {activeTab === "ranking" && (
-        <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm animate-fade-in">
+        <TableContainer className="animate-fade-in">
           {isLoadingLB ? (
             <div className="flex justify-center py-20">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full whitespace-nowrap text-left text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50/50">
-                    <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t("rankingTable.rank")}</th>
-                    <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t("rankingTable.user")}</th>
-                    <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t("rankingTable.points")}</th>
-                    <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t("rankingTable.prize")}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {leaderboard.map((entry: any) => {
-                    const prize = prizes.find(
-                      (p: any) =>
-                        p.rank === entry.rank &&
-                        p.scope === LeaderboardScope.NATIONAL,
-                    );
-                    const isTop3 = entry.rank <= 3;
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead>{t("rankingTable.rank")}</TableHead>
+                  <TableHead>{t("rankingTable.user")}</TableHead>
+                  <TableHead>{t("rankingTable.points")}</TableHead>
+                  <TableHead>{t("rankingTable.prize")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {leaderboard.map((entry: any) => {
+                  const prize = prizes.find(
+                    (p: any) =>
+                      p.rank === entry.rank &&
+                      p.scope === LeaderboardScope.NATIONAL,
+                  );
+                  const isTop3 = entry.rank <= 3;
 
-                    return (
-                      <tr
-                        key={entry.userId}
-                        className={`transition-colors hover:bg-gray-50/50 ${
-                          isTop3 ? "bg-amber-50/20" : ""
-                        }`}
-                      >
-                        {/* Rank */}
-                        <td className="px-6 py-5">
-                          <div className="flex items-center justify-center w-8">
-                            <RankBadge rank={entry.rank} />
+                  return (
+                    <TableRow
+                      key={entry.userId}
+                      className={isTop3 ? "bg-amber-50/20 hover:bg-amber-50/40" : ""}
+                    >
+                      {/* Rank */}
+                      <TableCell>
+                        <div className="flex items-center justify-center w-8">
+                          <RankBadge rank={entry.rank} />
+                        </div>
+                      </TableCell>
+                      {/* User */}
+                      <TableCell>
+                        <div className="flex items-center gap-4">
+                          <div
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold text-sm shadow-sm ${
+                              isTop3
+                                ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-800"
+                                : "bg-gradient-to-br from-primary-100 to-primary-200 text-primary-800"
+                            }`}
+                          >
+                            {entry.displayName?.[0] ?? "?"}
                           </div>
-                        </td>
-                        {/* User */}
-                        <td className="px-6 py-5">
-                          <div className="flex items-center gap-4">
-                            <div
-                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold text-sm shadow-sm ${
-                                isTop3
-                                  ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-800"
-                                  : "bg-gradient-to-br from-primary-100 to-primary-200 text-primary-800"
-                              }`}
-                            >
-                              {entry.displayName?.[0] ?? "?"}
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold text-gray-900">
-                                {entry.displayName}
+                          <div>
+                            <p className="text-sm font-bold text-content">
+                              {entry.displayName}
+                            </p>
+                            {entry.province && (
+                              <p className="mt-0.5 text-xs font-medium text-gray-500">
+                                {entry.province}
                               </p>
-                              {entry.province && (
-                                <p className="mt-0.5 text-xs font-medium text-gray-500">
-                                  {entry.province}
-                                </p>
-                              )}
-                            </div>
+                            )}
                           </div>
-                        </td>
-                        {/* Points */}
-                        <td className="px-6 py-5">
-                          <span className="flex items-center gap-1.5 text-sm font-bold text-primary-700">
-                            <Trophy size={16} className="text-amber-500" />
-                            {entry.weeklyPoints.toLocaleString()} GP
+                        </div>
+                      </TableCell>
+                      {/* Points */}
+                      <TableCell>
+                        <span className="flex items-center gap-1.5 text-sm font-bold text-primary-700">
+                          <Trophy size={16} className="text-amber-500" />
+                          {entry.weeklyPoints.toLocaleString()} GP
+                        </span>
+                      </TableCell>
+                      {/* Prize */}
+                      <TableCell>
+                        {prize ? (
+                          <span className="flex w-fit items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1.5 text-xs font-bold text-primary-700 border border-primary-200/50 shadow-sm">
+                            <Gift size={12} className="text-primary-600" />
+                            {prize.voucherTemplate?.name ??
+                              prize.voucherTemplateId}
                           </span>
-                        </td>
-                        {/* Prize */}
-                        <td className="px-6 py-5">
-                          {prize ? (
-                            <span className="flex w-fit items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1.5 text-xs font-bold text-primary-700 border border-primary-200/50 shadow-sm">
-                              <Gift size={12} className="text-primary-600" />
-                              {prize.voucherTemplate?.name ??
-                                prize.voucherTemplateId}
-                            </span>
-                          ) : (
-                            <span className="text-sm font-medium text-gray-400">—</span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        ) : (
+                          <span className="text-sm font-medium text-gray-400">—</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           )}
-        </div>
+        </TableContainer>
       )}
 
       {/* ── Tab: Prizes config ── */}
       {activeTab === "prizes" && (
-        <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm animate-fade-in">
+        <TableContainer className="animate-fade-in">
           {isLoadingPrizes ? (
             <div className="flex justify-center py-20">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full whitespace-nowrap text-left text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50/50">
-                    <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t("prizesTable.rank")}</th>
-                    <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t("prizesTable.scope")}</th>
-                    <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t("prizesTable.voucher")}</th>
-                    <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t("prizesTable.quantity")}</th>
-                    <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs text-right">{t("prizesTable.actions")}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>{t("prizesTable.rank")}</TableHead>
+                    <TableHead>{t("prizesTable.scope")}</TableHead>
+                    <TableHead>{t("prizesTable.voucher")}</TableHead>
+                    <TableHead>{t("prizesTable.quantity")}</TableHead>
+                    <TableHead className="text-right">{t("prizesTable.actions")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {prizes.map((prize: any) => (
-                    <tr
-                      key={prize.id}
-                      className="transition-colors hover:bg-gray-50/50"
-                    >
+                    <TableRow key={prize.id}>
                       {/* Rank */}
-                      <td className="px-6 py-5">
+                      <TableCell>
                         <div className="flex items-center gap-3">
                           <RankBadge rank={prize.rank} />
                           <span className="text-sm font-bold text-gray-900">
                             {t("rankingTable.rank")} {prize.rank}
                           </span>
                         </div>
-                      </td>
+                      </TableCell>
                       {/* Scope */}
-                      <td className="px-6 py-5">
+                      <TableCell>
                         <span
                           className={`inline-flex rounded-full px-3 py-1 text-xs font-bold border ${
                             prize.scope === LeaderboardScope.NATIONAL
@@ -249,9 +250,9 @@ export default function LeaderboardAdminPage() {
                         >
                           {t(`scopes.${prize.scope}`)}
                         </span>
-                      </td>
+                      </TableCell>
                       {/* Voucher */}
-                      <td className="px-6 py-5">
+                      <TableCell>
                         <p className="text-sm font-bold text-gray-900">
                           {prize.voucherTemplate?.name ?? prize.voucherTemplateId}
                         </p>
@@ -260,16 +261,16 @@ export default function LeaderboardAdminPage() {
                             {prize.voucherTemplate.partnerName}
                           </p>
                         )}
-                      </td>
+                      </TableCell>
                       {/* Quantity */}
-                      <td className="px-6 py-5">
+                      <TableCell>
                         <span className="flex w-fit items-center gap-1.5 rounded-lg bg-gray-50 px-2 py-1 text-xs font-bold text-gray-700 border border-gray-200/50">
                           <Gift size={14} className="text-primary-500" />
                           {prize.quantity}
                         </span>
-                      </td>
+                      </TableCell>
                       {/* Actions */}
-                      <td className="px-6 py-5">
+                      <TableCell>
                         <div className="flex items-center justify-end gap-2">
                           {/* Distribute */}
                           <button
@@ -295,11 +296,11 @@ export default function LeaderboardAdminPage() {
                             <Trash2 size={18} />
                           </button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
 
               {!isLoadingPrizes && prizes.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -318,9 +319,9 @@ export default function LeaderboardAdminPage() {
                   </button>
                 </div>
               )}
-            </div>
+            </>
           )}
-        </div>
+        </TableContainer>
       )}
 
       {/* Prize form modal */}

@@ -1,7 +1,26 @@
 {
   "common": {
     "title": "Greenify - Phần mềm tối ưu hóa hiệu suất và tiết kiệm pin cho Android",
-    "description": "Greenify giúp bạn tối ưu hóa hiệu suất và tiết kiệm pin cho thiết bị Android của bạn. Tải về miễn phí ngay hôm nay!"
+    "description": "Greenify giúp bạn tối ưu hóa hiệu suất và tiết kiệm pin cho thiết bị Android của bạn. Tải về miễn phí ngay hôm nay!",
+    "roles": {
+      "USER": "Người dùng",
+      "CTV": "Cộng tác viên",
+      "NGO": "Tổ chức",
+      "ADMIN": "Quản trị viên"
+    },
+    "status": {
+      "ACTIVE": "Hoạt động",
+      "SUSPENDED": "Tạm khóa",
+      "FLAGGED": "Gắn cờ",
+      "DELETED": "Đã xóa",
+      "ALL": "Tất cả"
+    },
+    "actions": {
+      "cancel": "Hủy",
+      "save": "Lưu thay đổi",
+      "confirm": "Xác nhận",
+      "processing": "Đang xử lý..."
+    }
   },
   "metadata": {
     "title": "Greenify — Hành động vì môi trường",
@@ -62,6 +81,50 @@
       "password_label": "Mật khẩu",
       "submit_btn": "Đăng nhập hệ thống",
       "back_to_home": "Quay lại trang chủ"
+    },
+    "users": {
+      "title": "Người dùng",
+      "subtitle": "{count} tài khoản",
+      "loading": "Đang tải...",
+      "searchPlaceholder": "Tìm kiếm người dùng...",
+      "table": {
+        "user": "Người dùng",
+        "email": "Email",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "points": "Điểm GP",
+        "posts": "Bài đăng",
+        "actions": "Hành động"
+      },
+      "empty": "Không tìm thấy người dùng nào.",
+      "pagination": "Trang {page}/{total} · {count} người dùng",
+      "tooltip": {
+        "suspend": "Khóa tài khoản",
+        "unsuspend": "Mở khóa",
+        "changeRole": "Đổi vai trò"
+      },
+      "modals": {
+        "suspend": {
+           "title": "Khóa tài khoản",
+           "reasonLabel": "Lý do khóa *",
+           "reasonPlaceholder": "Nhập lý do khóa tài khoản...",
+           "submit": "Xác nhận khóa"
+        },
+        "role": {
+           "title": "Đổi vai trò",
+           "current": "(hiện tại)",
+           "ctvWarning": "Hạ cấp từ CTV sẽ gọi API ctv-demotion, mất quyền duyệt bài."
+        },
+        "detail": {
+           "title": "Chi tiết người dùng",
+           "phone": "Điện thoại",
+           "roles": "Vai trò",
+           "points": "Điểm GP",
+           "posts": "Bài đăng",
+           "joined": "Tham gia",
+           "suspensionReason": "Lý do bị khóa"
+        }
+      }
     },
     "vouchers": {
       "title": "Quản lý Voucher",

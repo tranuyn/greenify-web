@@ -1,7 +1,26 @@
 {
   "common": {
     "title": "Greenify - ",
-    "description": "Greenify !"
+    "description": "Greenify !",
+    "roles": {
+      "USER": "User",
+      "CTV": "Collaborator",
+      "NGO": "NGO",
+      "ADMIN": "Administrator"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "FLAGGED": "Flagged",
+      "DELETED": "Deleted",
+      "ALL": "All"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "confirm": "Confirm",
+      "processing": "Processing..."
+    }
   },
   "metadata": {
     "title": "Greenify — Action for the Environment",
@@ -61,6 +80,50 @@
       "password_label": "Password",
       "submit_btn": "Sign In",
       "back_to_home": "Back to Home"
+    },
+    "users": {
+        "title": "Users",
+        "subtitle": "{count} accounts",
+        "loading": "Loading...",
+        "searchPlaceholder": "Search by name or email...",
+        "table": {
+          "user": "User",
+          "email": "Email",
+          "role": "Role",
+          "status": "Status",
+          "points": "GP Points",
+          "posts": "Posts",
+          "actions": "Actions"
+        },
+        "empty": "No users found.",
+        "pagination": "Page {page}/{total} · {count} users",
+        "tooltip": {
+          "suspend": "Suspend account",
+          "unsuspend": "Unsuspend",
+          "changeRole": "Change role"
+        },
+        "modals": {
+          "suspend": {
+             "title": "Suspend Account",
+             "reasonLabel": "Suspension Reason *",
+             "reasonPlaceholder": "Enter reason for suspension...",
+             "submit": "Confirm Suspend"
+          },
+          "role": {
+             "title": "Change Role",
+             "current": "(current)",
+             "ctvWarning": "Demoting from CTV will call ctv-demotion API, revoking review rights."
+          },
+          "detail": {
+             "title": "User Details",
+             "phone": "Phone",
+             "roles": "Roles",
+             "points": "GP Points",
+             "posts": "Posts",
+             "joined": "Joined",
+             "suspensionReason": "Reason for suspension"
+          }
+        }
     },
     "vouchers": {
       "title": "Voucher Management",

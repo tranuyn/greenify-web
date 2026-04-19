@@ -10,6 +10,15 @@ import { useCreateVoucher, useUpdateVoucher, useUpdateVoucherStatus } from '@/ho
 import type { VoucherTemplate, VoucherTemplateStatus, CreateVoucherTemplateRequest } from '@/types/gamification.types';
 import { useAvailableVouchers } from '@/hooks/queries/useGamification';
 import { VoucherFormModal } from '@/components/admin/vouchers/VoucherFormModal';
+import {
+  TableContainer,
+  Table,
+  TableHeader,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/admin/ui/table";
 
 const getStatusIcon = (status: VoucherTemplateStatus) => {
   switch (status) {
@@ -122,91 +131,90 @@ export default function VouchersAdminPage() {
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full whitespace-nowrap text-left text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/50">
-                  <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t('table.voucher')}</th>
-                  <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t('table.partner')}</th>
-                  <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t('table.points')}</th>
-                  <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t('table.stock')}</th>
-                  <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t('table.validUntil')}</th>
-                  <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">{t('table.status')}</th>
-                  <th className="px-6 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs text-right">{t('table.actions')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filtered.map((v) => {
-                  const sLabel = t(`status.${v.status}`);
-                  const stockPct = v.totalStock > 0 ? Math.round((v.remainingStock / v.totalStock) * 100) : 0;
-                  const Icon = getStatusIcon(v.status);
-                  
-                  return (
-                    <tr key={v.id} className="transition-colors hover:bg-gray-50/50">
-                      <td className="px-6 py-5">
-                        <p className="font-semibold text-gray-900">{v.name}</p>
-                        <p className="mt-1 max-w-[200px] truncate text-xs text-gray-500">{v.description}</p>
-                      </td>
-                      <td className="px-6 py-5 font-medium text-gray-600">{v.partnerName}</td>
-                      <td className="px-6 py-5">
-                        <span className="flex w-fit items-center gap-1.5 rounded-lg bg-green-50 px-2 py-1 text-xs font-bold text-green-700 border border-green-200/50">
-                          <Coins size={14} /> {v.requiredPoints} GP
-                        </span>
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className="flex flex-col gap-1.5">
-                          <div className="flex items-center justify-between text-xs font-medium text-gray-500">
-                            <span>{v.remainingStock}</span>
-                            <span className="text-gray-400">/ {v.totalStock}</span>
-                          </div>
-                          <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100">
-                            <div
-                              className={`h-full rounded-full transition-all ${
-                                stockPct > 50 ? 'bg-primary-500'
-                                : stockPct > 20 ? 'bg-amber-400'
-                                : 'bg-rose-500'
-                              }`}
-                              style={{ width: `${Math.min(stockPct, 100)}%` }}
-                            />
-                          </div>
+        <TableContainer>
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>{t('table.voucher')}</TableHead>
+                <TableHead>{t('table.partner')}</TableHead>
+                <TableHead>{t('table.points')}</TableHead>
+                <TableHead>{t('table.stock')}</TableHead>
+                <TableHead>{t('table.validUntil')}</TableHead>
+                <TableHead>{t('table.status')}</TableHead>
+                <TableHead className="text-right">{t('table.actions')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((v) => {
+                const sLabel = t(`status.${v.status}`);
+                const stockPct = v.totalStock > 0 ? Math.round((v.remainingStock / v.totalStock) * 100) : 0;
+                const Icon = getStatusIcon(v.status);
+                
+                return (
+                  <TableRow key={v.id} className={"group"}>
+                    <TableCell>
+                      <p className="font-semibold text-primary-content">{v.name}</p>
+                      <p className="mt-1 max-w-[200px] truncate text-xs text-foreground/60 group-hover:text-foreground">{v.description}</p>
+                    </TableCell>
+                    <TableCell className="font-medium text-foreground/60 group-hover:text-foreground">{v.partnerName}</TableCell>
+                    <TableCell>
+                      <span className="flex w-fit items-center gap-1.5 rounded-lg bg-green-50 px-2 py-1 text-xs font-bold text-green-700 border border-green-200/50">
+                        <Coins size={14} /> {v.requiredPoints} GP
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between text-xs font-medium text-foreground/60 group-hover:text-foreground ">
+                          <span>{v.remainingStock}</span>
+                          <span className="text-gray-400">/ {v.totalStock}</span>
                         </div>
-                      </td>
-                      <td className="px-6 py-5 font-medium text-gray-600">{formatDate(v.validUntil)}</td>
-                      <td className="px-6 py-5">
-                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusCls(v.status)}`}>
-                          <Icon size={12} /> {sLabel}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className="flex items-center justify-end gap-2">
-                          {(v.status === 'ACTIVE' || v.status === 'INACTIVE') && (
-                            <button
-                              onClick={() => toggleStatus(v)}
-                              title={v.status === 'ACTIVE' ? t('toggleDeactivate') : t('toggleActivate')}
-                              className={`rounded-xl p-2.5 transition-colors ${
-                                v.status === 'ACTIVE'
-                                  ? 'text-primary-700 bg-primary-50 hover:bg-primary-100'
-                                  : 'text-gray-500 bg-gray-50 hover:bg-gray-200'
-                              }`}
-                            >
-                              {v.status === 'ACTIVE' ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
-                            </button>
-                          )}
+                        <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              stockPct > 50 ? 'bg-primary-500 '
+                              : stockPct > 20 ? 'bg-amber-400'
+                              : 'bg-rose-500'
+                            }`}
+                            style={{ width: `${Math.min(stockPct, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-foreground/60 group-hover:text-foreground">{formatDate(v.validUntil)}</TableCell>
+                    <TableCell>
+                      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusCls(v.status)}`}>
+                        <Icon size={12} /> {sLabel}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-2">
+                        {(v.status === 'ACTIVE' || v.status === 'INACTIVE') && (
                           <button
-                            onClick={() => { setEditTarget(v); setShowForm(true); }}
-                            className="rounded-xl bg-gray-50 p-2.5 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900"
-                            title={t('edit')}
+                            onClick={() => toggleStatus(v)}
+                            title={v.status === 'ACTIVE' ? t('toggleDeactivate') : t('toggleActivate')}
+                            className={`rounded-xl p-2.5 transition-colors ${
+                              v.status === 'ACTIVE'
+                                ? 'text-primary-700 bg-primary-50 hover:bg-primary-100'
+                                : 'text-gray-500 bg-gray-50 hover:bg-gray-200'
+                            }`}
                           >
-                            <Pencil size={18} />
+                            {v.status === 'ACTIVE' ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
                           </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        )}
+                        <button
+                          onClick={() => { setEditTarget(v); setShowForm(true); }}
+                          className="rounded-xl bg-gray-50 p-2.5 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900"
+                          title={t('edit')}
+                        >
+                          <Pencil size={18} />
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
 
             {filtered.length === 0 && (
               <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -223,8 +231,7 @@ export default function VouchersAdminPage() {
                 </p>
               </div>
             )}
-          </div>
-        </div>
+        </TableContainer>
       )}
 
       {showForm && (

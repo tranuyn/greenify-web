@@ -1,3 +1,5 @@
+import { PaginationParams } from "./common.types";
+
 export type UserRole = 'USER' | 'CTV' | 'NGO' | 'ADMIN';
 export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'DELETED' | 'FLAGGED';
 export type CtvStatus =
@@ -34,6 +36,32 @@ export interface UserProfile {
   status: UserStatus;
   avatarUrl: string;
   //free_time_slots: FreeTimeSlot[] | null;
+}
+
+export interface AdminUserQueryParams extends PaginationParams {
+  name?: string;
+  status?: UserStatus | 'ALL';
+}
+
+export interface AdminUserDto {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  createdAt: string;
+  email: string;
+  phoneNumber: string | null;
+  roles: UserRole[];
+  status: UserStatus;
+  availableGreenPoints: number;
+  greenPostCount: number;
+  suspensionReason: string | null;
+}
+export interface SuspendUserRequest {
+  reason: string;
+}
+
+export interface UpdateUserRoleRequest {
+  roleName: UserRole;
 }
 
 export interface FreeTimeSlot {

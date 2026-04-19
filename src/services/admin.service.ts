@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/apiClient";
-import type { ApiResponse } from "@/types/common.types";
+import type { ApiResponse, PageResponse } from "@/types/common.types";
 import type {
   VoucherTemplate,
   CreateVoucherTemplateRequest,
@@ -16,7 +16,123 @@ import {
 } from "@/types/action.types";
 import { MOCK_ACTION_TYPES } from "./mock/action.mock";
 import { MOCK_PRIZES, MOCK_VOUCHER_TEMPLATES_ADMIN } from "./mock/gamification.mock";
+import { AdminUserDto, AdminUserQueryParams, SuspendUserRequest, UpdateUserRoleRequest } from "@/types/user.type";
+import { MOCK_ADMIN_USERS } from "./mock/user.mock";
 
+
+// ============================================================
+// ADMIN USER SERVICE
+// ============================================================
+export const adminUserService = {
+  async getUsers(
+    params?: AdminUserQueryParams,
+  ): Promise<PageResponse<AdminUserDto>> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(500);
+
+      let filtered = [...MOCK_ADMIN_USERS];
+
+      if (params?.name) {
+        const q = params.name.toLowerCase();
+        filtered = filtered.filter(
+          (u) =>
+            u.name.toLowerCase().includes(q) ||
+            u.email.toLowerCase().includes(q),
+        );
+      }
+
+      if (params?.status && params.status !== 'ALL') {
+        filtered = filtered.filter((u) => u.status === params.status);
+      }
+
+      const page     = params?.page ?? 1;
+      const size     = params?.size ?? 10;
+      const start    = (page - 1) * size;
+      const content  = filtered.slice(start, start + size);
+
+      return {
+        content,
+        page,
+        size,
+        totalElements: filtered.length,
+        totalPages: Math.ceil(filtered.length / size),
+      };
+    }
+
+    const { data } = await apiClient.get<PageResponse<AdminUserDto>>('/users', {
+      params: {
+        page: params?.page ? params.page - 1 : 0, // Spring Boot zero-indexed
+        size: params?.size ?? 10,
+        name: params?.name || undefined,
+        status: params?.status !== 'ALL' ? params?.status : undefined,
+      },
+    });
+    return data;
+  },
+
+  async getUserById(id: string): Promise<AdminUserDto> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(300);
+      const user = MOCK_ADMIN_USERS.find((u) => u.id === id);
+      if (!user) throw new Error('User not found');
+      return user;
+    }
+    const { data } = await apiClient.get<AdminUserDto>(`/users/${id}`);
+    return data;
+  },
+
+  async suspendUser(id: string, payload: SuspendUserRequest): Promise<void> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(500);
+      const idx = MOCK_ADMIN_USERS.findIndex((u) => u.id === id);
+      if (idx !== -1) {
+        MOCK_ADMIN_USERS[idx].status = 'SUSPENDED';
+        MOCK_ADMIN_USERS[idx].suspensionReason = payload.reason;
+      }
+      return;
+    }
+    await apiClient.patch(`/users/${id}/suspend`, payload);
+  },
+
+  async unsuspendUser(id: string): Promise<void> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(400);
+      const idx = MOCK_ADMIN_USERS.findIndex((u) => u.id === id);
+      if (idx !== -1) {
+        MOCK_ADMIN_USERS[idx].status = 'ACTIVE';
+        MOCK_ADMIN_USERS[idx].suspensionReason = null;
+      }
+      return;
+    }
+    // Swagger chỉ có /suspend, unsuspend thường dùng lại endpoint đó với reason rỗng
+    // hoặc có endpoint riêng — điều chỉnh theo BE thực tế
+    await apiClient.patch(`/users/${id}/suspend`, { reason: '' });
+  },
+
+  async updateUserRole(id: string, payload: UpdateUserRoleRequest): Promise<void> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(400);
+      const idx = MOCK_ADMIN_USERS.findIndex((u) => u.id === id);
+      if (idx !== -1) {
+        MOCK_ADMIN_USERS[idx].roles = [payload.roleName];
+      }
+      return;
+    }
+    await apiClient.patch(`/users/${id}/role`, payload);
+  },
+
+  async demoteCTV(id: string): Promise<void> {
+    if (IS_MOCK_MODE) {
+      await mockDelay(400);
+      const idx = MOCK_ADMIN_USERS.findIndex((u) => u.id === id);
+      if (idx !== -1) {
+        MOCK_ADMIN_USERS[idx].roles = ['USER'];
+      }
+      return;
+    }
+    await apiClient.patch(`/users/${id}/ctv-demotion`);
+  },
+};
 
 // ============================================================
 // ADMIN ACTION SERVICE

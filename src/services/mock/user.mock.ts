@@ -1,4 +1,4 @@
-import { User, UserProfile, NgoProfile, AuthenticatedUser, LoginResponse } from 'types/user.type';
+import { User, UserProfile, NgoProfile, AuthenticatedUser, LoginResponse, AdminUserDto } from 'types/user.type';
 
 export const MOCK_USER: User = {
   id: 'usr-001',
@@ -77,3 +77,53 @@ export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
 //   user: MOCK_NGO_USER,
 //   profile: MOCK_NGO_PROFILE,
 // };
+export const MOCK_ADMIN_USERS: AdminUserDto[] = [
+  {
+    id: 'u1', name: 'Nguyễn Nhã Uyên', avatarUrl: null,
+    createdAt: '2026-01-10T00:00:00Z', email: 'uyen@greenify.vn',
+    phoneNumber: '0901234567', roles: ['USER'], status: 'ACTIVE',
+    availableGreenPoints: 290, greenPostCount: 12, suspensionReason: null,
+  },
+  {
+    id: 'u2', name: 'Trần Minh Thiện', avatarUrl: null,
+    createdAt: '2026-01-15T00:00:00Z', email: 'thien@dev.vn',
+    phoneNumber: '0912345678', roles: ['CTV'], status: 'ACTIVE',
+    availableGreenPoints: 580, greenPostCount: 34, suspensionReason: null,
+  },
+  {
+    id: 'u3', name: 'Green Future VN', avatarUrl: null,
+    createdAt: '2026-01-20T00:00:00Z', email: 'ngo@greenfuture.vn',
+    phoneNumber: null, roles: ['NGO'], status: 'ACTIVE',
+    availableGreenPoints: 0, greenPostCount: 0, suspensionReason: null,
+  },
+  {
+    id: 'u4', name: 'Lê Văn A', avatarUrl: null,
+    createdAt: '2026-02-01T00:00:00Z', email: 'lva@email.com',
+    phoneNumber: '0923456789', roles: ['USER'], status: 'SUSPENDED',
+    availableGreenPoints: 40, greenPostCount: 3, suspensionReason: 'Spam bài viết',
+  },
+  {
+    id: 'u5', name: 'Phạm Bảo Châu', avatarUrl: null,
+    createdAt: '2026-02-14T00:00:00Z', email: 'chau@mail.com',
+    phoneNumber: '0934567890', roles: ['USER'], status: 'ACTIVE',
+    availableGreenPoints: 320, greenPostCount: 21, suspensionReason: null,
+  },
+  {
+    id: 'u6', name: 'EcoViet Club', avatarUrl: null,
+    createdAt: '2026-03-03T00:00:00Z', email: 'ecoviet@ngo.vn',
+    phoneNumber: null, roles: ['NGO'], status: 'ACTIVE',
+    availableGreenPoints: 0, greenPostCount: 0, suspensionReason: null,
+  },
+  {
+    id: 'u7', name: 'Hoàng Minh', avatarUrl: null,
+    createdAt: '2026-03-20T00:00:00Z', email: 'hminh@gmail.com',
+    phoneNumber: '0945678901', roles: ['USER'], status: 'FLAGGED',
+    availableGreenPoints: 10, greenPostCount: 1, suspensionReason: null,
+  },
+  {
+    id: 'u8', name: 'Thu Hà', avatarUrl: null,
+    createdAt: '2026-04-01T00:00:00Z', email: 'hatu@work.vn',
+    phoneNumber: '0956789012', roles: ['USER'], status: 'ACTIVE',
+    availableGreenPoints: 75, greenPostCount: 5, suspensionReason: null,
+  },
+];

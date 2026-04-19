@@ -3,6 +3,7 @@ import {
   adminVoucherService,
   adminLeaderboardService,
   adminActionService,
+  adminUserService,
 } from "@/services/admin.service";
 import type {
   CreateVoucherTemplateRequest,
@@ -15,6 +16,45 @@ import {
   UpdateActionTypeRequest,
 } from "@/types/action.types";
 import { QUERY_KEYS } from "@/constants/queryKeys";
+import {
+  SuspendUserRequest,
+  UpdateUserRoleRequest,
+} from '@/types/user.type';
+
+// ── User mutations ───────────────────────────────────────────
+export const useSuspendUser = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: SuspendUserRequest }) =>
+      adminUserService.suspendUser(id, payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEYS.users.all }),
+  });
+};
+
+export const useUnsuspendUser = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminUserService.unsuspendUser(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEYS.users.all }),
+  });
+};
+
+export const useUpdateUserRole = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateUserRoleRequest }) =>
+      adminUserService.updateUserRole(id, payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEYS.users.all }),
+  });
+};
+
+export const useDemoteCTV = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminUserService.demoteCTV(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEYS.users.all }),
+  });
+};
 
 // ── Action Type mutations ─────────────────────────────────────
 export const useCreateActionType = () => {
