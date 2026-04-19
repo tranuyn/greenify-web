@@ -1,7 +1,26 @@
 {
   "common": {
     "title": "Greenify - Phần mềm tối ưu hóa hiệu suất và tiết kiệm pin cho Android",
-    "description": "Greenify giúp bạn tối ưu hóa hiệu suất và tiết kiệm pin cho thiết bị Android của bạn. Tải về miễn phí ngay hôm nay!"
+    "description": "Greenify giúp bạn tối ưu hóa hiệu suất và tiết kiệm pin cho thiết bị Android của bạn. Tải về miễn phí ngay hôm nay!",
+    "roles": {
+      "USER": "Người dùng",
+      "CTV": "Cộng tác viên",
+      "NGO": "Tổ chức",
+      "ADMIN": "Quản trị viên"
+    },
+    "status": {
+      "ACTIVE": "Hoạt động",
+      "SUSPENDED": "Tạm khóa",
+      "FLAGGED": "Gắn cờ",
+      "DELETED": "Đã xóa",
+      "ALL": "Tất cả"
+    },
+    "actions": {
+      "cancel": "Hủy",
+      "save": "Lưu thay đổi",
+      "confirm": "Xác nhận",
+      "processing": "Đang xử lý..."
+    }
   },
   "metadata": {
     "title": "Greenify — Hành động vì môi trường",
@@ -62,6 +81,138 @@
       "password_label": "Mật khẩu",
       "submit_btn": "Đăng nhập hệ thống",
       "back_to_home": "Quay lại trang chủ"
+    },
+    "users": {
+      "title": "Người dùng",
+      "subtitle": "{count} tài khoản",
+      "loading": "Đang tải...",
+      "searchPlaceholder": "Tìm kiếm người dùng...",
+      "table": {
+        "user": "Người dùng",
+        "email": "Email",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "points": "Điểm GP",
+        "posts": "Bài đăng",
+        "actions": "Hành động"
+      },
+      "empty": "Không tìm thấy người dùng nào.",
+      "pagination": "Trang {page}/{total} · {count} người dùng",
+      "tooltip": {
+        "suspend": "Khóa tài khoản",
+        "unsuspend": "Mở khóa",
+        "changeRole": "Đổi vai trò"
+      },
+      "modals": {
+        "suspend": {
+           "title": "Khóa tài khoản",
+           "reasonLabel": "Lý do khóa *",
+           "reasonPlaceholder": "Nhập lý do khóa tài khoản...",
+           "submit": "Xác nhận khóa"
+        },
+        "role": {
+           "title": "Đổi vai trò",
+           "current": "(hiện tại)",
+           "ctvWarning": "Hạ cấp từ CTV sẽ gọi API ctv-demotion, mất quyền duyệt bài."
+        },
+        "detail": {
+           "title": "Chi tiết người dùng",
+           "phone": "Điện thoại",
+           "roles": "Vai trò",
+           "points": "Điểm GP",
+           "posts": "Bài đăng",
+           "joined": "Tham gia",
+           "suspensionReason": "Lý do bị khóa"
+        }
+      }
+    },
+    "vouchers": {
+      "title": "Quản lý Voucher",
+      "subtitle": "{count} voucher đang quản lý",
+      "createBtn": "Tạo voucher",
+      "status": {
+        "ALL": "Tất cả",
+        "DRAFT": "Nháp",
+        "ACTIVE": "Đang hoạt động",
+        "INACTIVE": "Tạm dừng",
+        "EXPIRED": "Hết hạn",
+        "DEPLETED": "Hết kho"
+      },
+      "table": {
+        "voucher": "Voucher",
+        "partner": "Đối tác",
+        "points": "Điểm đổi",
+        "stock": "Tồn kho",
+        "validUntil": "Hết hạn",
+        "status": "Trạng thái",
+        "actions": "Hành động"
+      },
+      "empty": "Không có voucher nào.",
+      "toggleActivate": "Kích hoạt",
+      "toggleDeactivate": "Tạm dừng",
+      "edit": "Chỉnh sửa",
+      "form": {
+        "createTitle": "Tạo Voucher mới",
+        "editTitle": "Chỉnh sửa Voucher",
+        "name": "Tên voucher *",
+        "namePlaceholder": "Giảm 20% Xanh SM...",
+        "partner": "Đối tác *",
+        "partnerPlaceholder": "Xanh SM",
+        "description": "Mô tả",
+        "descPlaceholder": "Mô tả chi tiết...",
+        "points": "Điểm cần đổi *",
+        "pointsPlaceholder": "100",
+        "stock": "Số lượng phát hành *",
+        "stockPlaceholder": "500",
+        "conditions": "Điều kiện sử dụng",
+        "condPlaceholder": "Áp dụng cho...",
+        "validUntil": "Ngày hết hạn *",
+        "cancel": "Hủy",
+        "create": "Tạo voucher",
+        "save": "Lưu thay đổi",
+        "saving": "Đang lưu..."
+      }
+    },
+    "leaderboard": {
+      "title": "Bảng xếp hạng",
+      "subtitle": "Tuần hiện tại · {count} người tham gia",
+      "addPrizeBtn": "Thêm phần thưởng",
+      "tabs": {
+        "ranking": "Bảng xếp hạng",
+        "prizes": "Cấu hình thưởng"
+      },
+      "rankingTable": {
+        "rank": "Hạng",
+        "user": "Người dùng",
+        "points": "Điểm tuần",
+        "prize": "Phần thưởng"
+      },
+      "prizesTable": {
+        "rank": "Hạng",
+        "scope": "Phạm vi",
+        "voucher": "Voucher thưởng",
+        "quantity": "Số lượng",
+        "actions": "Hành động"
+      },
+      "scopes": {
+        "NATIONAL": "Toàn quốc",
+        "PROVINCIAL": "Tỉnh/TP"
+      },
+      "distribute": "Phát thưởng",
+      "delete": "Xóa",
+      "emptyPrizes": "Chưa có cấu hình phần thưởng nào.",
+      "addFirstPrize": "Thêm phần thưởng đầu tiên",
+      "form": {
+        "title": "Thêm phần thưởng",
+        "rank": "Hạng được thưởng *",
+        "scope": "Phạm vi *",
+        "voucher": "Voucher thưởng *",
+        "selectVoucher": "-- Chọn voucher --",
+        "quantity": "Số lượng phát *",
+        "cancel": "Hủy",
+        "submit": "Thêm phần thưởng",
+        "saving": "Đang lưu..."
+      }
     }
   }
 }

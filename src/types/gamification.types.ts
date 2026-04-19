@@ -2,54 +2,99 @@
 // VOUCHER TYPES
 // Mapped from: voucher_templates, user_vouchers
 // ============================================================
+import { PageResponse, PaginationParams } from "./common.types";
+import { MediaDto } from "./media.types";
 
-import { Use } from 'react-native-svg';
-import { UserProfile } from './user.type';
-
-export type VoucherTemplateStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DEPLETED';
+export type VoucherTemplateStatus =
+  | "DRAFT"
+  | "ACTIVE"
+  | "INACTIVE"
+  | "EXPIRED"
+  | "DEPLETED";
 
 export const USER_VOUCHER_STATUS = {
-  AVAILABLE: 'AVAILABLE',
-  USED: 'USED',
-  EXPIRED: 'EXPIRED',
-  CANCELLED: 'CANCELLED',
+  AVAILABLE: "AVAILABLE",
+  USED: "USED",
+  EXPIRED: "EXPIRED",
+  CANCELLED: "CANCELLED",
 } as const;
 
 export type UserVoucherStatus = keyof typeof USER_VOUCHER_STATUS;
 
-export type VoucherSource = 'REDEEM' | 'LEADERBOARD_REWARD' | 'GARDEN_REWARD';
+export type VoucherSource = "REDEEM" | "LEADERBOARD_REWARD" | "GARDEN_REWARD";
 
 export interface VoucherTemplate {
   id: string;
   name: string;
-  partner_name: string;
-  partner_logo_url: string | null;
-  thumbnail_url: string | null;
+  partnerName: string;
+  partnerLogoUrl: string | null;
+  thumbnailUrl: string | null;
   description: string;
-  required_points: number;
-  total_stock: number;
-  remaining_stock: number;
-  usage_conditions: string;
-  valid_until: string;
+  requiredPoints: number;
+  totalStock: number;
+  remainingStock: number;
+  usageConditions: string;
+  validUntil: string;
+  status: VoucherTemplateStatus;
+}
+export interface AvailableVouchersResponse extends PageResponse<VoucherTemplate> {
+  availablePoints: number;
+}
+export interface AvailableVouchersQueryParams extends PaginationParams {
+  minRequiredPoints?: number;
+  maxRequiredPoints?: number;
+}
+
+export interface CreateVoucherTemplateRequest {
+  name: string;
+  partnerName: string;
+  description: string;
+  requiredPoints: number;
+  totalStock: number;
+  usageConditions: string;
+  validUntil: string; // ISO 8601
+  partnerLogo?: MediaDto | null;
+  thumbnail?: MediaDto | null;
+}
+
+// Request body cho PATCH /api/v1/admin/vouchers/{id}
+export interface UpdateVoucherTemplateRequest {
+  name?: string;
+  partnerName?: string;
+  description?: string;
+  requiredPoints?: number;
+  additionalStock?: number;
+  usageConditions?: string;
+  validUntil?: string; // ISO 8601
+  status?: VoucherTemplateStatus;
+  partnerLogo?: MediaDto | null;
+  thumbnail?: MediaDto | null;
+}
+
+// Request body cho PATCH /api/v1/admin/vouchers/{id}/status
+export interface UpdateVoucherStatusRequest {
   status: VoucherTemplateStatus;
 }
 
 export interface UserVoucher {
   id: string;
-  user_id: string;
-  voucher_template_id: string;
-  voucher_code: string;
-  source: VoucherSource;
+  voucherCode: string;
+  voucherTemplateId: string;
+  voucherName: string;
+  partnerName: string;
+  partnerLogoUrl: string | null;
+  description: string;
+  usageConditions: string;
+  thumbnailUrl: string | null;
+  expiresAt: string;
+  usedAt: string | null;
   status: UserVoucherStatus;
-  expires_at: string;
-  used_at: string | null;
-  created_at: string;
-  // Joined
-  template?: VoucherTemplate;
+  source: VoucherSource;
 }
 
-export interface RedeemVoucherRequest {
-  voucher_template_id: string;
+export interface MyVouchersQueryParams extends PaginationParams {
+  status?: UserVoucherStatus | "all";
+  source?: VoucherSource | "all";
 }
 
 // ============================================================
@@ -57,78 +102,81 @@ export interface RedeemVoucherRequest {
 // Mapped from: streaks, seeds, plant_progresses, garden_archives
 // ============================================================
 
-export type StreakStatus = 'NOT_STARTED' | 'ACTIVE' | 'BROKEN';
+export type StreakStatus = "NOT_STARTED" | "ACTIVE" | "BROKEN";
 
 export enum PlantStatus {
-  SEED = 'SEED',
-  SPROUT = 'SPROUT',
-  GROWING = 'GROWING',
-  BLOOMING = 'BLOOMING',
-  MATURED = 'MATURED',
+  SEED = "SEED",
+  SPROUT = "SPROUT",
+  GROWING = "GROWING",
+  BLOOMING = "BLOOMING",
+  MATURED = "MATURED",
 }
 
 export enum CycleType {
-  SHORT_TERM = 'SHORT_TERM',
-  LONG_TERM = 'LONG_TERM',
+  EASY = "EASY",
+  MEDIUM = "MEDIUM",
+  HARD = "HARD",
 }
 
-export type GardenRewardStatus = 'MATURED' | 'REWARDED';
+export type GardenRewardStatus = "MATURED" | "REWARDED";
 
 export interface Streak {
-  id: string;
-  user_id: string;
-  current_streak: number;
-  longest_streak: number;
-  last_valid_date: string | null; // "YYYY-MM-DD"
+  currentStreak: number;
+  longestStreak: number;
+  lastValidDate: string | null;
   status: StreakStatus;
-  restore_used_this_month: number;
-  restore_month: string | null;
-  last_break_date: string | null;
-  broken_streak: number;
-  updated_at: string;
+  restoreUsedThisMonth: number;
+  restoreAvailable: true;
+  // restore_month: string | null;
+  // last_break_date: string | null;
+  // broken_streak: number;
+  // updated_at: string;
 }
 
 export interface Seed {
   id: string;
   name: string;
-  stage1_image_url: string;
-  stage2_image_url: string;
-  stage3_image_url: string;
-  stage4_image_url: string;
-  days_to_mature: number;
-  stage2_from_day: number;
-  stage3_from_day: number;
-  stage4_from_day: number;
-  reward_voucher_template_id: string | null;
-  reward_voucher_template?: VoucherTemplate;
-  cycle_type: CycleType;
+  stage1ImageUrl: string;
+  stage2ImageUrl: string;
+  stage3ImageUrl: string;
+  stage4ImageUrl: string;
+  daysToMature: number;
+  stage2FromDay: number;
+  stage3FromDay: number;
+  stage4FromDay: number;
+  rewardVoucherTemplateId: string | null;
+  rewardVoucherName: string;
+  //reward_voucher_template?: VoucherTemplate;
+  cycleType: CycleType;
   is_active: boolean;
 }
 
 export interface PlantProgress {
-  id: string;
-  user_id: string;
-  seed_id: string;
+  seedId: string;
+  seedName: string;
   progress_days: number;
+  daysToMature: number;
   status: PlantStatus;
+  cycleType: CycleType;
+  currentStage: PlantStatus;
+  currentStageImageUrl: string;
   started_at: string;
-  matured_at: string | null;
-  // Joined
-  seed?: Seed;
+  percentComplete: number;
 }
 
 export interface PlantDailyLog {
-  id: string;
-  user_id: string;
-  user: UserProfile;
-  plant_progress_id: string;
-  plant_progress: PlantProgress;
-  log_date: Date;
+  //id: string;
+  //user_id: string;
+  //user: UserProfile;
+  //plant_progress_id: string;
+  //plant_progress: PlantProgress;
+  logDate: Date;
   stage: PlantStatus;
   is_active_day: boolean;
-  green_post_url: string;
-  image_url: string;
-  created_at: string;
+  isChangeState: boolean;
+  greenPostUrl: string;
+  imageUrl: string;
+  //created_at: string;
 }
 
 export interface PlantDailyLogQueryParams {
@@ -169,15 +217,15 @@ export interface GardenArchive {
 // ============================================================
 
 export enum LeaderboardScope {
-  NATIONAL = 'NATIONAL',
-  PROVINCIAL = 'PROVINCIAL',
+  NATIONAL = "NATIONAL",
+  PROVINCIAL = "PROVINCIAL",
 }
 
-export type LeaderboardPeriodStatus = 'DRAFT' | 'PUBLISHED' | 'CLOSED';
+export type LeaderboardPeriodStatus = "DRAFT" | "PUBLISHED" | "CLOSED";
 
-export type SnapshotStatus = 'COMPUTING' | 'PUBLISHED' | 'REVISED';
+export type SnapshotStatus = "COMPUTING" | "PUBLISHED" | "REVISED";
 
-export type RewardStatus = 'PENDING_REWARD' | 'REWARDED' | 'FAILED';
+export type RewardStatus = "PENDING_REWARD" | "REWARDED" | "FAILED";
 
 export interface LeaderboardPeriod {
   id: string;
@@ -189,20 +237,65 @@ export interface LeaderboardPeriod {
   status: LeaderboardPeriodStatus;
 }
 
-export interface LeaderboardEntry {
-  id: string;
-  period_id: string;
-  // period: LeaderboardPeriod;
-  user_id: string;
-  user_profiles: UserProfile;
+export interface WeeklyLeaderboard {
+  weekStartDate: string; // YYYY-MM-DD
   scope: LeaderboardScope;
   province: string | null;
+  entries: LeaderboardEntry[];
+}
+
+export interface LeaderboardEntry {
   rank: number;
-  weekly_points: number;
-  is_winner: boolean;
-  reward_status: RewardStatus;
-  status: SnapshotStatus;
-  // Joined
-  displayName?: string;
-  avatar_url?: string | null;
+  userId: string;
+  displayName: string;
+  avatarUrl: string | null;
+  province: string;
+  weeklyPoints: number;
+}
+
+export interface LeaderboardPrize {
+  id: string;
+  rank: number; // hạng được nhận thưởng (1, 2, 3...)
+  scope: LeaderboardScope;
+  voucherTemplateId: string;
+  voucherTemplate?: VoucherTemplate;
+  quantity: number; // số lượng voucher phát
+  season?: string; // tuần/tháng áp dụng (optional)
+  createdAt: string;
+}
+
+export interface CreateLeaderboardPrizeRequest {
+  rank: number;
+  scope: LeaderboardScope;
+  voucherTemplateId: string;
+  quantity: number;
+  season?: string;
+}
+
+export interface WeeklyLeaderboardEntry {
+  rank: number;
+  userId: string;
+  displayName: string;
+  avatarUrl: string | null;
+  weeklyPoints: number;
+  province?: string | null;
+}
+
+export interface WeeklyLeaderboardPrize {
+  rank: number;
+  voucherName: string;
+  quantity: number;
+}
+export type LeaderboardPrizeStatus = "CONFIGURED" | "LOCKED" | "DISTRIBUTED";
+
+export interface WeeklyLeaderboardPrizes {
+  prizeConfigId: string;
+  weekStartDate: string; // YYYY-MM-DD
+  lockAt: string;
+  status: LeaderboardPrizeStatus;
+  nationalReservedCount: number;
+  provincialReservedCount: number;
+  distributedAt: string | null;
+  nationalVoucher: VoucherTemplate;
+  provincialVoucher: VoucherTemplate;
 }

@@ -1,260 +1,133 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Search,
-  Filter,
   Lock,
   Unlock,
   UserCog,
   ChevronLeft,
   ChevronRight,
-  X,
-  Check,
+  Eye
 } from "lucide-react";
-import { UserRole, UserStatus } from "@/types/user.type";
+import { useAdminUsers } from "@/hooks/queries/useAdmin";
+import {
+  useSuspendUser,
+  useUnsuspendUser,
+  useUpdateUserRole,
+  useDemoteCTV,
+} from "@/hooks/mutations/useAdmin";
+import type { AdminUserDto, UserRole, UserStatus } from "@/types/user.type";
 
+import { SuspendModal } from "@/components/admin/users/SuspendModal";
+import { RoleModal } from "@/components/admin/users/RoleModal";
+import { UserDetailModal } from "@/components/admin/users/UserDetailModal";
+import {
+  TableContainer,
+  Table,
+  TableHeader,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/admin/ui/table";
 
-interface AdminUser {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  status: UserStatus;
-  ctv_status: string;
-  joined: string;
-  points: number;
-  posts: number;
-}
-
-const MOCK_USERS: AdminUser[] = [
-  {
-    id: "u1",
-    name: "Nguyễn Nhã Uyên",
-    email: "uyen@greenify.vn",
-    role: "USER",
-    status: "ACTIVE",
-    ctv_status: "ELIGIBLE",
-    joined: "10/01/2026",
-    points: 290,
-    posts: 12,
-  },
-  {
-    id: "u2",
-    name: "Trần Minh Thiện",
-    email: "thien@dev.vn",
-    role: "CTV",
-    status: "ACTIVE",
-    ctv_status: "ACTIVE_CTV",
-    joined: "15/01/2026",
-    points: 580,
-    posts: 34,
-  },
-  {
-    id: "u3",
-    name: "Green Future VN",
-    email: "ngo@greenfuture.vn",
-    role: "NGO",
-    status: "ACTIVE",
-    ctv_status: "NOT_ELIGIBLE",
-    joined: "20/01/2026",
-    points: 0,
-    posts: 0,
-  },
-  {
-    id: "u4",
-    name: "Lê Văn A",
-    email: "lva@email.com",
-    role: "USER",
-    status: "SUSPENDED",
-    ctv_status: "NOT_ELIGIBLE",
-    joined: "01/02/2026",
-    points: 40,
-    posts: 3,
-  },
-  {
-    id: "u5",
-    name: "Phạm Bảo Châu",
-    email: "chau@mail.com",
-    role: "USER",
-    status: "ACTIVE",
-    ctv_status: "PENDING_UPGRADE",
-    joined: "14/02/2026",
-    points: 320,
-    posts: 21,
-  },
-  {
-    id: "u6",
-    name: "EcoViet Club",
-    email: "ecoviet@ngo.vn",
-    role: "NGO",
-    status: "ACTIVE",
-    ctv_status: "NOT_ELIGIBLE",
-    joined: "03/03/2026",
-    points: 0,
-    posts: 0,
-  },
-  {
-    id: "u7",
-    name: "Hoàng Minh",
-    email: "hminh@gmail.com",
-    role: "USER",
-    status: "FLAGGED",
-    ctv_status: "NOT_ELIGIBLE",
-    joined: "20/03/2026",
-    points: 10,
-    posts: 1,
-  },
-  {
-    id: "u8",
-    name: "Thu Hà",
-    email: "hatu@work.vn",
-    role: "USER",
-    status: "ACTIVE",
-    ctv_status: "NOT_ELIGIBLE",
-    joined: "01/04/2026",
-    points: 75,
-    posts: 5,
-  },
-];
-
-const ROLE_OPTS: UserRole[] = ["USER", "CTV", "NGO", "ADMIN"];
-
-const ROLE_CLS: Record<UserRole, string> = {
-  USER: "bg-gray-100 text-gray-600",
-  CTV: "bg-blue-100 text-blue-700",
-  NGO: "bg-violet-100 text-violet-700",
-  ADMIN: "bg-amber-100 text-amber-700",
+const ROLE_CLS: Record<string, string> = {
+  USER: "bg-gray-100 text-gray-600 border border-border",
+  CTV: "bg-blue-50 text-blue-700 border border-blue-200/50",
+  NGO: "bg-violet-50 text-violet-700 border border-violet-200/50",
+  ADMIN: "bg-amber-50 text-amber-700 border border-amber-200/50",
 };
 
-const STATUS_CLS: Record<UserStatus, string> = {
-  ACTIVE: "bg-primary-100 text-primary-700",
+const STATUS_CLS: Record<string, string> = {
+  ACTIVE: "bg-primary-100 text-primary-content",
   SUSPENDED: "bg-rose-100 text-rose-600",
   FLAGGED: "bg-orange-100 text-orange-600",
   DELETED: "bg-gray-100 text-gray-500",
 };
 
-const STATUS_LABEL: Record<UserStatus, string> = {
-  ACTIVE: "Hoạt động",
-  SUSPENDED: "Tạm khóa",
-  FLAGGED: "Gắn cờ",
-  DELETED: "Đã xóa",
-};
+const PAGE_SIZE = 5;
 
-/* ─── role change modal ───────────────────────────── */
-function RoleModal({
-  user,
-  onClose,
-  onSave,
-}: {
-  user: AdminUser;
-  onClose: () => void;
-  onSave: (role: UserRole) => void;
-}) {
-  const [selected, setSelected] = useState<UserRole>(user.role);
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm rounded-3xl bg-card p-6 shadow-2xl">
-        <div className="mb-5 flex items-center justify-between">
-          <h3 className="font-body text-lg font-semibold text-forest">
-            Đổi vai trò
-          </h3>
-          <button
-            onClick={onClose}
-            className="rounded-full p-1 hover:bg-gray-100"
-          >
-            <X size={18} />
-          </button>
-        </div>
-        <p className="mb-4 font-body text-sm text-gray-500">
-          Người dùng: <strong className="text-forest">{user.name}</strong>
-        </p>
-        <div className="space-y-2">
-          {ROLE_OPTS.map((role) => (
-            <button
-              key={role}
-              onClick={() => setSelected(role)}
-              className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 font-body text-sm transition-all ${
-                selected === role
-                  ? "border-primary-500 bg-primary-50 text-primary-700"
-                  : "border-gray-100 hover:border-primary-200 hover:bg-primary-50/50"
-              }`}
-            >
-              <span>{role}</span>
-              {selected === role && (
-                <Check size={16} className="text-primary-600" />
-              )}
-            </button>
-          ))}
-        </div>
-        <div className="mt-5 flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 rounded-xl border border-gray-200 py-2.5 font-body text-sm text-gray-600 hover:bg-gray-50"
-          >
-            Hủy
-          </button>
-          <button
-            onClick={() => onSave(selected)}
-            className="flex-1 rounded-xl bg-primary-600 py-2.5 font-body text-sm font-semibold text-card hover:bg-primary-700"
-          >
-            Lưu
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Page ────────────────────────────────────────── */
 export default function UsersPage() {
-  const [users, setUsers] = useState<AdminUser[]>(MOCK_USERS);
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRole] = useState<UserRole | "ALL">("ALL");
-  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
-  const [page, setPage] = useState(1);
-  const PAGE_SIZE = 6;
+  const t = useTranslations("admin.users");
+  const tCommon = useTranslations("common");
 
-  const filtered = users.filter((u) => {
-    const matchSearch =
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase());
-    const matchRole = roleFilter === "ALL" || u.role === roleFilter;
-    return matchSearch && matchRole;
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<UserStatus | "ALL">("ALL");
+  const [page, setPage] = useState(1);
+
+  const [suspendTarget, setSuspendTarget] = useState<AdminUserDto | null>(null);
+  const [roleTarget, setRoleTarget] = useState<AdminUserDto | null>(null);
+  const [detailUser, setDetailUser] = useState<AdminUserDto | null>(null);
+
+  // Debounce search — 400ms
+  const handleSearchChange = (v: string) => {
+    setSearch(v);
+    clearTimeout((handleSearchChange as any)._t);
+    (handleSearchChange as any)._t = setTimeout(() => {
+      setDebouncedSearch(v);
+      setPage(1);
+    }, 400);
+  };
+
+  const { data, isLoading, isFetching } = useAdminUsers({
+    page,
+    size: PAGE_SIZE,
+    name: debouncedSearch || undefined,
+    status: statusFilter,
   });
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const users = data?.content ?? [];
+  const totalPages = data?.totalPages ?? 1;
+  const totalElements = data?.totalElements ?? 0;
 
-  const toggleStatus = (id: string) => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === id
-          ? { ...u, status: u.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE" }
-          : u,
-      ),
+  // Mutations
+  const { mutate: suspendUser, isPending: isSuspending } = useSuspendUser();
+  const { mutate: unsuspendUser, isPending: isUnsuspending } =
+    useUnsuspendUser();
+  const { mutate: updateRole, isPending: isUpdatingRole } = useUpdateUserRole();
+  const { mutate: demoteCTV, isPending: isDemoting } = useDemoteCTV();
+
+  const handleSuspend = (reason: string) => {
+    if (!suspendTarget) return;
+    suspendUser(
+      { id: suspendTarget.id, payload: { reason } },
+      { onSuccess: () => setSuspendTarget(null) },
     );
   };
 
-  const changeRole = (id: string, role: UserRole) => {
-    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role } : u)));
-    setEditingUser(null);
+  const handleUnsuspend = (id: string) => {
+    unsuspendUser(id);
+  };
+
+  const handleRoleSave = (role: UserRole) => {
+    if (!roleTarget) return;
+    const isCTVDemotion = roleTarget.roles.includes("CTV") && role !== "CTV";
+
+    if (isCTVDemotion) {
+      demoteCTV(roleTarget.id, { onSuccess: () => setRoleTarget(null) });
+    } else {
+      updateRole(
+        { id: roleTarget.id, payload: { roleName: role } },
+        { onSuccess: () => setRoleTarget(null) },
+      );
+    }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="font-bold text-3xl text-primary-heading">Người dùng</h2>
-          <p className="mt-1 font-body text-sm text-gray-500">
-            {users.length} tài khoản đăng ký
-          </p>
-        </div>
+      <div>
+        <h2 className="text-3xl font-bold text-primary-heading tracking-tight">{t("title")}</h2>
+        <p className="mt-1 font-medium text-sm text-gray-500">
+          {totalElements > 0 ? t("subtitle", { count: totalElements }) : t("loading")}
+        </p>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         {/* Search */}
         <div className="relative flex-1">
           <Search
@@ -263,183 +136,241 @@ export default function UsersPage() {
           />
           <input
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Tìm theo tên hoặc email..."
-            className="w-full rounded-xl border border-border bg-card py-2.5 pl-11 pr-4 font-body text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+            onChange={(e) => handleSearchChange(e.target.value)}
+            placeholder={t("searchPlaceholder")}
+            className="w-full rounded-2xl border border-border bg-card py-2.5 pl-11 pr-4 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition-all shadow-sm"
           />
+          {isFetching && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
+          )}
         </div>
 
-        {/* Role filter */}
-        <div className="flex items-center gap-2">
-          <Filter size={14} className="text-gray-400" />
-          {(["ALL", ...ROLE_OPTS] as const).map((r) => (
+        {/* Status filter */}
+        <div className="flex flex-wrap gap-2 scrollbar-hide overflow-x-auto">
+          {(["ALL", "ACTIVE", "SUSPENDED", "FLAGGED"] as const).map((s) => (
             <button
-              key={r}
+              key={s}
               onClick={() => {
-                setRole(r);
+                setStatusFilter(s);
                 setPage(1);
               }}
-              className={`rounded-full px-3 py-1.5 font-body text-xs font-medium transition-all ${
-                roleFilter === r
-                  ? "bg-primary-600 text-card"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              className={`rounded-full border px-5 py-2 text-sm font-medium transition-all ${
+                statusFilter === s
+                  ? "border-primary-500 bg-primary-600 text-white shadow-sm shadow-primary-600/20"
+                  : "border-border bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
               }`}
             >
-              {r === "ALL" ? "Tất cả" : r}
+              {tCommon(`status.${s}`)}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border bg-gray-50">
-                {[
-                  "Người dùng",
-                  "Email",
-                  "Vai trò",
-                  "Trạng thái",
-                  "Điểm GP",
-                  "Bài đăng",
-                  "Hành động",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className="px-5 py-3.5 text-left font-body text-xs font-semibold uppercase tracking-wider text-gray-500"
+      <TableContainer>
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>{t('table.user')}</TableHead>
+                <TableHead>{t('table.email')}</TableHead>
+                <TableHead>{t('table.role')}</TableHead>
+                <TableHead>{t('table.status')}</TableHead>
+                <TableHead>{t('table.points')}</TableHead>
+                <TableHead>{t('table.posts')}</TableHead>
+                <TableHead className="text-right">{t('table.actions')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => {
+                const sLabel = tCommon(`status.${user.status}`);
+                const sCls = STATUS_CLS[user.status] || STATUS_CLS.ACTIVE;
+                
+                return (
+                  <TableRow
+                    key={user.id}
+                    className="hover:bg-primary-300/20 group"
                   >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {paginated.map((user) => (
-                <tr
-                  key={user.id}
-                  className="transition-colors hover:bg-gray-50"
-                >
-                  {/* Name + avatar */}
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 font-body text-sm font-bold text-primary-700">
-                        {user.name[0]}
-                      </div>
-                      <div>
-                        <p className="font-body text-sm font-medium text-forest">
-                          {user.name}
-                        </p>
-                        <p className="font-body text-xs text-gray-400">
-                          {user.joined}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  {/* Email */}
-                  <td className="px-5 py-4 font-body text-sm text-gray-600">
-                    {user.email}
-                  </td>
-                  {/* Role */}
-                  <td className="px-5 py-4">
-                    <span
-                      className={`rounded-full px-2.5 py-1 font-body text-xs font-semibold ${ROLE_CLS[user.role]}`}
-                    >
-                      {user.role}
-                    </span>
-                  </td>
-                  {/* Status */}
-                  <td className="px-5 py-4">
-                    <span
-                      className={`rounded-full px-2.5 py-1 font-body text-xs font-semibold ${STATUS_CLS[user.status]}`}
-                    >
-                      {STATUS_LABEL[user.status]}
-                    </span>
-                  </td>
-                  {/* Points */}
-                  <td className="px-5 py-4 font-body text-sm text-gray-700">
-                    {user.points}
-                  </td>
-                  {/* Posts */}
-                  <td className="px-5 py-4 font-body text-sm text-gray-700">
-                    {user.posts}
-                  </td>
-                  {/* Actions */}
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      {/* Lock/Unlock */}
+                    {/* Name */}
+                    <TableCell>
                       <button
-                        onClick={() => toggleStatus(user.id)}
-                        title={
-                          user.status === "ACTIVE"
-                            ? "Khóa tài khoản"
-                            : "Mở khóa"
-                        }
-                        className={`rounded-lg p-2 transition-colors ${
-                          user.status === "ACTIVE"
-                            ? "text-gray-400 hover:bg-rose-50 hover:text-rose-500"
-                            : "text-rose-500 hover:bg-rose-50"
-                        }`}
+                        onClick={() => setDetailUser(user)}
+                        className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity"
                       >
-                        {user.status === "ACTIVE" ? (
-                          <Lock size={15} />
-                        ) : (
-                          <Unlock size={15} />
-                        )}
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-content">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-primary-content transition-colors">
+                            {user.name}
+                          </p>
+                          <p className="text-xs font-medium text-foreground/60 group-hover:text-foreground transition-colors tracking-wide mt-0.5">
+                            {new Date(user.createdAt).toLocaleDateString("vi-VN")}
+                          </p>
+                        </div>
                       </button>
-                      {/* Change role */}
-                      <button
-                        onClick={() => setEditingUser(user)}
-                        title="Đổi vai trò"
-                        className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-primary-50 hover:text-primary-600"
+                    </TableCell>
+                    {/* Email */}
+                    <TableCell className="font-medium text-foreground/60 group-hover:text-foreground ">
+                      {user.email}
+                    </TableCell>
+                    {/* Roles */}
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1.5">
+                        {user.roles.map((role) => (
+                          <span
+                            key={role}
+                            className={`rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide uppercase ${ROLE_CLS[role] ?? "bg-gray-100 text-gray-600"}`}
+                          >
+                            {tCommon(`roles.${role}`)}
+                          </span>
+                        ))}
+                      </div>
+                    </TableCell>
+                    {/* Status */}
+                    <TableCell>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${sCls}`}
                       >
-                        <UserCog size={15} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                        {sLabel}
+                      </span>
+                    </TableCell>
+                    {/* Points */}
+                    <TableCell className="font-medium text-gray-700">
+                      {user.availableGreenPoints.toLocaleString()}
+                    </TableCell>
+                    {/* Posts */}
+                    <TableCell className="font-medium text-gray-700">
+                      {user.greenPostCount.toLocaleString()}
+                    </TableCell>
+                    {/* Actions */}
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-2">
+                         <button
+                           onClick={() => setDetailUser(user)}
+                           title={t("tooltip.viewDetails") || "Xem chi tiết"}
+                           className="rounded-xl bg-gray-50 p-2 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900"
+                         >
+                           <Eye size={16} />
+                         </button>
+
+                        {/* Suspend / Unsuspend */}
+                        {user.status === "ACTIVE" ||
+                        user.status === "FLAGGED" ? (
+                          <button
+                            onClick={() => setSuspendTarget(user)}
+                            title={t("tooltip.suspend")}
+                            className="rounded-xl bg-gray-50 p-2 text-gray-500 transition-colors hover:bg-rose-50 hover:text-rose-500"
+                          >
+                            <Lock size={16} />
+                          </button>
+                        ) : user.status === "SUSPENDED" ? (
+                          <button
+                            onClick={() => handleUnsuspend(user.id)}
+                            disabled={isUnsuspending}
+                            title={t("tooltip.unsuspend")}
+                            className="rounded-xl p-2 bg-rose-50 text-rose-500 hover:bg-rose-100 hover:text-rose-600 disabled:opacity-50 transition-colors"
+                          >
+                            <Unlock size={16} />
+                          </button>
+                        ) : null}
+
+                        {/* Change role */}
+                        <button
+                          onClick={() => setRoleTarget(user)}
+                          title={t("tooltip.changeRole")}
+                          className="rounded-xl p-2 bg-gray-50 text-gray-500 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                        >
+                          <UserCog size={16} />
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
+
+        {/* Empty */}
+        {!isLoading && users.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-50 mb-4 animate-float">
+               <UserCog size={32} className="text-primary-400" />
+             </div>
+            <h3 className="text-lg font-semibold text-gray-900">{t("empty")}</h3>
+          </div>
+        )}
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-border px-5 py-4">
-            <span className="font-body text-sm text-gray-500">
-              {(page - 1) * PAGE_SIZE + 1}–
-              {Math.min(page * PAGE_SIZE, filtered.length)} / {filtered.length}
+          <div className="flex items-center justify-between border-t border-table-border px-6 py-4 bg-table-header-bg">
+            <span className="text-sm font-medium text-table-header-text">
+              {t("pagination", { page, total: totalPages, count: totalElements })}
             </span>
             <div className="flex gap-2">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="rounded-lg border border-border p-2 text-gray-500 disabled:opacity-40 hover:bg-gray-50"
+                className="rounded-xl border border-gray-200 bg-white p-2 text-gray-500 hover:bg-gray-50 disabled:opacity-40 transition-colors shadow-sm"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={18} />
               </button>
+              {/* Page numbers — hiện tối đa 5 page */}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + i;
+                return (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`h-9 w-9 rounded-xl text-sm font-semibold transition-all shadow-sm ${
+                      p === page
+                        ? "bg-primary-600 text-white shadow-primary-600/20 border-primary-600"
+                        : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="rounded-lg border border-border p-2 text-gray-500 disabled:opacity-40 hover:bg-gray-50"
+                className="rounded-xl border border-gray-200 bg-white p-2 text-gray-500 hover:bg-gray-50 disabled:opacity-40 transition-colors shadow-sm"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={18} />
               </button>
             </div>
           </div>
         )}
-      </div>
+      </TableContainer>
 
-      {/* Role modal */}
-      {editingUser && (
+      {/* Modals */}
+      {suspendTarget && (
+        <SuspendModal
+          user={suspendTarget}
+          onClose={() => setSuspendTarget(null)}
+          onConfirm={handleSuspend}
+          isPending={isSuspending}
+        />
+      )}
+
+      {roleTarget && (
         <RoleModal
-          user={editingUser}
-          onClose={() => setEditingUser(null)}
-          onSave={(role) => changeRole(editingUser.id, role)}
+          user={roleTarget}
+          onClose={() => setRoleTarget(null)}
+          onSave={handleRoleSave}
+          isPending={isUpdatingRole || isDemoting}
+        />
+      )}
+
+      {detailUser && (
+        <UserDetailModal
+           user={detailUser}
+           onClose={() => setDetailUser(null)}
         />
       )}
     </div>

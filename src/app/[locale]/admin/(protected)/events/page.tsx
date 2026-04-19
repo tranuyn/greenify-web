@@ -71,7 +71,7 @@ export default function EventsAdminPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900">Sự kiện NGO</h2>
+        <h2 className="text-3xl font-bold text-header">Sự kiện NGO</h2>
         <p className="mt-1 text-sm text-gray-500">
           {pendingCount > 0 ? (
             <span className="font-semibold text-amber-600">

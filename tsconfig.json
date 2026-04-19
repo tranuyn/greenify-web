@@ -20,19 +20,19 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "api/*": ["./api/*"],
-      "app/*": ["./app/*"],
-      "assets/*": ["./assets/*"],
-      "components/*": ["./components/*"],
-      "constants/*": ["./constants/*"],
-      "hooks/*": ["./hooks/*"],
-      "lib/*": ["./lib/*"],
+      "api/*": ["./src/api/*"],
+      "app/*": ["./src/app/*"],
+      "assets/*": ["./src/assets/*"],
+      "components/*": ["./src/components/*"],
+      "constants/*": ["./src/constants/*"],
+      "hooks/*": ["./src/hooks/*"],
+      "lib/*": ["./src/lib/*"],
       "locales/*": ["./locales/*"],
-      "services/*": ["./services/*"],
-      "store/*": ["./store/*"],
-      "types/*": ["./types/*"],
-      "utils/*": ["./utils/*"],
-      "validations/*": ["./validations/*"]
+      "services/*": ["./src/services/*"],
+      "store/*": ["./src/store/*"],
+      "types/*": ["./src/types/*"],
+      "utils/*": ["./src/utils/*"],
+      "validations/*": ["./src/validations/*"]
     }
   },
   "include": [

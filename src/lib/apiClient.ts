@@ -40,6 +40,16 @@ export const apiClient = axios.create({
   },
 });
 
+
+export const publicApiClient = axios.create({
+  baseURL: BASE_URL,
+  timeout: 100_000,
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
+});
+
 // ---- Request interceptor: attach Bearer token ----
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {

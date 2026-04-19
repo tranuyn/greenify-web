@@ -7,17 +7,34 @@
   :root {
     --background: #ffffff;
     --foreground: #171717;
-    --card: #f3f4f6;
+    --card: #ffffff;
     --border: #e5e7eb;
 
+    /* --- Table Semantic Colors (LIGHT MODE) --- */
+    --table-header-bg: #fafafa;
+    /* neutral-50 */
+    --table-header-text: #737373;
+    /* neutral-500 */
+    --table-row-bg: #ffffff;
+    --table-row-hover: #f0fdf4;
+    /* primary-50 */
+    --table-border: #f3f4f6;
+
     /* --- Semantic Primary Colors (LIGHT MODE) --- */
-    --primary-surface: #f0fdf4; /* primary-50: Nền nhạt nhất (Card, Widget) */
-    --primary-element: #dcfce7; /* primary-100: Nền cho Button phụ, Input */
-    --primary-border: #bbf7d0; /* primary-200: Viền (Border, Divider) */
-    --primary-hover: #86efac; /* primary-300: Hiệu ứng hover/focus */
-    --primary-content: #15803d; /* primary-700: Chữ nhấn mạnh, Icon */
-    --primary-heading: #052e16; /* primary-950: Tiêu đề lớn */
+    --primary-surface: #f0fdf4;
+    /* primary-50: Nền nhạt nhất (Card, Widget) */
+    --primary-element: #dcfce7;
+    /* primary-100: Nền cho Button phụ, Input */
+    --primary-border: #bbf7d0;
+    /* primary-200: Viền (Border, Divider) */
+    --primary-hover: #86efac;
+    /* primary-300: Hiệu ứng hover/focus */
+    --primary-content: #15803d;
+    /* primary-700: Chữ nhấn mạnh, Icon */
+    --primary-heading: #052e16;
+    /* primary-950: Tiêu đề lớn */
   }
+
   @media (prefers-color-scheme: dark) {
     :root {
       --background: #0a0a0a;
@@ -25,13 +42,29 @@
       --card: #171717;
       --border: #262626;
 
+      /* --- Table Semantic Colors (DARK MODE) --- */
+      --table-header-bg: #262626;
+      /* neutral-800 */
+      --table-header-text: #a3a3a3;
+      /* neutral-400 */
+      --table-row-bg: #171717;
+      --table-row-hover: #a3a3a3;
+      /* neutral-400 */
+      --table-border: #262626;
+
       /* --- Semantic Primary Colors (DARK MODE INVERTED) --- */
-      --primary-surface: #052e16; /* primary-950: Nền tối cho Card/Widget */
-      --primary-element: #14532d; /* primary-900: Nền tối cho Button phụ */
-      --primary-border: #15803d; /* primary-700: Viền (đậm để nổi trên nền đen) */
-      --primary-hover: #16a34a; /* primary-600: Hiệu ứng hover/focus */
-      --primary-content: #86efac; /* primary-300: Chữ sáng để dễ đọc */
-      --primary-heading: #f0fdf4; /* primary-50: Tiêu đề lớn sáng chói */
+      --primary-surface: #052e16;
+      /* primary-950: Nền tối cho Card/Widget */
+      --primary-element: #14532d;
+      /* primary-900: Nền tối cho Button phụ */
+      --primary-border: #15803d;
+      /* primary-700: Viền (đậm để nổi trên nền đen) */
+      --primary-hover: #16a34a;
+      /* primary-600: Hiệu ứng hover/focus */
+      --primary-content: #86efac;
+      /* primary-300: Chữ sáng để dễ đọc */
+      --primary-heading: #f0fdf4;
+      /* primary-50: Tiêu đề lớn sáng chói */
     }
   }
 
@@ -45,12 +78,16 @@
     background: #bbf7d0;
     color: #14532d;
   }
+
   ::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
   }
+
   ::-webkit-scrollbar-track {
     background: #f0fdf4;
   }
+
   ::-webkit-scrollbar-thumb {
     background: #86efac;
     border-radius: 3px;
@@ -88,7 +125,14 @@
   --color-primary-border: var(--primary-border);
   --color-primary-hover: var(--primary-hover);
   --color-primary-content: var(--primary-content);
-  --color-primary-heading: var(--primary-heading); 
+  --color-primary-heading: var(--primary-heading);
+
+  /* Table mappings */
+  --color-table-header-bg: var(--table-header-bg);
+  --color-table-header-text: var(--table-header-text);
+  --color-table-row-bg: var(--table-row-bg);
+  --color-table-row-hover: var(--table-row-hover);
+  --color-table-border: var(--table-border);
 
   /* Đăng ký Animation (v4 tự động tạo class .animate-fade-up, v.v.) */
   --animate-fade-up: fadeUp 0.7s ease forwards;
@@ -101,33 +145,41 @@
       opacity: 0;
       transform: translateY(24px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
   }
+
   @keyframes float {
+
     0%,
     100% {
       transform: translateY(0);
     }
+
     50% {
       transform: translateY(-10px);
     }
   }
+
   @keyframes pulseRing {
     0% {
       transform: scale(1);
       opacity: 0.6;
     }
+
     100% {
       transform: scale(1.6);
       opacity: 0;
@@ -167,12 +219,15 @@
 @utility delay-100 {
   animation-delay: 0.1s;
 }
+
 @utility delay-200 {
   animation-delay: 0.2s;
 }
+
 @utility delay-300 {
   animation-delay: 0.3s;
 }
+
 @utility delay-400 {
   animation-delay: 0.4s;
 }

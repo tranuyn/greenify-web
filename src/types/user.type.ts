@@ -1,3 +1,5 @@
+import { PaginationParams } from "./common.types";
+
 export type UserRole = 'USER' | 'CTV' | 'NGO' | 'ADMIN';
 export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'DELETED' | 'FLAGGED';
 export type CtvStatus =
@@ -24,12 +26,42 @@ export interface User {
 
 export interface UserProfile {
   id: string;
-  user_id: string;
+  firstName: string;
+  lastName: string;
   displayName: string;
-  avatar_url: string | null;
   province: string;
-  ward: string | null;
-  free_time_slots: FreeTimeSlot[] | null;
+  district: string;
+  ward: string;
+  addressDetail: string;
+  status: UserStatus;
+  avatarUrl: string;
+  //free_time_slots: FreeTimeSlot[] | null;
+}
+
+export interface AdminUserQueryParams extends PaginationParams {
+  name?: string;
+  status?: UserStatus | 'ALL';
+}
+
+export interface AdminUserDto {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  createdAt: string;
+  email: string;
+  phoneNumber: string | null;
+  roles: UserRole[];
+  status: UserStatus;
+  availableGreenPoints: number;
+  greenPostCount: number;
+  suspensionReason: string | null;
+}
+export interface SuspendUserRequest {
+  reason: string;
+}
+
+export interface UpdateUserRoleRequest {
+  roleName: UserRole;
 }
 
 export interface FreeTimeSlot {
@@ -41,11 +73,11 @@ export interface FreeTimeSlot {
 export interface NgoProfile {
   id: string;
   user_id: string;
-  org_name: string;
-  representative_name: string;
-  avatar_url: string | null;
+  orgName: string;
+  representativeName: string;
+  avatarUrl: string | null;
   hotline: string;
-  contact_email: string;
+  contactEmail: string;
   // address: string;
   province: string;
   ward: string | null;
@@ -112,8 +144,14 @@ export interface CompleteProfileRequest {
 
 // User với profile gộp lại — dùng ở phần lớn màn hình
 export interface AuthenticatedUser {
+  id: string;
+  email: string;
+  role: UserRole[];
+  phoneNumber: string;
+  username: string;
   user: User;
-  userProfile: UserProfile | NgoProfile | null;
+  userProfile: UserProfile;
+  ngoProfile?: NgoProfile; // Có thể có ngoProfile nếu user là NGO, nhưng không bắt buộc phải có (nếu chưa hoàn thành hồ sơ)
 }
 
 export interface CreateUserInput {

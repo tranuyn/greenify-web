@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useState } from "react";
 import {
   Leaf,
@@ -13,12 +12,17 @@ import {
   X,
   Bell,
   ChevronRight,
+  Trophy,
+  Gift,
 } from "lucide-react";
 
 const NAV = [
   { href: "/admin/dashboard", icon: LayoutDashboard, label: "Tổng quan" },
   { href: "/admin/users", icon: Users, label: "Người dùng" },
   { href: "/admin/events", icon: Calendar, label: "Sự kiện NGO" },
+  { href: "/admin/vouchers", icon: Gift, label: "Voucher" },
+  { href: "/admin/leaderboard", icon: Trophy, label: "Leaderboard" },
+  { href: '/admin/action-types', icon: Leaf, label: 'Hành động xanh' },
 ];
 
 function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -50,7 +54,7 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-500">
             <Leaf size={14} className="text-forest" />
           </div>
-          <span className="font-display text-lg text-primary">Greenify</span>
+          <span className="font-bold text-lg text-primary">Greenify</span>
           <span className="ml-auto rounded-md bg-primary-900/50 px-2 py-0.5 font-mono text-[10px] text-primary-400">
             ADMIN
           </span>
@@ -67,8 +71,8 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
                 onClick={onClose}
                 className={`sidebar-item flex items-center gap-3 rounded-xl px-4 py-3 font-body text-sm font-medium transition-all ${
                   active
-                    ? "bg-primary-600/20 text-primary-400"
-                    : "text-primary-200/60 hover:bg-primary-900/30 hover:text-primary-200"
+                    ? "bg-primary-hover/20 text-primary-content"
+                    : "text-primary-content/60 hover:bg-primary-element/30 hover:text-primary-content"
                 }`}
               >
                 <Icon size={18} />

@@ -4,7 +4,6 @@ import { AxiosError } from "axios";
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // ĐÃ SỬA: Trên web CÓ window focus, và nó rất hữu ích để tự auto-refresh data khi user quay lại tab
       refetchOnWindowFocus: true,
 
       // Stale sau 2 phút

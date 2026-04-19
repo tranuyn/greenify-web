@@ -1,4 +1,4 @@
-import { LeaderboardScope } from 'types/gamification.types';
+import { LeaderboardScope } from '@/types/gamification.types';
 
 /**
  * Query Key Factory — dùng factory pattern thay vì string constants.
@@ -14,6 +14,20 @@ import { LeaderboardScope } from 'types/gamification.types';
  *   queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all })
  */
 export const QUERY_KEYS = {
+  admin: {
+    vouchers: {
+      all: ['admin', 'vouchers'] as const,
+      detail: (id: string) => ['admin', 'vouchers', id] as const,
+    },
+    leaderboard: {
+      weekly: () => ['admin', 'leaderboard', 'weekly'] as const,
+    },
+    prizes: {
+      all: ['admin', 'leaderboard', 'prizes'] as const,
+      detail: (id: string) => ['admin', 'leaderboard', 'prizes', id] as const,
+    },
+  },
+
   // Auth
   auth: {
     all: ['auth'] as const,
@@ -40,6 +54,7 @@ export const QUERY_KEYS = {
   // Action types (master data — stale lâu hơn)
   actionTypes: {
     all: ['action-types'] as const,
+    detail: (id: string) => ['action-types', id] as const,
   },
 
   // Wallet & points
@@ -65,14 +80,16 @@ export const QUERY_KEYS = {
   vouchers: {
     all: ['vouchers'] as const,
     available: () => ['vouchers', 'available'] as const,
-    mine: () => ['vouchers', 'me'] as const,
+    mine: (params?: object) => ['vouchers', 'me', params] as const,
+    bySeed: (seedId: string) => ['vouchers', 'by-seed', seedId] as const,
   },
 
   // Leaderboard
   leaderboard: {
     all: ['leaderboard'] as const,
-    scope: (scope: LeaderboardScope, province?: string) =>
-      ['leaderboard', scope, province] as const,
+    scope: (scope: LeaderboardScope, weekStartDate: string, province?: string) =>
+      ['leaderboard', scope, weekStartDate, province] as const,
+    weeklyPrizes: (weekStartDate: string) => ['leaderboard', 'weekly-prizes', weekStartDate] as const,
     claim: (periodId: string) => ['leaderboard', 'claim', periodId] as const,
   },
 
