@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { router } from 'expo-router';
+import { useRouter } from '@/i18n/routing';
 import { queryClient } from 'lib/queryClient';
 import { authService } from 'services/auth.service';
 import {
@@ -71,12 +71,13 @@ export const useUpdateProfile = () => {
 };
 
 export const useLogout = () => {
+  const router = useRouter();
   return useMutation({
     mutationFn: () => authService.logout(),
     onSuccess: () => {
       // Xóa toàn bộ cache khi logout — tránh data của user cũ còn sót
       queryClient.clear();
-      router.replace('/(auth)');
+      router.replace('/login');
     },
   });
 };

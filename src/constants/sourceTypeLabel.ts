@@ -1,7 +1,7 @@
 
 import { PointSourceType } from '@/types/action.types';
-import type { TFunction } from 'i18next';
 
+type TFunction = (key: any, options?: any) => string;
 export const SOURCE_TYPE_LABEL_KEYS: Record<PointSourceType, string> = {
   [PointSourceType.GREEN_ACTION]: 'point_history.source_type.green_action',
   [PointSourceType.EVENT_ATTEND]: 'point_history.source_type.event_attend',

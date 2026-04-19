@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { userApi } from '@/api/userApi';
+import { adminUserService } from '@/services/admin.service';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 
 // Hook lấy danh sách
 export const useGetUsers = () => {
   return useQuery({
     queryKey: QUERY_KEYS.users.all,
-    queryFn: userApi.getUsers,
+    queryFn: () => adminUserService.getUsers(),
   });
 };
 
@@ -14,7 +14,7 @@ export const useGetUsers = () => {
 export const useGetUserDetail = (userId: string) => {
   return useQuery({
     queryKey: QUERY_KEYS.users.detail(userId),
-    queryFn: () => userApi.getUserById(userId),
+    queryFn: () => adminUserService.getUserById(userId),
     enabled: !!userId,
   });
 };
