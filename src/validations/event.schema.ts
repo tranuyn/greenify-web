@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import type { TFunction } from 'i18next';
 import type { CreateEventRequest } from 'types/community.types';
 
+type TFunction = (key: any, options?: any) => string;
 const getCreateEventMessages = (t: TFunction) => ({
   title: t('events.create_event.validation.title'),
   description: t('events.create_event.validation.description'),
@@ -29,19 +29,19 @@ export const createEventSchema = (t: TFunction) => {
   return z.object({
     title: z.string().min(1, messages.title),
     description: z.string().min(1, messages.description),
-    event_type: z.string().min(1, messages.eventType),
-    cover_image_url: z.string().nullable().optional(),
+    eventType: z.string().min(1, messages.eventType),
+    coverImageUrl: z.string().nullable().optional(),
     city: z.string().min(1, messages.city),
-    location_address: z.string().min(1, messages.locationAddress),
-    start_date: z.date({ message: messages.startDate }),
-    start_time: z.string().min(1, messages.startTime),
-    end_date: z.date({ message: messages.endDate }),
-    end_time: z.string().min(1, messages.endTime),
-    reward_points: z
+    locationAddress: z.string().min(1, messages.locationAddress),
+    startDate: z.date({ message: messages.startDate }),
+    startTime: z.string().min(1, messages.startTime),
+    endDate: z.date({ message: messages.endDate }),
+    endTime: z.string().min(1, messages.endTime),
+    rewardPoints: z
       .string()
       .min(1, messages.rewardPointsRequired)
       .refine((v) => !isNaN(Number(v)) && Number(v) > 0, messages.rewardPointsPositive),
-    accepted_terms: z.boolean().refine((v) => v === true, {
+    acceptedTerms: z.boolean().refine((v) => v === true, {
       message: messages.acceptedTerms,
     }),
   });
@@ -55,25 +55,51 @@ export const createEventRequestSchema = (t: TFunction): z.ZodType<CreateEventReq
   return z.object({
     title: z.string().min(1, messages.title),
     description: z.string().min(1, messages.description),
-    event_type: z.string().min(1, messages.eventType),
-    cover_image_url: z.string().min(1, messages.coverImageUrl),
-    location_address: z.string().min(1, messages.locationAddress),
-    latitude: z.number().finite(messages.latitude),
-    longitude: z.number().finite(messages.longitude),
-    start_time: z.string().min(1, messages.startTime),
-    end_time: z.string().min(1, messages.endTime),
-    max_participants: z.number().int().positive(messages.maxParticipants),
-    reward_points: z.number().int().positive(messages.rewardPointsPositive),
-    participation_conditions: z.string().min(1, messages.participationConditions),
-    cancel_deadline_days: z.number().int().nonnegative(messages.cancelDeadlineDays),
+    eventType: z.enum(["CLEANUP", "PLANTING", "RECYCLING", "EDUCATION", "OTHER"]),
+    startTime: z.string().min(1, messages.startTime),
+    endTime: z.string().min(1, messages.endTime),
+    maxParticipants: z.number().int().positive(messages.maxParticipants),
+    minParticipants: z.number().int().nonnegative(),
+    cancelDeadlineHoursBefore: z.number().int().nonnegative(messages.cancelDeadlineDays),
+    signUpDeadlineHoursBefore: z.number().int().nonnegative(),
+    reminderHoursBefore: z.number().int().nonnegative(),
+    thankYouHoursAfter: z.number().int().nonnegative(),
+    rewardPoints: z.number().int().positive(messages.rewardPointsPositive),
+    status: z.enum([
+      "DRAFT",
+      "PENDING_APPROVAL",
+      "APPROVED",
+      "REJECTED",
+      "NEEDS_REVISION",
+      "PUBLISHED",
+      "CLOSED",
+      "CANCELLED",
+    ]),
+    thumbnail: z.object({
+      bucketName: z.string().optional(),
+      objectKey: z.string().optional(),
+      imageUrl: z.string(),
+    }),
+    images: z.array(z.object({
+      bucketName: z.string().optional(),
+      objectKey: z.string().optional(),
+      imageUrl: z.string(),
+    })),
+    address: z.object({
+      province: z.string().min(1, messages.city),
+      ward: z.string(),
+      addressDetail: z.string().min(1, messages.locationAddress),
+      latitude: z.number().finite(messages.latitude),
+      longitude: z.number().finite(messages.longitude),
+    }),
   });
 };
 
 type RequestSchemaOutput = z.infer<ReturnType<typeof createEventRequestSchema>>;
 type IsCreateEventRequestMatched = RequestSchemaOutput extends CreateEventRequest
   ? CreateEventRequest extends RequestSchemaOutput
-    ? true
-    : false
+  ? true
+  : false
   : false;
 export type CreateEventRequestSchemaMatches = IsCreateEventRequestMatched;
 
