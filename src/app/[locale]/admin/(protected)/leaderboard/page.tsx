@@ -18,8 +18,11 @@ import {
   useDistributePrize,
   useDeletePrize,
 } from "@/hooks/mutations/useAdmin";
-import type { CreateLeaderboardPrizeRequest } from "@/types/gamification.types";
-import { LeaderboardScope } from "@/types/gamification.types";
+import type {
+  CreateLeaderboardPrizeRequest,
+  LeaderboardEntry,
+  LeaderboardPrize,
+} from "@/types/gamification.types";
 import { useAvailableVouchers } from "@/hooks/queries/useGamification";
 import { PrizeFormModal } from "@/components/admin/leaderboard/PrizeFormModal";
 import {
@@ -31,6 +34,18 @@ import {
   TableRow,
   TableCell,
 } from "@/components/admin/ui/table";
+
+const formatDate = (value?: string | null) => {
+  if (!value) return "-";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("vi-VN");
+};
+
+const formatDateTime = (value?: string | null) => {
+  if (!value) return "-";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString("vi-VN");
+};
 // ── Rank medal ─────────────────────────────────────────────────
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1)
@@ -50,9 +65,15 @@ function RankBadge({ rank }: { rank: number }) {
 export default function LeaderboardAdminPage() {
   const t = useTranslations("admin.leaderboard");
 
-  const { data: leaderboard = [], isLoading: isLoadingLB } =
+  const { data: weeklyLeaderboard, isLoading: isLoadingLB } =
     useWeeklyLeaderboard();
-  const { data: prizesData, isLoading: isLoadingPrizes } = useAdminPrizes();
+  const leaderboard = weeklyLeaderboard?.entries ?? [];
+
+  const { data: prizesData, isLoading: isLoadingPrizes } = useAdminPrizes({
+    weekStartDate: weeklyLeaderboard?.weekStartDate,
+    page: 1,
+    size: 20,
+  });
   const prizes = prizesData?.content || [];
   const { data: vouchersData } = useAvailableVouchers();
   const vouchers = Array.isArray(vouchersData)
@@ -75,6 +96,9 @@ export default function LeaderboardAdminPage() {
   const [activeTab, setActiveTab] = useState<"ranking" | "prizes">("ranking");
 
   const activeVouchers = vouchers.filter((v: any) => v.status === "ACTIVE");
+  const currentPrizeConfig =
+    prizes.find((p: LeaderboardPrize) => p.weekStartDate === weeklyLeaderboard?.weekStartDate) ??
+    prizes[0];
 
   const handleCreatePrize = (data: CreateLeaderboardPrizeRequest) => {
     createPrize(data, { onSuccess: () => setShowPrizeForm(false) });
@@ -140,12 +164,11 @@ export default function LeaderboardAdminPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {leaderboard.map((entry: any) => {
-                  const prizeConfig = prizes[0];
+                {leaderboard.map((entry: LeaderboardEntry) => {
                   const prizeName =
                     entry.rank <= 3
-                      ? prizeConfig?.nationalVoucher?.name
-                      : prizeConfig?.provincialVoucher?.name;
+                      ? currentPrizeConfig?.nationalVoucher?.name
+                      : currentPrizeConfig?.provincialVoucher?.name;
                   const isTop3 = entry.rank <= 3;
 
                   return (
@@ -226,66 +249,76 @@ export default function LeaderboardAdminPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead>{t("prizesTable.rank")}</TableHead>
-                    <TableHead>{t("prizesTable.scope")}</TableHead>
-                    <TableHead>{t("prizesTable.voucher")}</TableHead>
-                    <TableHead>{t("prizesTable.quantity")}</TableHead>
+                    <TableHead>{t("prizesTable.weekStartDate")}</TableHead>
+                    <TableHead>{t("prizesTable.lockAt")}</TableHead>
+                    <TableHead>{t("prizesTable.status")}</TableHead>
+                    <TableHead>{t("prizesTable.nationalVoucher")}</TableHead>
+                    <TableHead>{t("prizesTable.provincialVoucher")}</TableHead>
+                    <TableHead>{t("prizesTable.reserved")}</TableHead>
                     <TableHead className="text-right">
                       {t("prizesTable.actions")}
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {prizes.map((prize: any) => (
+                  {prizes.map((prize: LeaderboardPrize) => (
                     <TableRow key={prize.id}>
-                      {/* Rank */}
                       <TableCell>
-                        <div className="flex items-center gap-3">
-                          <RankBadge rank={prize.rank} />
-                          <span className="text-sm font-bold text-gray-900">
-                            {t("rankingTable.rank")} {prize.rank}
-                          </span>
-                        </div>
+                        <span className="text-sm font-semibold text-gray-900">
+                          {formatDate(prize.weekStartDate)}
+                        </span>
                       </TableCell>
-                      {/* Scope */}
+                      <TableCell>
+                        <span className="text-sm font-medium text-gray-700">
+                          {formatDateTime(prize.lockAt)}
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <span
                           className={`inline-flex rounded-full px-3 py-1 text-xs font-bold border ${
-                            prize.scope === LeaderboardScope.NATIONAL
-                              ? "bg-blue-50 text-blue-700 border-blue-200/50"
-                              : "bg-violet-50 text-violet-700 border-violet-200/50"
+                            prize.status === "DISTRIBUTED"
+                              ? "bg-primary-50 text-primary-700 border-primary-200/50"
+                              : prize.status === "CANCELLED"
+                                ? "bg-rose-50 text-rose-700 border-rose-200/50"
+                                : "bg-amber-50 text-amber-700 border-amber-200/50"
                           }`}
                         >
-                          {t(`scopes.${prize.scope}`)}
+                          {t(`statuses.${prize.status}`)}
                         </span>
                       </TableCell>
-                      {/* Voucher */}
                       <TableCell>
                         <p className="text-sm font-bold text-gray-900">
-                          {prize.voucherTemplate?.name ??
-                            prize.voucherTemplateId}
+                          {prize.nationalVoucher?.name ?? "-"}
                         </p>
-                        {prize.voucherTemplate?.partnerName && (
+                        {prize.nationalVoucher?.partnerName && (
                           <p className="mt-1 text-xs font-medium text-gray-500">
-                            {prize.voucherTemplate.partnerName}
+                            {prize.nationalVoucher.partnerName}
                           </p>
                         )}
                       </TableCell>
-                      {/* Quantity */}
                       <TableCell>
-                        <span className="flex w-fit items-center gap-1.5 rounded-lg bg-gray-50 px-2 py-1 text-xs font-bold text-gray-700 border border-gray-200/50">
-                          <Gift size={14} className="text-primary-500" />
-                          {prize.quantity}
-                        </span>
+                        <p className="text-sm font-bold text-gray-900">
+                          {prize.provincialVoucher?.name ?? "-"}
+                        </p>
+                        {prize.provincialVoucher?.partnerName && (
+                          <p className="mt-1 text-xs font-medium text-gray-500">
+                            {prize.provincialVoucher.partnerName}
+                          </p>
+                        )}
                       </TableCell>
-                      {/* Actions */}
+                      <TableCell>
+                        <div className="space-y-1 text-xs font-semibold text-gray-700">
+                          <p>N: {prize.nationalReservedCount.toLocaleString()}</p>
+                          <p>P: {prize.provincialReservedCount.toLocaleString()}</p>
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-2">
-                          {/* Distribute */}
                           <button
                             onClick={() => distributePrize(prize.id)}
                             disabled={
-                              isDistributing && distributingId === prize.id
+                              prize.status !== "CONFIGURED" ||
+                              (isDistributing && distributingId === prize.id)
                             }
                             className="flex items-center gap-1.5 rounded-2xl bg-primary-50 px-3.5 py-2 text-xs font-bold text-primary-700 hover:bg-primary-100 disabled:opacity-50 transition-colors"
                             title={t("distribute")}
@@ -297,7 +330,6 @@ export default function LeaderboardAdminPage() {
                             )}
                             {t("distribute")}
                           </button>
-                          {/* Delete */}
                           <button
                             onClick={() => deletePrize(prize.id)}
                             disabled={isDeleting && deletingId === prize.id}
@@ -322,7 +354,7 @@ export default function LeaderboardAdminPage() {
                     {t("emptyPrizes")}
                   </h3>
                   <p className="mt-1.5 text-sm text-gray-500 mb-6">
-                    Hệ thống chưa thiết lập phần thưởng cho chu kỳ này.
+                    {t("emptyPrizesDescription")}
                   </p>
                   <button
                     onClick={() => setShowPrizeForm(true)}

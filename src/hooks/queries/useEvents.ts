@@ -40,10 +40,10 @@ export const usePendingApprovalEvents = (
   return useQuery({
     queryKey: QUERY_KEYS.events.list({
       ...params,
-      statuses: ["PENDING_APPROVAL"],
+      statuses: ["APPROVAL_WAITING"],
     }),
     queryFn: () =>
-      eventService.getEvents({ ...params, statuses: ["PENDING_APPROVAL"] }),
+      eventService.getEvents({ ...params, statuses: ["APPROVAL_WAITING"] }),
   });
 };
 

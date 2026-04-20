@@ -36,7 +36,7 @@ export const useAdminDashboardOverview = (params?: AnalyticsQueryParams) => {
   const pendingEventsQuery = useEvents({
     page: 1,
     size: 1,
-    statuses: ["PENDING_APPROVAL"],
+    statuses: ["APPROVAL_WAITING"],
   });
   const pendingPostsQuery = usePendingReviewPosts({ page: 1, size: 1 });
   const stationsQuery = useStations();

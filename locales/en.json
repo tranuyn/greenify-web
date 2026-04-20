@@ -142,6 +142,7 @@
         "ACTIVE": "Active",
         "INACTIVE": "Inactive",
         "EXPIRED": "Expired",
+      "emptyPrizesDescription": "No prize setup has been created for this weekly cycle.",
         "DEPLETED": "Depleted"
       },
       "table": {
@@ -196,10 +197,12 @@
         "prize": "Prize"
       },
       "prizesTable": {
-        "rank": "Rank",
-        "scope": "Scope",
-        "voucher": "Voucher Reward",
-        "quantity": "Quantity",
+        "weekStartDate": "Week",
+        "lockAt": "Lock At",
+        "status": "Status",
+        "nationalVoucher": "National Voucher",
+        "provincialVoucher": "Provincial Voucher",
+        "reserved": "Reserved",
         "actions": "Actions"
       },
       "scopes": {
@@ -208,6 +211,11 @@
       },
       "distribute": "Distribute",
       "delete": "Delete",
+      "statuses": {
+        "CONFIGURED": "Configured",
+        "DISTRIBUTED": "Distributed",
+        "CANCELLED": "Cancelled"
+      },
       "emptyPrizes": "No prize configurations yet.",
       "addFirstPrize": "Add your first prize",
       "form": {

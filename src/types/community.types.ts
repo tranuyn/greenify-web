@@ -10,12 +10,11 @@ import { UserProfile } from "./user.type";
 
 export type EventStatus =
   | "DRAFT"
-  | "PENDING_APPROVAL"
-  | "APPROVED"
+  | "APPROVAL_WAITING"
   | "REJECTED"
-  | "NEEDS_REVISION"
   | "PUBLISHED"
-  | "CLOSED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
   | "CANCELLED";
 
 export const REGISTRATION_STATUS = {

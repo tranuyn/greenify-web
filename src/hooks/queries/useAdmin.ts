@@ -13,6 +13,15 @@ import {
 } from "@/types/gamification.types";
 import { AdminUserQueryParams } from "@/types/user.type";
 
+const getCurrentWeekStartDate = () => {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diff);
+  return monday.toISOString().split("T")[0];
+};
+
 export const useAdminUsers = (params?: AdminUserQueryParams) =>
   useQuery({
     queryKey: QUERY_KEYS.users.list(params),
@@ -34,16 +43,14 @@ export const useAdminUserDetail = (id: string) =>
   });
 
 
-export const useWeeklyLeaderboard = () =>
+export const useWeeklyLeaderboard = (weekStartDate?: string) =>
   useQuery({
-    queryKey: QUERY_KEYS.admin.leaderboard.weekly(),
-    queryFn: () => {
-      const currentDate = new Date().toISOString().split("T")[0];
-
-      return leaderboardService
-        .getLeaderboard(LeaderboardScope.NATIONAL, currentDate)
-        .then((r) => r.entries);
-    },
+    queryKey: QUERY_KEYS.admin.leaderboard.weekly(weekStartDate),
+    queryFn: () =>
+      leaderboardService.getLeaderboard(
+        LeaderboardScope.NATIONAL,
+        weekStartDate ?? getCurrentWeekStartDate(),
+      ),
   });
 
 export const useAdminPrizes = (params?: LeaderboardPrizeQueryParams) => {

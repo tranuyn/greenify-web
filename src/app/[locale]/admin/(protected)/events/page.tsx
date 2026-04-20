@@ -65,7 +65,7 @@ export default function EventsAdminPage() {
     );
   };
 
-  const pendingCount = counts["PENDING_APPROVAL"] ?? 0;
+  const pendingCount = counts["APPROVAL_WAITING"] ?? 0;
 
   return (
     <div className="space-y-6">

@@ -68,12 +68,11 @@ export const createEventRequestSchema = (t: TFunction): z.ZodType<CreateEventReq
     rewardPoints: z.number().int().positive(messages.rewardPointsPositive),
     status: z.enum([
       "DRAFT",
-      "PENDING_APPROVAL",
-      "APPROVED",
+      "APPROVAL_WAITING",
       "REJECTED",
-      "NEEDS_REVISION",
       "PUBLISHED",
-      "CLOSED",
+      "IN_PROGRESS",
+      "COMPLETED",
       "CANCELLED",
     ]),
     thumbnail: z.object({
