@@ -16,6 +16,9 @@ import type {
   PostStatus,
   CreateActionTypeRequest,
   UpdateActionTypeRequest,
+  AppealDto,
+  AppealReviewParams,
+  ReviewAppealRequest,
 } from "types/action.types";
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from "./mock/config";
 import {
@@ -386,6 +389,57 @@ export const walletService = {
     const { data } = await apiClient.get<
       ApiResponse<PageResponse<PointLedgerEntry>>
     >("/wallet/ledger", { params });
+    return data;
+  },
+};
+
+// ============================================================
+// APPEAL SERVICE
+// ============================================================
+export const appealService = {
+  /**
+   * GET /api/v1/green-action/appeals/{appealId}
+   * Lấy chi tiết một appeal theo ID.
+   */
+  async getAppealById(appealId: string): Promise<AppealDto> {
+    const { data } = await apiClient.get<AppealDto>(
+      `/green-action/appeals/${appealId}`,
+    );
+    return data;
+  },
+
+  /**
+   * GET /api/v1/green-action/appeals/review
+   * Lấy danh sách appeals cho admin review (có filter status + phân trang).
+   */
+  async getAppealsForReview(
+    params?: AppealReviewParams,
+  ): Promise<PageResponse<AppealDto>> {
+    const { data } = await apiClient.get<PageResponse<AppealDto>>(
+      "/green-action/appeals/review",
+      {
+        params: {
+          status: params?.status,
+          page: params?.page ?? 0,
+          size: params?.size ?? 20,
+        },
+      },
+    );
+    return data;
+  },
+
+  /**
+   * POST /api/v1/green-action/appeals/{appealId}/review
+   * Admin duyệt / từ chối một appeal.
+   */
+  async reviewAppeal(
+    appealId: string,
+    payload: ReviewAppealRequest,
+  ): Promise<AppealDto> {
+    const { data } = await apiClient.post<AppealDto>(
+      `/green-action/appeals/${appealId}/review`,
+      payload,
+    );
     return data;
   },
 };

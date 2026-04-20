@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { CreateEventRequest } from 'types/community.types';
+import type { CreateEventRequest, EventType } from 'types/community.types';
 
 type TFunction = (key: any, options?: any) => string;
 const getCreateEventMessages = (t: TFunction) => ({
@@ -30,6 +30,7 @@ export const createEventSchema = (t: TFunction) => {
     title: z.string().min(1, messages.title),
     description: z.string().min(1, messages.description),
     eventType: z.string().min(1, messages.eventType),
+    participationConditions: z.string().min(1, messages.participationConditions),
     coverImageUrl: z.string().nullable().optional(),
     city: z.string().min(1, messages.city),
     locationAddress: z.string().min(1, messages.locationAddress),
@@ -85,6 +86,7 @@ export const createEventRequestSchema = (t: TFunction): z.ZodType<CreateEventReq
       objectKey: z.string().optional(),
       imageUrl: z.string(),
     })),
+    participationConditions: z.string().min(1, messages.participationConditions),
     address: z.object({
       province: z.string().min(1, messages.city),
       ward: z.string(),
@@ -103,13 +105,13 @@ type IsCreateEventRequestMatched = RequestSchemaOutput extends CreateEventReques
   : false;
 export type CreateEventRequestSchemaMatches = IsCreateEventRequestMatched;
 
-export const EVENT_TYPE_OPTIONS = [
-  { value: 'Dọn rác', labelKey: 'events.create_event.event_types.cleanup' },
-  { value: 'Trồng cây', labelKey: 'events.create_event.event_types.tree_planting' },
-  { value: 'Workshop', labelKey: 'events.create_event.event_types.workshop' },
-  { value: 'Chiến dịch', labelKey: 'events.create_event.event_types.campaign' },
-  { value: 'Khác', labelKey: 'events.create_event.event_types.other' },
-] as const;
+export const EVENT_TYPE_OPTIONS: { value: EventType; labelKey: string }[] = [
+  { value: 'CLEANUP', labelKey: 'events.create_event.event_types.cleanup' },
+  { value: 'PLANTING', labelKey: 'events.create_event.event_types.tree_planting' },
+  { value: 'EDUCATION', labelKey: 'events.create_event.event_types.workshop' },
+  { value: 'RECYCLING', labelKey: 'events.create_event.event_types.campaign' },
+  { value: 'OTHER', labelKey: 'events.create_event.event_types.other' },
+];
 
 export const GENDER_OPTIONS: { label: string; value: 'Nam' | 'Nữ' | 'Không' }[] = [
   { label: 'Không yêu cầu', value: 'Không' },

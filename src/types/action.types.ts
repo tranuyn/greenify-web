@@ -188,6 +188,32 @@ export interface AppealPostRequest {
   evidence_urls?: string[];
 }
 
+// ---- Appeal DTO (response from GET /appeals/{id} and POST /appeals/{id}/review) ----
+export interface AppealDto {
+  id: string;
+  postId: string;
+  userId: string;
+  appealReason: string;
+  evidenceUrls: string[];
+  attemptNumber: number;
+  status: AppealStatus;
+  adminNote: string | null;
+  createdAt: string;
+}
+
+// ---- Params for GET /appeals/review ----
+export interface AppealReviewParams {
+  status?: AppealStatus;
+  page?: number;
+  size?: number;
+}
+
+// ---- Request body for POST /appeals/{appealId}/review ----
+export interface ReviewAppealRequest {
+  status: AppealStatus;
+  adminNote: string;
+}
+
 // ============================================================
 // POINT & WALLET TYPES
 // Mapped from: point_rules, point_wallets, point_ledger
