@@ -10,6 +10,7 @@ import type {
   EventQueryParams,
   UpdateEventRequest,
   RejectEventRequest,
+  ParticipatedEventQueryParams,
 } from "@/types/community.types";
 import {
   ApiResponse,
@@ -29,101 +30,38 @@ import { SortOption } from "@/constants/enums/sortOptions.enum";
 // EVENT SERVICE
 // ============================================================
 export const eventService = {
-  async getEvents(
-    params?: EventQueryParams,
-  ): Promise<ApiResponse<PageResponse<Event>>> {
-    // 1. ADAPTER: CHUYỂN ĐỔI PARAMS TỪ UI -> BE
-    // Truyền thẳng fromDate và toDate vào đây luôn cho gọn
-    const apiParams: EventApiRequestParams = {
+  async getEvents(params?: EventQueryParams): Promise<PageResponse<Event>> {
+    const apiParams = {
+      ...params,
       page: params?.page ? params.page - 1 : 0,
       size: params?.size ?? 10,
-      fromDate: params?.fromDate,
-      toDate: params?.toDate,
     };
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(500);
+    //   return {
+    //     content: MOCK_EVENTS,
+    //     totalElements: MOCK_EVENTS.length,
+    //     page: params?.page ?? 1,
+    //     size: params?.size ?? 20,
+    //     totalPages: 5,
+    //   };
+    // }
 
-    if (params?.title) apiParams.title = params.title;
+    const { data } = await apiClient.get<PageResponse<Event>>("/events", {
+      params: apiParams,
+    });
 
-    if (params?.eventType && params.eventType !== "all") {
-      apiParams.eventType = params.eventType;
-    }
-
-    if (params?.status && params.status !== "all") {
-      apiParams.status = params.status;
-    }
-
-    if (params?.sort === SortOption.POPULAR) {
-      // Ví dụ: sort theo số người tham gia (nếu API có hỗ trợ)
-      apiParams.sort = ["maxParticipants,desc"];
-    } else if (params?.sort === SortOption.NEWEST) {
-      apiParams.sort = ["startTime,desc"];
-    }
-
-    if (IS_MOCK_MODE) {
-      await mockDelay(600);
-      let filteredEvents = [...MOCK_EVENTS];
-
-      if (params?.title) {
-        const lowerSearch = params.title.toLowerCase();
-        filteredEvents = filteredEvents.filter((e) =>
-          e.title.toLowerCase().includes(lowerSearch),
-        );
-      }
-      if (params?.eventType && params.eventType !== "all") {
-        filteredEvents = filteredEvents.filter(
-          (e) => e.eventType === params.eventType,
-        );
-      }
-      if (params?.status && params.status !== "all") {
-        filteredEvents = filteredEvents.filter(
-          (e) => e.status === params.status,
-        );
-      }
-      if (params?.fromDate) {
-        const fromTime = new Date(params.fromDate).getTime();
-        filteredEvents = filteredEvents.filter(
-          (e) => new Date(e.startTime).getTime() >= fromTime,
-        );
-      }
-      if (params?.toDate) {
-        const toTime = new Date(params.toDate).setHours(23, 59, 59, 999);
-        filteredEvents = filteredEvents.filter(
-          (e) => new Date(e.startTime).getTime() <= toTime,
-        );
-      }
-
-      const pageIndex = params?.page ?? 1;
-      const pageSize = params?.size ?? 10;
-      const start = (pageIndex - 1) * pageSize;
-      const paginatedEvents = filteredEvents.slice(start, start + pageSize);
-
-      return mockSuccess({
-        content: paginatedEvents,
-        page: pageIndex,
-        size: pageSize,
-        totalElements: filteredEvents.length,
-        totalPages: Math.ceil(filteredEvents.length / pageSize),
-      });
-    }
-
-    const { data } = await apiClient.get<ApiResponse<PageResponse<Event>>>(
-      "/events",
-      {
-        params: apiParams,
-      },
-    );
     return data;
   },
 
-  async getEventById(eventId: string): Promise<ApiResponse<Event>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(400);
-      const event = MOCK_EVENTS.find((e) => e.id === eventId);
-      if (!event) throw new Error("Event not found");
-      return mockSuccess(event);
-    }
-    const { data } = await apiClient.get<ApiResponse<Event>>(
-      `/events/${eventId}`,
-    );
+  async getEventById(eventId: string): Promise<Event> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(400);
+    //   const event = MOCK_EVENTS.find((e) => e.id === eventId);
+    //   if (!event) throw new Error('Event not found');
+    //   return event;
+    // }
+    const { data } = await apiClient.get<Event>(`/events/${eventId}`);
     return data;
   },
 
@@ -135,16 +73,12 @@ export const eventService = {
       const event = MOCK_EVENTS.find((e) => e.id === eventId);
       const reg: EventRegistration = {
         id: `reg-${Date.now()}`,
-        event_id: eventId,
-        user_id: "usr-001",
-        qr_token: `QR_${eventId}_USR001_${Date.now()}`,
+        eventId,
+        userId: "usr-001",
         status: "REGISTERED",
-        checked_in_at: null,
-        checked_out_at: null,
-        attended_valid: false,
-        reward_status: "PENDING_REWARD",
-        created_at: new Date().toISOString(),
-        event,
+        eventTitle: event?.title,
+        registrationCode: `QR_${eventId}_USR001_${Date.now()}`,
+        createdAt: new Date().toISOString(),
       };
       return mockSuccess(reg);
     }
@@ -154,194 +88,99 @@ export const eventService = {
     return data;
   },
 
-  async getMyRegistrations(): Promise<ApiResponse<EventRegistration[]>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
-      return mockSuccess(MOCK_MY_REGISTRATIONS);
-    }
-    const { data } = await apiClient.get<ApiResponse<EventRegistration[]>>(
-      "/events/registrations/me",
-    );
-    return data;
-  },
+  async getMyRegistrations(
+    userId: string,
+    params?: ParticipatedEventQueryParams,
+  ): Promise<PageResponse<Event>> {
+    const apiParams = {
+      title: params?.title,
+      address: params?.address,
+      status: params?.status === "all" ? undefined : params?.status,
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 10,
+    };
 
-  async getNgoEvents(
-    params?: PaginationParams,
-  ): Promise<ApiResponse<PageResponse<Event>>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(600);
-      return mockSuccess({
-        content: MOCK_EVENTS,
-        totalElements: MOCK_EVENTS.length,
-        page: params?.page ?? 1,
-        size: params?.size ?? 20,
-        totalPages: Math.ceil(MOCK_EVENTS.length / (params?.size ?? 20)),
-      });
-    }
-    const { data } = await apiClient.get<ApiResponse<PageResponse<Event>>>(
-      "/ngo/events",
+    const { data } = await apiClient.get<PageResponse<Event>>(
+      `/events/participated/${userId}`,
       {
-        params: {
-          page: params?.page,
-          size: params?.size,
-        },
+        params: apiParams,
       },
     );
     return data;
   },
 
-  async createEvent(payload: CreateEventRequest): Promise<ApiResponse<Event>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(900);
+  async getNgoEvents(
+    ngoId: string,
+    params?: PaginationParams,
+  ): Promise<PageResponse<Event>> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(600);
+    //   return mockSuccess({
+    //     content: MOCK_EVENTS,
+    //     totalElements: MOCK_EVENTS.length,
+    //     page: params?.page ?? 1,
+    //     size: params?.size ?? 20,
+    //     totalPages: Math.ceil(MOCK_EVENTS.length / (params?.size ?? 20)),
+    //   });
+    // }
+    const apiParams = {
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 10,
+    };
 
-      const newEvent: Event = {
-        id: `evt-${Date.now()}`,
-        ...payload,
-        status: payload.status === "DRAFT" ? "DRAFT" : "PENDING_APPROVAL",
-        rejectReason: null,
-        rejectedCount: 0,
-        address: {
-          id: `addr-${Date.now()}`,
-          ...payload.address,
-        },
-        // Thêm ID giả cho ảnh để React render key cho mượt
-        thumbnail: {
-          id: `img-${Date.now()}-thumb`,
-          ...payload.thumbnail,
-        },
-        images: payload.images.map((img, idx) => ({
-          id: `img-${Date.now()}-gal-${idx}`,
-          ...img,
-        })),
-        createdAt: new Date().toISOString(),
-        lastModifiedAt: new Date().toISOString(),
-      };
-
-      MOCK_EVENTS.unshift(newEvent);
-
-      return mockSuccess(newEvent);
-    }
-
-    const { data } = await apiClient.post<ApiResponse<Event>>(
-      "/events",
-      payload,
+    const { data } = await apiClient.get<PageResponse<Event>>(
+      `/events/ngo/${ngoId}`,
+      {
+        params: apiParams,
+      },
     );
+    return data;
+  },
+
+  async createEvent(payload: CreateEventRequest): Promise<Event> {
+    // Đảm bảo status này map đúng với Enum của Backend!
+    const fixedPayload = {
+      ...payload,
+      status: payload.status || "PENDING_APPROVAL",
+    };
+
+    const { data } = await apiClient.post<Event>("/events", fixedPayload);
     return data;
   },
 
   async updateEvent(
     eventId: string,
     payload: UpdateEventRequest,
-  ): Promise<ApiResponse<Event>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(700);
+  ): Promise<Event> {
+    const { data } = await apiClient.put<Event>(`/events/${eventId}`, payload);
 
-      // Tìm vị trí của sự kiện trong mảng giả lập
-      const eventIndex = MOCK_EVENTS.findIndex((e) => e.id === eventId);
-      if (eventIndex === -1) throw new Error("Event not found");
-
-      // Cập nhật dữ liệu mới đè lên dữ liệu cũ
-      const updatedEvent: Event = {
-        ...MOCK_EVENTS[eventIndex],
-        ...payload,
-        // Cập nhật các object lồng nhau (tránh bị mất ID cũ)
-        address: {
-          ...MOCK_EVENTS[eventIndex].address,
-          ...payload.address,
-        },
-        thumbnail: {
-          ...MOCK_EVENTS[eventIndex].thumbnail,
-          ...payload.thumbnail,
-        },
-        images: payload.images.map((img, idx) => ({
-          id: `img-${Date.now()}-gal-${idx}`,
-          ...img,
-        })),
-        lastModifiedAt: new Date().toISOString(),
-      };
-
-      // Lưu lại vào mảng Mock
-      MOCK_EVENTS[eventIndex] = updatedEvent;
-
-      return mockSuccess(updatedEvent);
-    }
-
-    const { data } = await apiClient.put<ApiResponse<Event>>(
-      `/events/${eventId}`,
-      payload,
-    );
     return data;
   },
 
-  async approveEvent(eventId: string): Promise<ApiResponse<null>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
-
-      const eventIndex = MOCK_EVENTS.findIndex((e) => e.id === eventId);
-      if (eventIndex === -1) throw new Error("Event not found");
-
-      const updatedEvent: Event = {
-        ...MOCK_EVENTS[eventIndex],
-        status: "PUBLISHED",
-        rejectReason: null,
-        lastModifiedAt: new Date().toISOString(),
-      };
-
-      MOCK_EVENTS[eventIndex] = updatedEvent;
-      return mockSuccess(null);
-    }
-
-    const { data } = await apiClient.post<ApiResponse<null>>(
-      `/events/${eventId}/approve`,
-    );
-    return data;
+  async approveEvent(eventId: string): Promise<void> {
+    await apiClient.post(`/events/${eventId}/approve`);
   },
 
-  // TỪ CHỐI SỰ KIỆN (Dành cho Admin/Mod)
   async rejectEvent(
     eventId: string,
     payload: RejectEventRequest,
-  ): Promise<ApiResponse<null>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
-
-      const eventIndex = MOCK_EVENTS.findIndex((e) => e.id === eventId);
-      if (eventIndex === -1) throw new Error("Event not found");
-
-      const updatedEvent: Event = {
-        ...MOCK_EVENTS[eventIndex],
-        status: "REJECTED",
-        rejectReason: payload.reason,
-        rejectedCount: (MOCK_EVENTS[eventIndex].rejectedCount || 0) + 1,
-        lastModifiedAt: new Date().toISOString(),
-      };
-
-      MOCK_EVENTS[eventIndex] = updatedEvent;
-      return mockSuccess(null);
-    }
-
-    const { data } = await apiClient.post<ApiResponse<null>>(
-      `/events/${eventId}/reject`,
-      payload,
-    );
-    return data;
+  ): Promise<void> {
+    await apiClient.post(`/events/${eventId}/reject`, payload);
   },
 
-  async deleteEvent(eventId: string): Promise<ApiResponse<null>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(600);
+  async deleteEvent(eventId: string): Promise<null> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(600);
 
-      const eventIndex = MOCK_EVENTS.findIndex((e) => e.id === eventId);
-      if (eventIndex === -1) throw new Error("Event not found");
+    //   const eventIndex = MOCK_EVENTS.findIndex((e) => e.id === eventId);
+    //   if (eventIndex === -1) throw new Error('Event not found');
 
-      MOCK_EVENTS.splice(eventIndex, 1);
+    //   MOCK_EVENTS.splice(eventIndex, 1);
 
-      return mockSuccess(null);
-    }
+    //   return mockSuccess(null);
+    // }
 
-    const { data } = await apiClient.delete<ApiResponse<null>>(
-      `/events/${eventId}`,
-    );
+    const { data } = await apiClient.delete<null>(`/events/${eventId}`);
     return data;
   },
 

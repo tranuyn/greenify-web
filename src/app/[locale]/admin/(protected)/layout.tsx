@@ -15,6 +15,7 @@ import {
   Trophy,
   Gift,
   Recycle,
+  MessageSquareWarning,
 } from "lucide-react";
 import Image from "next/image";
 import LOGO_URL from "@/constants/logoUrl";
@@ -30,6 +31,7 @@ const NAV = [
   { href: "/admin/leaderboard", icon: Trophy, label: "Leaderboard" },
   { href: "/admin/action-types", icon: Leaf, label: "Hành động xanh" },
   { href: "/admin/stations", icon: Recycle, label: "Điểm thu gom" },
+  { href: "/admin/appeals", icon: MessageSquareWarning, label: "Khiếu nại" },
 ];
 
 function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {

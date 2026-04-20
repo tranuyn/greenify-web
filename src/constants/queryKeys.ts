@@ -29,6 +29,11 @@ export const QUERY_KEYS = {
         ["admin", "leaderboard", "prizes", "list", params] as const,
       detail: (id: string) => ["admin", "leaderboard", "prizes", id] as const,
     },
+    appeals: {
+      all: ["admin", "appeals"] as const,
+      list: (params?: object) => ["admin", "appeals", "list", params] as const,
+      detail: (id: string) => ["admin", "appeals", id] as const,
+    },
   },
 
   // Auth
@@ -107,7 +112,8 @@ export const QUERY_KEYS = {
     list: (params?: object) => ["events", "list", params] as const,
     ngoList: (params?: object) => ["events", "ngo-list", params] as const,
     detail: (eventId: string) => ["events", eventId] as const,
-    myRegistrations: () => ["events", "registrations", "me"] as const,
+    myRegistrations: (userId?: string, params?: object) =>
+      ["events", "registrations", "me", userId, params] as const,
   },
 
   // Map
@@ -129,5 +135,13 @@ export const QUERY_KEYS = {
     provinces: () => ["location", "provinces"] as const,
     wards: (provinceCode: string) =>
       ["location", "wards", provinceCode] as const,
+  },
+
+  // Analytics
+  analytics: {
+    adminDashboard: (params?: object) =>
+      ["analytics", "admin", "dashboard", params] as const,
+    ngoDashboard: (params?: object) =>
+      ["analytics", "ngo", "dashboard", params] as const,
   },
 } as const;

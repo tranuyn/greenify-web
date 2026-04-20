@@ -68,9 +68,9 @@ export function EventCard({
 
       {/* Content */}
       <div className="p-4">
-        {event.ngoName && (
+        {event.organizer?.name && (
           <p className="text-xs font-medium uppercase tracking-wider text-primary-600">
-            {event.ngoName}
+            {event.organizer.name}
           </p>
         )}
         <h4 className="mt-0.5 line-clamp-1 text-sm font-semibold text-gray-900">

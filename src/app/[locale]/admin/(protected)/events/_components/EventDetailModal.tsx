@@ -108,9 +108,9 @@ export function EventDetailModal({
               <h3 className="font-bold text-2xl text-gray-900">
                 {event.title}
               </h3>
-              {event.ngoName && (
+                {event.organizer?.name && (
                 <p className="mt-1 text-sm font-medium text-primary-700">
-                  {event.ngoName}
+                    {event.organizer.name}
                 </p>
               )}
             </div>
