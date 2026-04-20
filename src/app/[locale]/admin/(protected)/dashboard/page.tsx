@@ -26,35 +26,30 @@ const EVENT_STATUS_CONFIG: Record<
     icon: Clock,
     cls: "bg-gray-100 text-gray-600",
   },
-  PENDING_APPROVAL: {
+  APPROVAL_WAITING: {
     label: "Chờ duyệt",
     icon: Clock,
     cls: "bg-amber-50 text-amber-600",
-  },
-  APPROVED: {
-    label: "Đã duyệt",
-    icon: CheckCircle,
-    cls: "bg-primary-50 text-primary-700",
   },
   PUBLISHED: {
     label: "Đã đăng",
     icon: CheckCircle,
     cls: "bg-blue-50 text-blue-600",
   },
+  IN_PROGRESS: {
+    label: "Đang diễn ra",
+    icon: CheckCircle,
+    cls: "bg-primary-50 text-primary-700",
+  },
+  COMPLETED: {
+    label: "Hoàn thành",
+    icon: CheckCircle,
+    cls: "bg-emerald-50 text-emerald-700",
+  },
   REJECTED: {
     label: "Từ chối",
     icon: XCircle,
     cls: "bg-rose-50 text-rose-500",
-  },
-  NEEDS_REVISION: {
-    label: "Cần chỉnh sửa",
-    icon: AlertTriangle,
-    cls: "bg-orange-50 text-orange-600",
-  },
-  CLOSED: {
-    label: "Đã đóng",
-    icon: CheckCircle,
-    cls: "bg-slate-100 text-slate-600",
   },
   CANCELLED: {
     label: "Đã hủy",

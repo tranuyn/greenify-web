@@ -27,7 +27,7 @@ export function EventCard({
   isRejecting,
 }: Props) {
   const s = STATUS_CONFIG[event.status];
-  const isPending = event.status === 'PENDING_APPROVAL';
+  const isPending = event.status === 'APPROVAL_WAITING';
   const locationLabel = event.address
     ? `${event.address.addressDetail}, ${event.address.ward}`
     : '—';

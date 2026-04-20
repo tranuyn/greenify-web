@@ -141,7 +141,7 @@ export const eventService = {
     // Đảm bảo status này map đúng với Enum của Backend!
     const fixedPayload = {
       ...payload,
-      status: payload.status || "PENDING_APPROVAL",
+      status: payload.status || "APPROVAL_WAITING",
     };
 
     const { data } = await apiClient.post<Event>("/events", fixedPayload);

@@ -13,19 +13,29 @@ export const STATUS_CONFIG: Partial<
     }
   >
 > = {
-  PENDING_APPROVAL: {
+  DRAFT: {
+    label: "Nháp",
+    cls: "bg-gray-50 text-gray-600 border-gray-200",
+    icon: Clock,
+  },
+  APPROVAL_WAITING: {
     label: "Chờ duyệt",
     cls: "bg-amber-50 text-amber-600 border-amber-200",
     icon: Clock,
   },
-  APPROVED: {
-    label: "Đã duyệt",
-    cls: "bg-primary-50 text-primary-700 border-primary-200",
-    icon: CheckCircle,
-  },
   PUBLISHED: {
     label: "Đã đăng",
     cls: "bg-blue-50 text-blue-600 border-blue-200",
+    icon: CheckCircle,
+  },
+  IN_PROGRESS: {
+    label: "Đang diễn ra",
+    cls: "bg-primary-50 text-primary-700 border-primary-200",
+    icon: CheckCircle,
+  },
+  COMPLETED: {
+    label: "Hoàn thành",
+    cls: "bg-emerald-50 text-emerald-700 border-emerald-200",
     icon: CheckCircle,
   },
   REJECTED: {
@@ -33,15 +43,10 @@ export const STATUS_CONFIG: Partial<
     cls: "bg-rose-50 text-rose-500 border-rose-200",
     icon: XCircle,
   },
-  NEEDS_REVISION: {
-    label: "Cần chỉnh sửa",
-    cls: "bg-orange-50 text-orange-600 border-orange-200",
-    icon: Clock,
-  },
-  CLOSED: {
-    label: "Đã đóng",
+  CANCELLED: {
+    label: "Đã hủy",
     cls: "bg-gray-50 text-gray-500 border-gray-200",
-    icon: Clock,
+    icon: XCircle,
   },
 };
 
@@ -59,10 +64,12 @@ const FILTER_TABS: Array<{
   count?: number;
 }> = [
   { value: "ALL", label: "Tất cả" },
-  { value: "PENDING_APPROVAL", label: "Chờ duyệt" },
-  { value: "APPROVED", label: "Đã duyệt" },
+  { value: "APPROVAL_WAITING", label: "Chờ duyệt" },
   { value: "PUBLISHED", label: "Đã đăng" },
+  { value: "IN_PROGRESS", label: "Đang diễn ra" },
+  { value: "COMPLETED", label: "Hoàn thành" },
   { value: "REJECTED", label: "Từ chối" },
+  { value: "CANCELLED", label: "Đã hủy" },
 ];
 
 interface Props {

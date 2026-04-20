@@ -21,7 +21,8 @@ export const QUERY_KEYS = {
       detail: (id: string) => ["admin", "vouchers", id] as const,
     },
     leaderboard: {
-      weekly: () => ["admin", "leaderboard", "weekly"] as const,
+      weekly: (weekStartDate?: string) =>
+        ["admin", "leaderboard", "weekly", weekStartDate] as const,
     },
     prizes: {
       all: ["admin", "leaderboard", "prizes"] as const,
@@ -33,6 +34,15 @@ export const QUERY_KEYS = {
       all: ["admin", "appeals"] as const,
       list: (params?: object) => ["admin", "appeals", "list", params] as const,
       detail: (id: string) => ["admin", "appeals", id] as const,
+    },
+    trashSpots: {
+      all: ["admin", "trash-spots"] as const,
+      list: (params?: object) =>
+        ["admin", "trash-spots", "list", params] as const,
+      resolveRequests: (params?: object) =>
+        ["admin", "trash-spots", "resolve-requests", params] as const,
+      reports: (params?: object) =>
+        ["admin", "trash-spots", "reports", params] as const,
     },
   },
 

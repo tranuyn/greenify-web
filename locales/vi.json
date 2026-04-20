@@ -143,6 +143,7 @@
         "ACTIVE": "Đang hoạt động",
         "INACTIVE": "Tạm dừng",
         "EXPIRED": "Hết hạn",
+      "emptyPrizesDescription": "Hệ thống chưa thiết lập phần thưởng cho chu kỳ này.",
         "DEPLETED": "Hết kho"
       },
       "table": {
@@ -197,10 +198,12 @@
         "prize": "Phần thưởng"
       },
       "prizesTable": {
-        "rank": "Hạng",
-        "scope": "Phạm vi",
-        "voucher": "Voucher thưởng",
-        "quantity": "Số lượng",
+        "weekStartDate": "Tuần áp dụng",
+        "lockAt": "Khóa lúc",
+        "status": "Trạng thái",
+        "nationalVoucher": "Voucher toàn quốc",
+        "provincialVoucher": "Voucher tỉnh/thành",
+        "reserved": "Số lượng dự trữ",
         "actions": "Hành động"
       },
       "scopes": {
@@ -209,6 +212,11 @@
       },
       "distribute": "Phát thưởng",
       "delete": "Xóa",
+      "statuses": {
+        "CONFIGURED": "Đã cấu hình",
+        "DISTRIBUTED": "Đã phát",
+        "CANCELLED": "Đã hủy"
+      },
       "emptyPrizes": "Chưa có cấu hình phần thưởng nào.",
       "addFirstPrize": "Thêm phần thưởng đầu tiên",
       "form": {
