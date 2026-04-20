@@ -13,6 +13,11 @@ export const metadata: Metadata = {
   title: "Greenify — Hành động vì môi trường",
   description:
     "Nền tảng ghi nhận hành vi xanh, kết nối cộng đồng với các điểm thu gom và tổ chức môi trường.",
+  icons: {
+    icon: "https://ik.imagekit.io/ii5tr5cdi/Material/Image/logo.svg?updatedAt=1776654858453",
+    apple:
+      "https://ik.imagekit.io/ii5tr5cdi/Material/Image/logo.svg?updatedAt=1776654858453",
+  },
 };
 
 export default function RootLayout({

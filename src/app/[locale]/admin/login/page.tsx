@@ -2,41 +2,40 @@
 
 import { useState } from "react";
 import { useRouter } from "@/i18n/routing";
-import { Leaf, Eye, EyeOff, Lock, Mail, AlertCircle } from "lucide-react";
+import { Leaf, Eye, EyeOff, Lock, User, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
+import LOGO_URL from "@/constants/logoUrl";
+import { useLogin } from "hooks/mutations/useAuth";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const t = useTranslations("admin.login");
 
-  const [email, setEmail] = useState("");
+  const { mutateAsync: loginUser, isPending: loading } = useLogin();
+
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
     try {
-      // TODO: thay bằng real API call
-      // const res = await fetch('/api/admin/login', { method: 'POST', body: JSON.stringify({ email, password }) });
-      // Mock: accept any @greenify.vn email
-      await new Promise((r) => setTimeout(r, 800));
-
-      if (!email.includes("@") || password.length < 6) {
-        throw new Error("Email hoặc mật khẩu không đúng.");
+      if (!identifier.trim() || password.length < 6) {
+        throw new Error("Tên đăng nhập/Email hoặc mật khẩu không hợp lệ.");
       }
 
-      // Set cookie (real: server sets httpOnly cookie)
-      document.cookie = `admin_token=mock_token; path=/; max-age=${60 * 60 * 24}`;
+      await loginUser({ identifier, password });
+
+      // Token đã được lưu vào localStorage trong authService.login().
+      // useLogin.onSuccess sẽ invalidate cache 'me' → useCurrentUser refetch
+      // → layout xác nhận ADMIN role → điều hướng vào dashboard.
       router.push("/admin/dashboard");
     } catch (err: any) {
-      setError(err.message ?? "Đăng nhập thất bại.");
-    } finally {
-      setLoading(false);
+      setError(err.response?.data?.message ?? err.message ?? "Đăng nhập thất bại.");
     }
   };
 
@@ -53,8 +52,8 @@ export default function AdminLoginPage() {
         <div className="overflow-hidden rounded-3xl border border-primary-border/40 bg-white/70 shadow-primary-900/20 dark:border-white/10 dark:bg-white/5 dark:shadow-black/40 shadow-2xl backdrop-blur-xl">
           {/* Header */}
           <div className="border-b border-white/10 px-8 py-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-500 shadow-lg shadow-primary-900/50">
-              <Leaf size={24} className="text-forest" />
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl shadow-md shadow-primary-900/50">
+              <Image src={LOGO_URL} alt="Greenify Logo" width={40} height={40} />
             </div>
             <h1 className="font-bold text-3xl text-foreground">
               Greenify Admin
@@ -74,21 +73,21 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            {/* Email */}
+            {/* Identifier */}
             <div>
               <label className="mb-2 block font-body text-xs font-medium uppercase tracking-wider text-primary-content/60">
-                Email
+                Email / Tên đăng nhập
               </label>
               <div className="relative">
-                <Mail
+                <User
                   size={16}
                   className="absolute left-4 top-1/2 -translate-y-1/2 dark:text-primary/60 text-primary-500/60"
                 />
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@greenify.vn"
+                  type="text"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder="admin@greenify.vn hoặc admin"
                   required
                   className="w-full rounded-2xl border border-foreground/10 bg-foreground/5 py-3.5 pl-11 pr-4 font-body text-sm text-foreground placeholder-primary-content/30 outline-none transition-all focus:border-primary-500/50 focus:bg-foreground/8"
                 />

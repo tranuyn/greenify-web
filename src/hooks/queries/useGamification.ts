@@ -1,12 +1,15 @@
-import { useQuery } from '@tanstack/react-query';
-import { QUERY_KEYS } from '@/constants/queryKeys';
-import { gamificationService, leaderboardService } from '@/services/gamification.service';
+import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/queryKeys";
+import {
+  gamificationService,
+  leaderboardService,
+} from "@/services/gamification.service";
 import {
   LeaderboardScope,
   PlantDailyLogQueryParams,
   MyVouchersQueryParams,
   AvailableVouchersQueryParams,
-} from '@/types/gamification.types';
+} from "@/types/gamification.types";
 
 export const useMyStreak = () => {
   return useQuery({
@@ -27,7 +30,8 @@ export const useMyPlant = () => {
 export const useGardenArchives = () => {
   return useQuery({
     queryKey: QUERY_KEYS.garden.archives(),
-    queryFn: () => gamificationService.getGardenArchives().then((r) => r.content),
+    queryFn: () =>
+      gamificationService.getGardenArchives().then((r) => r.content),
   });
 };
 
@@ -49,21 +53,22 @@ export const useSeeds = () => {
 export const useAvailableVouchers = (params?: AvailableVouchersQueryParams) => {
   return useQuery({
     queryKey: [...QUERY_KEYS.vouchers.available(), params],
-    queryFn: () => gamificationService.getAvailableVouchers(params).then((r) => r.data),
+    queryFn: () => gamificationService.getAvailableVouchers(params),
   });
 };
 
 export const useMyVouchers = (params?: MyVouchersQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.vouchers.mine(params),
-    queryFn: () => gamificationService.getMyVouchers(params).then((r) => r.data),
+    queryFn: () =>
+      gamificationService.getMyVouchers(params),
   });
 };
 
 export const useVoucherBySeed = (seedId?: string) => {
   return useQuery({
-    queryKey: QUERY_KEYS.vouchers.bySeed(seedId ?? ''),
-    queryFn: () => gamificationService.getVoucherBySeed(seedId ?? ''),
+    queryKey: QUERY_KEYS.vouchers.bySeed(seedId ?? ""),
+    queryFn: () => gamificationService.getVoucherBySeed(seedId ?? ""),
     enabled: Boolean(seedId),
   });
 };
@@ -71,13 +76,23 @@ export const useVoucherBySeed = (seedId?: string) => {
 export const useLeaderboard = (
   scope: LeaderboardScope,
   weekStartDate: string,
-  province?: string
+  province?: string,
 ) => {
   return useQuery({
     queryKey: QUERY_KEYS.leaderboard.scope(scope, weekStartDate, province),
-    queryFn: () => leaderboardService.getLeaderboard(scope, weekStartDate, province),
+    queryFn: () =>
+      leaderboardService.getLeaderboard(scope, weekStartDate, province),
     enabled: Boolean(weekStartDate),
     // Leaderboard update theo tuần
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useWeeklyLeaderboardPrizes = (weekStartDate: string) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.leaderboard.weeklyPrizes(weekStartDate),
+    queryFn: () => leaderboardService.getWeeklyPrizes(weekStartDate),
+    enabled: Boolean(weekStartDate),
     staleTime: 5 * 60 * 1000,
   });
 };

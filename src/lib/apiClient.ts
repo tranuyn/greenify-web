@@ -1,28 +1,27 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 // ---- Constants ----
-// Gợi ý: Trên web nên dùng process.env.NEXT_PUBLIC_API_URL, nhưng mình tạm giữ hardcode của bạn
-const BASE_URL = 'http://192.168.1.3:8080/api/v1'; 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://greenify.io.vn/api/v1';
 const ACCESS_TOKEN_KEY = 'auth.access_token';
 const REFRESH_TOKEN_KEY = 'auth.refresh_token';
 
-// ---- Token helpers (Phiên bản WEB) ----
+// ---- Token helpers (synchronous — localStorage is sync on the main thread) ----
 export const tokenStorage = {
-  getAccess: () => {
+  getAccess: (): string | null => {
     if (typeof window !== 'undefined') return localStorage.getItem(ACCESS_TOKEN_KEY);
     return null;
   },
-  getRefresh: () => {
+  getRefresh: (): string | null => {
     if (typeof window !== 'undefined') return localStorage.getItem(REFRESH_TOKEN_KEY);
     return null;
   },
-  setAccess: (token: string) => {
+  setAccess: (token: string): void => {
     if (typeof window !== 'undefined') localStorage.setItem(ACCESS_TOKEN_KEY, token);
   },
-  setRefresh: (token: string) => {
+  setRefresh: (token: string): void => {
     if (typeof window !== 'undefined') localStorage.setItem(REFRESH_TOKEN_KEY, token);
   },
-  clear: () => {
+  clear: (): void => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);
@@ -30,7 +29,7 @@ export const tokenStorage = {
   },
 };
 
-// ---- Axios instance ----
+// ---- Axios instance (authenticated) ----
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 100_000,
@@ -40,7 +39,7 @@ export const apiClient = axios.create({
   },
 });
 
-
+// ---- Axios instance (public — không cần token) ----
 export const publicApiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 100_000,
@@ -50,10 +49,9 @@ export const publicApiClient = axios.create({
   },
 });
 
-// ---- Request interceptor: attach Bearer token ----
+// ---- Request interceptor: gắn Bearer token vào mọi request authenticated ----
 apiClient.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
-    // localStorage là synchronous (chạy đồng bộ), không cần await nữa nhưng giữ cũng không sao
+  (config: InternalAxiosRequestConfig) => {
     const token = tokenStorage.getAccess();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -63,7 +61,7 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ---- Response interceptor: handle 401 → refresh ----
+// ---- Response interceptor: handle 401 → tự động refresh token ----
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (token: string) => void;
@@ -81,6 +79,16 @@ const processQueue = (error: unknown, token: string | null) => {
   failedQueue = [];
 };
 
+/**
+ * Đá user về trang login khi refresh token thất bại.
+ * Dùng window.location thay vì router để thoát khỏi React tree một cách sạch.
+ */
+const redirectToLogin = () => {
+  if (typeof window !== 'undefined') {
+    window.location.href = '/admin/login';
+  }
+};
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -88,14 +96,16 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
+    // Không phải 401, hoặc đây là request retry, hoặc chính là request refresh
     if (
       error.response?.status !== 401 ||
       originalRequest._retry ||
-      originalRequest.url?.includes('/auth/refresh')
+      originalRequest.url?.includes('/auth/refresh-token')
     ) {
       return Promise.reject(error);
     }
 
+    // Nếu đang refresh, enqueue request hiện tại để retry sau
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
@@ -112,11 +122,12 @@ apiClient.interceptors.response.use(
       const refreshToken = tokenStorage.getRefresh();
       if (!refreshToken) throw new Error('No refresh token');
 
+      // Dùng camelCase "refreshToken" để thống nhất với BE Spring Boot (Jackson default)
       const { data } = await axios.post(`${BASE_URL}/auth/refresh-token`, {
-        refresh_token: refreshToken,
+        refreshToken,
       });
 
-      const newAccessToken: string = data.data.access_token;
+      const newAccessToken: string = data.access_token;
       tokenStorage.setAccess(newAccessToken);
 
       processQueue(null, newAccessToken);
@@ -125,10 +136,10 @@ apiClient.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError, null);
       tokenStorage.clear();
-      // Chỗ này thường sẽ gọi window.location.href = '/login' để đá user ra ngoài
+      redirectToLogin();
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
     }
   }
-);
+);

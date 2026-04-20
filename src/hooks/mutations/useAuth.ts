@@ -8,8 +8,10 @@ import {
   RegisterEmailRequest,
   VerifyOtpRequest,
   SetPasswordRequest,
+  CreateNgoProfileRequest,
 } from 'types/user.type';
 import { QUERY_KEYS } from 'constants/queryKeys';
+
 
 /**
  * Gửi OTP về email.
@@ -47,6 +49,12 @@ export const useSetPassword = () => {
 export const useLogin = () => {
   return useMutation({
     mutationFn: (payload: LoginRequest) => authService.login(payload),
+    onSuccess: () => {
+      // Token đã được lưu trong authService.login().
+      // Invalidate query 'me' để useCurrentUser refetch ngay — layout nhận được
+      // user data và không redirect về login nữa.
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.me() });
+    },
   });
 };
 
@@ -70,14 +78,22 @@ export const useUpdateProfile = () => {
   });
 };
 
-export const useLogout = () => {
+export const useCreateNgoProfile = () => {
+  return useMutation({
+    mutationFn: (payload: CreateNgoProfileRequest) => authService.createNgoProfile(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.me() });
+    },
+  });
+};
+export const useLogout = (redirectUrl: string = '/login') => {
   const router = useRouter();
   return useMutation({
     mutationFn: () => authService.logout(),
     onSuccess: () => {
       // Xóa toàn bộ cache khi logout — tránh data của user cũ còn sót
       queryClient.clear();
-      router.replace('/login');
+      router.replace(redirectUrl);
     },
   });
 };

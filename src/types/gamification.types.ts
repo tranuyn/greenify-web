@@ -37,12 +37,20 @@ export interface VoucherTemplate {
   validUntil: string;
   status: VoucherTemplateStatus;
 }
-export interface AvailableVouchersResponse extends PageResponse<VoucherTemplate> {
+export interface AvailableVouchersResponse {
   availablePoints: number;
+  content: VoucherTemplate[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
 }
 export interface AvailableVouchersQueryParams extends PaginationParams {
   minRequiredPoints?: number;
   maxRequiredPoints?: number;
+}
+export interface AdminVouchersQueryParams extends PaginationParams {
+  status?: VoucherTemplateStatus | "ALL";
 }
 
 export interface CreateVoucherTemplateRequest {
@@ -255,21 +263,23 @@ export interface LeaderboardEntry {
 
 export interface LeaderboardPrize {
   id: string;
-  rank: number; // hạng được nhận thưởng (1, 2, 3...)
-  scope: LeaderboardScope;
-  voucherTemplateId: string;
-  voucherTemplate?: VoucherTemplate;
-  quantity: number; // số lượng voucher phát
-  season?: string; // tuần/tháng áp dụng (optional)
+  weekStartDate: string;
+  lockAt: string;
+  status: LeaderboardPrizeStatus;
+  nationalVoucher: VoucherTemplate;
+  provincialVoucher: VoucherTemplate;
+  nationalReservedCount: number;
+  provincialReservedCount: number;
+  distributedAt: string | null;
   createdAt: string;
+  lastModifiedAt: string;
 }
 
 export interface CreateLeaderboardPrizeRequest {
-  rank: number;
-  scope: LeaderboardScope;
-  voucherTemplateId: string;
-  quantity: number;
-  season?: string;
+  weekStartDate: string; // YYYY-MM-DD
+  lockAt: string;
+  nationalVoucherTemplateId: string;
+  provincialVoucherTemplateId: string;
 }
 
 export interface WeeklyLeaderboardEntry {
@@ -286,7 +296,7 @@ export interface WeeklyLeaderboardPrize {
   voucherName: string;
   quantity: number;
 }
-export type LeaderboardPrizeStatus = "CONFIGURED" | "LOCKED" | "DISTRIBUTED";
+export type LeaderboardPrizeStatus = "CONFIGURED" | "DISTRIBUTED" | "CANCELLED";
 
 export interface WeeklyLeaderboardPrizes {
   prizeConfigId: string;
@@ -298,4 +308,8 @@ export interface WeeklyLeaderboardPrizes {
   distributedAt: string | null;
   nationalVoucher: VoucherTemplate;
   provincialVoucher: VoucherTemplate;
+}
+export interface LeaderboardPrizeQueryParams extends PaginationParams {
+  weekStartDate?: string;
+  status?: LeaderboardPrizeStatus | "ALL";
 }

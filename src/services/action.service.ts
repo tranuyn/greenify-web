@@ -36,11 +36,6 @@ import { SortOption } from "@/constants/enums/sortOptions.enum";
 // ============================================================
 export const actionService = {
   async getActionTypes(): Promise<GreenActionType[]> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(400);
-      return MOCK_ACTION_TYPES.filter((a) => a.isActive);
-    }
-
     const { data } = await apiClient.get<GreenActionType[]>(
       "/green-action/action-types",
     );

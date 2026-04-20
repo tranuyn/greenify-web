@@ -1,6 +1,8 @@
+import LOGO_URL from "@/constants/logoUrl";
 import { Link } from "@/i18n/routing";
 import { Leaf, Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 export function Navbar() {
   const t = useTranslations("landing.navbar");
@@ -8,9 +10,7 @@ export function Navbar() {
     <nav className="fixed inset-x-0 top-0 z-50 border-b border-primary-900/20 bg-forest/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-500">
-            <Leaf size={18} className="text-forest" />
-          </div>
+          <Image src={LOGO_URL} alt="Greenify Logo" width={40} height={40} />
           <span className="font-bold text-xl text-primary">Greenify</span>
         </div>
 

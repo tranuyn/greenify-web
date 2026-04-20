@@ -161,7 +161,15 @@ export type StationStatus =
 export interface OpeningHours {
   [day: string]: { open: string; close: string } | null; // null = closed
 }
-
+export interface AddressDto {
+  id: string;
+  province: string;
+  district: string;
+  ward: string;
+  addressDetail: string;
+  latitude: number;
+  longitude: number;
+}
 export interface RecyclingStation {
   id: string;
   name: string;

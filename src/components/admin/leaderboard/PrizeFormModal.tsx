@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import type { CreateLeaderboardPrizeRequest } from '@/types/gamification.types';
-import { LeaderboardScope } from '@/types/gamification.types';
 
 interface PrizeFormModalProps {
   vouchers: { id: string; name: string }[];
@@ -20,15 +19,20 @@ export function PrizeFormModal({
   isPending,
 }: PrizeFormModalProps) {
   const t = useTranslations('admin.leaderboard.form');
-  const tLeaderboard = useTranslations('admin.leaderboard');
   
   const [form, setForm] = useState<CreateLeaderboardPrizeRequest>({
-    rank: 1,
-    scope: LeaderboardScope.NATIONAL,
-    voucherTemplateId: '',
-    quantity: 1,
-    season: '',
+    weekStartDate: '',
+    lockAt: '',
+    nationalVoucherTemplateId: '',
+    provincialVoucherTemplateId: '',
   });
+
+  const handleSubmit = () => {
+    onSubmit({
+      ...form,
+      lockAt: new Date(form.lockAt).toISOString(),
+    });
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -53,55 +57,51 @@ export function PrizeFormModal({
         </div>
 
         <div className="px-6 py-6 space-y-5">
-          {/* Rank */}
+          {/* Week start */}
           <div>
             <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
-              {t('rank')}
+              {t('weekStartDate')}
             </label>
             <input
-              type="number"
-              min={1}
-              value={form.rank}
+              type="date"
+              value={form.weekStartDate}
               onChange={(e) =>
-                setForm((p) => ({ ...p, rank: Number(e.target.value) }))
+                setForm((p) => ({ ...p, weekStartDate: e.target.value }))
               }
               className="w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm outline-none transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
             />
           </div>
 
-          {/* Scope */}
+          {/* Lock at */}
           <div>
             <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
-              {t('scope')}
+              {t('lockAt')}
             </label>
-            <select
-              value={form.scope}
+            <input
+              type="datetime-local"
+              value={form.lockAt}
               onChange={(e) =>
                 setForm((p) => ({
                   ...p,
-                  scope: e.target.value as LeaderboardScope,
+                  lockAt: e.target.value,
                 }))
               }
               className="w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm outline-none transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
-            >
-              <option value={LeaderboardScope.NATIONAL}>
-                {tLeaderboard('scopes.NATIONAL')}
-              </option>
-              <option value={LeaderboardScope.PROVINCIAL}>
-                {tLeaderboard('scopes.PROVINCIAL')}
-              </option>
-            </select>
+            />
           </div>
 
-          {/* Voucher */}
+          {/* National voucher */}
           <div>
             <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
-              {t('voucher')}
+              {t('nationalVoucher')}
             </label>
             <select
-              value={form.voucherTemplateId}
+              value={form.nationalVoucherTemplateId}
               onChange={(e) =>
-                setForm((p) => ({ ...p, voucherTemplateId: e.target.value }))
+                setForm((p) => ({
+                  ...p,
+                  nationalVoucherTemplateId: e.target.value,
+                }))
               }
               className="w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm outline-none transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
             >
@@ -114,20 +114,28 @@ export function PrizeFormModal({
             </select>
           </div>
 
-          {/* Quantity */}
+          {/* Provincial voucher */}
           <div>
             <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
-              {t('quantity')}
+              {t('provincialVoucher')}
             </label>
-            <input
-              type="number"
-              min={1}
-              value={form.quantity}
+            <select
+              value={form.provincialVoucherTemplateId}
               onChange={(e) =>
-                setForm((p) => ({ ...p, quantity: Number(e.target.value) }))
+                setForm((p) => ({
+                  ...p,
+                  provincialVoucherTemplateId: e.target.value,
+                }))
               }
               className="w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm outline-none transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
-            />
+            >
+              <option value="">{t('selectVoucher')}</option>
+              {vouchers.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -140,8 +148,14 @@ export function PrizeFormModal({
             {t('cancel')}
           </button>
           <button
-            onClick={() => onSubmit(form)}
-            disabled={isPending || !form.voucherTemplateId}
+            onClick={handleSubmit}
+            disabled={
+              isPending ||
+              !form.weekStartDate ||
+              !form.lockAt ||
+              !form.nationalVoucherTemplateId ||
+              !form.provincialVoucherTemplateId
+            }
             className="flex-1 rounded-2xl bg-primary-600 py-3 text-sm font-bold text-white shadow-md shadow-primary-600/20 transition-all hover:bg-primary-700 hover:shadow-lg disabled:opacity-50 disabled:shadow-none"
           >
             {isPending ? t('saving') : t('submit')}

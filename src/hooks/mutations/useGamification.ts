@@ -19,7 +19,7 @@ export const useClaimLeaderboardReward = () => {
   return useMutation({
     mutationFn: (weekStartDate: string) => leaderboardService.claimLeaderboardReward(weekStartDate),
     onSuccess: (_response, weekStartDate) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.leaderboard.claim(weekStartDate) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.leaderboard.weeklyPrizes(weekStartDate) });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.leaderboard.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.vouchers.mine() });
     },

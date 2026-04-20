@@ -1,7 +1,9 @@
 "use client";
 
+import LOGO_URL from "@/constants/logoUrl";
 import { Smartphone, ArrowRight, Leaf } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 export function Download() {
   const t = useTranslations("landing.download");
@@ -78,14 +80,23 @@ export function Download() {
                     />
                   ))}
                 </div>
-                <p className="font-mono text-xs text-primary-600">{t("qr_label")}</p>
+                <p className="font-mono text-xs text-primary-600">
+                  {t("qr_label")}
+                </p>
               </div>
               {/* Logo overlay */}
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-primary-600 p-2 shadow-lg">
-                <Leaf size={14} className="text-white" />
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-background p-2 shadow-lg">
+                <Image
+                  src={LOGO_URL}
+                  alt="Greenify Logo"
+                  width={40}
+                  height={40}
+                />
               </div>
             </div>
-            <p className="font-body text-sm text-primary-content/60">{t("qr_instruction")}</p>
+            <p className="font-body text-sm text-primary-content/60">
+              {t("qr_instruction")}
+            </p>
           </div>
         </div>
       </div>
