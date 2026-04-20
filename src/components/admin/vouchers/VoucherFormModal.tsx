@@ -3,12 +3,27 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
-import type { VoucherTemplate, CreateVoucherTemplateRequest } from '@/types/gamification.types';
+import type {
+  VoucherTemplate,
+  CreateVoucherTemplateRequest,
+  UpdateVoucherTemplateRequest,
+} from '@/types/gamification.types';
+
+type VoucherFormState = {
+  name: string;
+  partnerName: string;
+  description: string;
+  requiredPoints: number;
+  totalStock: number;
+  additionalStock: number;
+  usageConditions: string;
+  validUntil: string;
+};
 
 interface VoucherFormModalProps {
   initial?: VoucherTemplate | null;
   onClose: () => void;
-  onSubmit: (data: CreateVoucherTemplateRequest) => void;
+  onSubmit: (data: CreateVoucherTemplateRequest | UpdateVoucherTemplateRequest) => void;
   isPending: boolean;
 }
 
@@ -21,30 +36,56 @@ export function VoucherFormModal({
   const t = useTranslations('admin.vouchers');
   const isEdit = !!initial;
   
-  const [form, setForm] = useState<CreateVoucherTemplateRequest>({
+  const [form, setForm] = useState<VoucherFormState>({
     name:             initial?.name ?? '',
     partnerName:      initial?.partnerName ?? '',
     description:      initial?.description ?? '',
     requiredPoints:   initial?.requiredPoints ?? 0,
     totalStock:       initial?.totalStock ?? 0,
+    additionalStock:  0,
     usageConditions:  initial?.usageConditions ?? '',
     validUntil:       initial?.validUntil ? initial.validUntil.slice(0, 10) : '',
   });
 
-  const set = (k: keyof CreateVoucherTemplateRequest, v: string | number) =>
+  const set = (k: keyof VoucherFormState, v: string | number) =>
     setForm((p) => ({ ...p, [k]: v }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      ...form,
-      validUntil: new Date(form.validUntil).toISOString(),
-    });
+
+    const validUntil = new Date(form.validUntil).toISOString();
+
+    if (isEdit) {
+      const payload: UpdateVoucherTemplateRequest = {
+        name: form.name,
+        partnerName: form.partnerName,
+        description: form.description,
+        requiredPoints: form.requiredPoints,
+        additionalStock: form.additionalStock,
+        usageConditions: form.usageConditions,
+        validUntil,
+        status: initial?.status,
+      };
+      onSubmit(payload);
+      return;
+    }
+
+    const payload: CreateVoucherTemplateRequest = {
+      name: form.name,
+      partnerName: form.partnerName,
+      description: form.description,
+      requiredPoints: form.requiredPoints,
+      totalStock: form.totalStock,
+      usageConditions: form.usageConditions,
+      validUntil,
+    };
+
+    onSubmit(payload);
   };
 
   const field = (
     label: string,
-    key: keyof CreateVoucherTemplateRequest,
+    key: keyof VoucherFormState,
     opts?: { type?: string; placeholder?: string; multiline?: boolean },
   ) => (
     <div>
@@ -96,7 +137,15 @@ export function VoucherFormModal({
 
           <div className="grid grid-cols-2 gap-5">
             {field(t('form.points'), 'requiredPoints', { type: 'number', placeholder: t('form.pointsPlaceholder') })}
-            {field(t('form.stock'), 'totalStock', { type: 'number', placeholder: t('form.stockPlaceholder') })}
+            {isEdit
+              ? field(t('form.additionalStock'), 'additionalStock', {
+                  type: 'number',
+                  placeholder: t('form.additionalStockPlaceholder'),
+                })
+              : field(t('form.stock'), 'totalStock', {
+                  type: 'number',
+                  placeholder: t('form.stockPlaceholder'),
+                })}
           </div>
 
           {field(t('form.conditions'), 'usageConditions', {
@@ -117,7 +166,14 @@ export function VoucherFormModal({
           <button
             form="voucher-form"
             type="submit"
-            disabled={isPending || !form.name || !form.partnerName || !form.validUntil}
+            disabled={
+              isPending ||
+              !form.name ||
+              !form.partnerName ||
+              !form.validUntil ||
+              (!isEdit && form.totalStock <= 0) ||
+              (isEdit && form.additionalStock < 0)
+            }
             className="flex-1 rounded-2xl bg-primary-600 py-3 text-sm font-bold text-white shadow-md shadow-primary-600/20 transition-all hover:bg-primary-700 hover:shadow-lg disabled:opacity-50 disabled:shadow-none"
           >
             {isPending ? t('form.saving') : isEdit ? t('form.save') : t('form.create')}

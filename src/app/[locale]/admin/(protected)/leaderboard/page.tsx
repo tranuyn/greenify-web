@@ -12,10 +12,7 @@ import {
   Users,
   Crown,
 } from "lucide-react";
-import {
-  useWeeklyLeaderboard,
-  useAdminPrizes,
-} from "@/hooks/queries/useAdmin";
+import { useWeeklyLeaderboard, useAdminPrizes } from "@/hooks/queries/useAdmin";
 import {
   useCreatePrize,
   useDistributePrize,
@@ -36,9 +33,12 @@ import {
 } from "@/components/admin/ui/table";
 // ── Rank medal ─────────────────────────────────────────────────
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) return <Crown size={20} className="text-amber-500 drop-shadow-sm" />;
-  if (rank === 2) return <Medal size={20} className="text-gray-400 drop-shadow-sm" />;
-  if (rank === 3) return <Medal size={20} className="text-amber-700 drop-shadow-sm" />;
+  if (rank === 1)
+    return <Crown size={20} className="text-amber-500 drop-shadow-sm" />;
+  if (rank === 2)
+    return <Medal size={20} className="text-gray-400 drop-shadow-sm" />;
+  if (rank === 3)
+    return <Medal size={20} className="text-amber-700 drop-shadow-sm" />;
   return (
     <span className="w-5 text-center text-sm font-bold text-gray-400">
       #{rank}
@@ -50,11 +50,14 @@ function RankBadge({ rank }: { rank: number }) {
 export default function LeaderboardAdminPage() {
   const t = useTranslations("admin.leaderboard");
 
-  const { data: leaderboard = [], isLoading: isLoadingLB } = useWeeklyLeaderboard();
-  const { data: prizes = [], isLoading: isLoadingPrizes } = useAdminPrizes();
-  
+  const { data: leaderboard = [], isLoading: isLoadingLB } =
+    useWeeklyLeaderboard();
+  const { data: prizesData, isLoading: isLoadingPrizes } = useAdminPrizes();
+  const prizes = prizesData?.content || [];
   const { data: vouchersData } = useAvailableVouchers();
-  const vouchers = Array.isArray(vouchersData) ? vouchersData : (vouchersData?.content ?? []);
+  const vouchers = Array.isArray(vouchersData)
+    ? vouchersData
+    : (vouchersData?.content ?? []);
 
   const { mutate: createPrize, isPending: isCreatingPrize } = useCreatePrize();
   const {
@@ -138,17 +141,19 @@ export default function LeaderboardAdminPage() {
               </TableHeader>
               <TableBody>
                 {leaderboard.map((entry: any) => {
-                  const prize = prizes.find(
-                    (p: any) =>
-                      p.rank === entry.rank &&
-                      p.scope === LeaderboardScope.NATIONAL,
-                  );
+                  const prizeConfig = prizes[0];
+                  const prizeName =
+                    entry.rank <= 3
+                      ? prizeConfig?.nationalVoucher?.name
+                      : prizeConfig?.provincialVoucher?.name;
                   const isTop3 = entry.rank <= 3;
 
                   return (
                     <TableRow
                       key={entry.userId}
-                      className={isTop3 ? "bg-amber-50/20 hover:bg-amber-50/40" : ""}
+                      className={
+                        isTop3 ? "bg-amber-50/20 hover:bg-amber-50/40" : ""
+                      }
                     >
                       {/* Rank */}
                       <TableCell>
@@ -189,14 +194,15 @@ export default function LeaderboardAdminPage() {
                       </TableCell>
                       {/* Prize */}
                       <TableCell>
-                        {prize ? (
+                        {prizeName ? (
                           <span className="flex w-fit items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1.5 text-xs font-bold text-primary-700 border border-primary-200/50 shadow-sm">
                             <Gift size={12} className="text-primary-600" />
-                            {prize.voucherTemplate?.name ??
-                              prize.voucherTemplateId}
+                            {prizeName}
                           </span>
                         ) : (
-                          <span className="text-sm font-medium text-gray-400">—</span>
+                          <span className="text-sm font-medium text-gray-400">
+                            —
+                          </span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -224,7 +230,9 @@ export default function LeaderboardAdminPage() {
                     <TableHead>{t("prizesTable.scope")}</TableHead>
                     <TableHead>{t("prizesTable.voucher")}</TableHead>
                     <TableHead>{t("prizesTable.quantity")}</TableHead>
-                    <TableHead className="text-right">{t("prizesTable.actions")}</TableHead>
+                    <TableHead className="text-right">
+                      {t("prizesTable.actions")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -254,7 +262,8 @@ export default function LeaderboardAdminPage() {
                       {/* Voucher */}
                       <TableCell>
                         <p className="text-sm font-bold text-gray-900">
-                          {prize.voucherTemplate?.name ?? prize.voucherTemplateId}
+                          {prize.voucherTemplate?.name ??
+                            prize.voucherTemplateId}
                         </p>
                         {prize.voucherTemplate?.partnerName && (
                           <p className="mt-1 text-xs font-medium text-gray-500">
@@ -275,7 +284,9 @@ export default function LeaderboardAdminPage() {
                           {/* Distribute */}
                           <button
                             onClick={() => distributePrize(prize.id)}
-                            disabled={isDistributing && distributingId === prize.id}
+                            disabled={
+                              isDistributing && distributingId === prize.id
+                            }
                             className="flex items-center gap-1.5 rounded-2xl bg-primary-50 px-3.5 py-2 text-xs font-bold text-primary-700 hover:bg-primary-100 disabled:opacity-50 transition-colors"
                             title={t("distribute")}
                           >
@@ -307,7 +318,9 @@ export default function LeaderboardAdminPage() {
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-50 mb-4 animate-float">
                     <Gift size={32} className="text-primary-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">{t("emptyPrizes")}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {t("emptyPrizes")}
+                  </h3>
                   <p className="mt-1.5 text-sm text-gray-500 mb-6">
                     Hệ thống chưa thiết lập phần thưởng cho chu kỳ này.
                   </p>

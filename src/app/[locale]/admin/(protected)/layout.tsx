@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, usePathname, useRouter } from "@/i18n/routing";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Leaf,
   LayoutDashboard,
@@ -14,7 +14,13 @@ import {
   ChevronRight,
   Trophy,
   Gift,
+  Recycle,
 } from "lucide-react";
+import Image from "next/image";
+import LOGO_URL from "@/constants/logoUrl";
+import { useCurrentUser } from "hooks/queries/useAuth";
+import { useLogout } from "hooks/mutations/useAuth";
+import { AuthenticatedUser } from "types/user.type";
 
 const NAV = [
   { href: "/admin/dashboard", icon: LayoutDashboard, label: "Tổng quan" },
@@ -22,16 +28,17 @@ const NAV = [
   { href: "/admin/events", icon: Calendar, label: "Sự kiện NGO" },
   { href: "/admin/vouchers", icon: Gift, label: "Voucher" },
   { href: "/admin/leaderboard", icon: Trophy, label: "Leaderboard" },
-  { href: '/admin/action-types', icon: Leaf, label: 'Hành động xanh' },
+  { href: "/admin/action-types", icon: Leaf, label: "Hành động xanh" },
+  { href: "/admin/stations", icon: Recycle, label: "Điểm thu gom" },
 ];
 
 function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
-  const router = useRouter();
+  const logoutMutation = useLogout("/admin/login");
 
   const handleLogout = () => {
     document.cookie = "admin_token=; max-age=0; path=/";
-    router.push("/admin/login");
+    logoutMutation.mutate();
   };
 
   return (
@@ -50,10 +57,8 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
         }`}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center gap-3 border-b border-primary-900/30 px-6">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-500">
-            <Leaf size={14} className="text-forest" />
-          </div>
+        <div className="flex h-16 items-center gap-1 border-b border-primary-900/30 px-6 bg-background">
+          <Image src={LOGO_URL} alt="Greenify Logo" width={32} height={32} />
           <span className="font-bold text-lg text-primary">Greenify</span>
           <span className="ml-auto rounded-md bg-primary-900/50 px-2 py-0.5 font-mono text-[10px] text-primary-400">
             ADMIN
@@ -61,7 +66,7 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 space-y-1 px-3 py-6">
+        <nav className="flex-1 space-y-1 px-3 py-6 bg-background">
           {NAV.map(({ href, icon: Icon, label }) => {
             const active = pathname.startsWith(href);
             return (
@@ -84,10 +89,10 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
         </nav>
 
         {/* Logout */}
-        <div className="border-t border-primary-900/30 p-4">
+        <div className="border-t border-primary-900/30 p-4 bg-background">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-body text-sm font-medium text-rose-400/70 transition-all hover:bg-rose-900/20 hover:text-rose-400"
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-body text-sm font-medium text-rose-500 transition-all hover:bg-rose-700/20 hover:text-rose-400"
           >
             <LogOut size={18} />
             Đăng xuất
@@ -98,9 +103,17 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   );
 }
 
-function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
+function Topbar({
+  onMenuClick,
+  user,
+}: {
+  onMenuClick: () => void;
+  user: AuthenticatedUser;
+}) {
   const pathname = usePathname();
   const currentPage = NAV.find((n) => pathname.startsWith(n.href));
+
+  const displayName = user.userProfile?.displayName || user.username || "Admin";
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-gray-100 bg-card px-6">
@@ -121,8 +134,16 @@ function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           <Bell size={18} />
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-rose-500" />
         </button>
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-600 font-body text-sm font-bold text-white">
-          A
+        <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary-600 font-body text-sm font-bold text-white uppercase">
+          {user.userProfile?.avatarUrl ? (
+            <img
+              src={user.userProfile.avatarUrl}
+              alt="Avatar"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            displayName.charAt(0)
+          )}
         </div>
       </div>
     </header>
@@ -135,6 +156,28 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const router = useRouter();
+
+  const { data: user, isPending, isError } = useCurrentUser();
+
+  useEffect(() => {
+    if (!isPending) {
+      if (isError || !user) {
+        router.replace("/admin/login");
+      } else if (!user.roles?.includes("ADMIN")) {
+        router.replace("/admin/login");
+      }
+    }
+  }, [user, isError, isPending, router]);
+
+  // Loading screen blocking access until auth is confirmed
+  if (isPending || !user || !user.roles?.includes("ADMIN")) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background noise">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background font-body">
@@ -142,7 +185,7 @@ export default function AdminLayout({
 
       {/* Main content — offset by sidebar width on lg */}
       <div className="lg:pl-64">
-        <Topbar onMenuClick={() => setSidebarOpen(true)} />
+        <Topbar onMenuClick={() => setSidebarOpen(true)} user={user} />
         <main className="p-6">{children}</main>
       </div>
     </div>

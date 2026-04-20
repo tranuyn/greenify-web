@@ -354,7 +354,7 @@ export default function ActionTypesAdminPage() {
               {filtered.map((action) => (
                 <TableRow
                   key={action.id}
-                  className={!action.isActive ? 'opacity-50' : ''}
+                  className={!action.isActive ? 'opacity-50 group' : 'group'}
                 >
                   {/* Group */}
                   <TableCell>
@@ -365,7 +365,7 @@ export default function ActionTypesAdminPage() {
 
                   {/* Name */}
                   <TableCell>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-foreground/60 group-hover:text-foreground">
                       {action.actionName}
                     </span>
                   </TableCell>

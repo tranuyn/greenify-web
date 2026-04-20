@@ -45,18 +45,26 @@ export const MOCK_USER_PROFILE: UserProfile = {
 
 export const MOCK_NGO_PROFILE: NgoProfile = {
   id: 'ngo-prof-001',
-  user_id: 'usr-003',
   orgName: 'Green Future Vietnam',
   representativeName: 'Nguyễn Văn An',
-  avatarUrl: 'https://mms.img.susercontent.com/e1bec8e5aeda4b7c25c84297aa780d3c',
   hotline: '1800 1234',
   contactEmail: 'contact@greenfuture.vn',
-  province: 'TP. Hồ Chí Minh',
-  ward: 'Phường Bến Nghé',
   description: 'Tổ chức phi lợi nhuận hoạt động vì môi trường xanh tại Việt Nam.',
-  verification_docs: ['https://s3.example.com/docs/greenfuture-license.pdf'],
-  verify_status: 'VERIFIED',
-  reject_reason: null,
+  status: 'VERIFIED',
+  rejectedReason: null,
+  rejectedCount: 0,
+  address: {
+    province: 'TP. Hồ Chí Minh',
+    district: 'Quận 1',
+    ward: 'Phường Bến Nghé',
+    addressDetail: '',
+    latitude: 10.7769,
+    longitude: 106.7009,
+  },
+  avatar: { bucketName: '', objectKey: '', imageUrl: 'https://mms.img.susercontent.com/e1bec8e5aeda4b7c25c84297aa780d3c' },
+  verificationDocs: [],
+  createdAt: '2025-09-15T08:00:00Z',
+  updatedAt: '2025-09-15T08:00:00Z',
 };
 
 export const MOCK_AUTH_RESPONSE: LoginResponse = {
@@ -67,10 +75,9 @@ export const MOCK_AUTH_RESPONSE: LoginResponse = {
 export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {
   id: 'usr-001',
   email: 'uyen@greenify.vn',
-  role: ['CTV'],
+  roles: ['CTV'],
   phoneNumber: '0901234567',
   username: 'nhauyen',
-  user: MOCK_USER,
   userProfile: MOCK_USER_PROFILE,
 };
 // export const MOCK_AUTHENTICATED_USER: AuthenticatedUser = {

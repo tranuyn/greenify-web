@@ -87,6 +87,12 @@
       "subtitle": "{count} tài khoản",
       "loading": "Đang tải...",
       "searchPlaceholder": "Tìm kiếm người dùng...",
+      "searchButton": "Tìm kiếm",
+      "filters": {
+        "search": "Tìm kiếm",
+        "status": "Lọc theo trạng thái",
+        "role": "Lọc theo vai trò"
+      },
       "table": {
         "user": "Người dùng",
         "email": "Email",
@@ -101,7 +107,8 @@
       "tooltip": {
         "suspend": "Khóa tài khoản",
         "unsuspend": "Mở khóa",
-        "changeRole": "Đổi vai trò"
+        "changeRole": "Đổi vai trò",
+        "viewDetails": "Xem chi tiết"
       },
       "modals": {
         "suspend": {
@@ -164,6 +171,8 @@
         "pointsPlaceholder": "100",
         "stock": "Số lượng phát hành *",
         "stockPlaceholder": "500",
+        "additionalStock": "Số lượng bổ sung",
+        "additionalStockPlaceholder": "Nhập số lượng muốn bổ sung",
         "conditions": "Điều kiện sử dụng",
         "condPlaceholder": "Áp dụng cho...",
         "validUntil": "Ngày hết hạn *",
@@ -204,6 +213,10 @@
       "addFirstPrize": "Thêm phần thưởng đầu tiên",
       "form": {
         "title": "Thêm phần thưởng",
+        "weekStartDate": "Ngày bắt đầu tuần *",
+        "lockAt": "Thời điểm khóa *",
+        "nationalVoucher": "Voucher toàn quốc *",
+        "provincialVoucher": "Voucher tỉnh/thành *",
         "rank": "Hạng được thưởng *",
         "scope": "Phạm vi *",
         "voucher": "Voucher thưởng *",

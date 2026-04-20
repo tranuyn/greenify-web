@@ -7,6 +7,10 @@ import type {
   UpdateVoucherStatusRequest,
   LeaderboardPrize,
   CreateLeaderboardPrizeRequest,
+  LeaderboardPrizeQueryParams,
+  AvailableVouchersQueryParams,
+  AvailableVouchersResponse,
+  AdminVouchersQueryParams,
 } from "@/types/gamification.types";
 import { IS_MOCK_MODE, mockDelay, mockSuccess } from "./mock/config";
 import {
@@ -15,10 +19,19 @@ import {
   UpdateActionTypeRequest,
 } from "@/types/action.types";
 import { MOCK_ACTION_TYPES } from "./mock/action.mock";
-import { MOCK_PRIZES, MOCK_VOUCHER_TEMPLATES_ADMIN } from "./mock/gamification.mock";
-import { AdminUserDto, AdminUserQueryParams, SuspendUserRequest, UpdateUserRoleRequest } from "@/types/user.type";
+import {
+  MOCK_PRIZES,
+  MOCK_VOUCHER_TEMPLATES_ADMIN,
+} from "./mock/gamification.mock";
+import {
+  AdminUserDto,
+  AdminUserQueryParams,
+  SuspendUserRequest,
+  UpdateUserRoleRequest,
+} from "@/types/user.type";
 import { MOCK_ADMIN_USERS } from "./mock/user.mock";
-
+import { EventQueryParams } from "@/types/community.types";
+import { get } from "http";
 
 // ============================================================
 // ADMIN USER SERVICE
@@ -27,44 +40,45 @@ export const adminUserService = {
   async getUsers(
     params?: AdminUserQueryParams,
   ): Promise<PageResponse<AdminUserDto>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(500);
 
-      let filtered = [...MOCK_ADMIN_USERS];
+    //   let filtered = [...MOCK_ADMIN_USERS];
 
-      if (params?.name) {
-        const q = params.name.toLowerCase();
-        filtered = filtered.filter(
-          (u) =>
-            u.name.toLowerCase().includes(q) ||
-            u.email.toLowerCase().includes(q),
-        );
-      }
+    //   if (params?.name) {
+    //     const q = params.name.toLowerCase();
+    //     filtered = filtered.filter(
+    //       (u) =>
+    //         u.name.toLowerCase().includes(q) ||
+    //         u.email.toLowerCase().includes(q),
+    //     );
+    //   }
 
-      if (params?.status && params.status !== 'ALL') {
-        filtered = filtered.filter((u) => u.status === params.status);
-      }
+    //   if (params?.status && params.status !== "ALL") {
+    //     filtered = filtered.filter((u) => u.status === params.status);
+    //   }
 
-      const page     = params?.page ?? 1;
-      const size     = params?.size ?? 10;
-      const start    = (page - 1) * size;
-      const content  = filtered.slice(start, start + size);
+    //   const page = params?.page ?? 1;
+    //   const size = params?.size ?? 10;
+    //   const start = (page - 1) * size;
+    //   const content = filtered.slice(start, start + size);
 
-      return {
-        content,
-        page,
-        size,
-        totalElements: filtered.length,
-        totalPages: Math.ceil(filtered.length / size),
-      };
-    }
+    //   return {
+    //     content,
+    //     page,
+    //     size,
+    //     totalElements: filtered.length,
+    //     totalPages: Math.ceil(filtered.length / size),
+    //   };
+    // }
 
-    const { data } = await apiClient.get<PageResponse<AdminUserDto>>('/users', {
+    const { data } = await apiClient.get<PageResponse<AdminUserDto>>("/users", {
       params: {
         page: params?.page ? params.page - 1 : 0, // Spring Boot zero-indexed
         size: params?.size ?? 10,
-        name: params?.name || undefined,
-        status: params?.status !== 'ALL' ? params?.status : undefined,
+        search: params?.search || undefined,
+        status: params?.status !== "ALL" ? params?.status : undefined,
+        role: params?.role !== "ALL" ? params?.role : undefined,
       },
     });
     return data;
@@ -74,7 +88,7 @@ export const adminUserService = {
     if (IS_MOCK_MODE) {
       await mockDelay(300);
       const user = MOCK_ADMIN_USERS.find((u) => u.id === id);
-      if (!user) throw new Error('User not found');
+      if (!user) throw new Error("User not found");
       return user;
     }
     const { data } = await apiClient.get<AdminUserDto>(`/users/${id}`);
@@ -82,42 +96,45 @@ export const adminUserService = {
   },
 
   async suspendUser(id: string, payload: SuspendUserRequest): Promise<void> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
-      const idx = MOCK_ADMIN_USERS.findIndex((u) => u.id === id);
-      if (idx !== -1) {
-        MOCK_ADMIN_USERS[idx].status = 'SUSPENDED';
-        MOCK_ADMIN_USERS[idx].suspensionReason = payload.reason;
-      }
-      return;
-    }
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(500);
+    //   const idx = MOCK_ADMIN_USERS.findIndex((u) => u.id === id);
+    //   if (idx !== -1) {
+    //     MOCK_ADMIN_USERS[idx].status = "SUSPENDED";
+    //     MOCK_ADMIN_USERS[idx].suspensionReason = payload.reason;
+    //   }
+    //   return;
+    // }
     await apiClient.patch(`/users/${id}/suspend`, payload);
   },
 
   async unsuspendUser(id: string): Promise<void> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(400);
-      const idx = MOCK_ADMIN_USERS.findIndex((u) => u.id === id);
-      if (idx !== -1) {
-        MOCK_ADMIN_USERS[idx].status = 'ACTIVE';
-        MOCK_ADMIN_USERS[idx].suspensionReason = null;
-      }
-      return;
-    }
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(400);
+    //   const idx = MOCK_ADMIN_USERS.findIndex((u) => u.id === id);
+    //   if (idx !== -1) {
+    //     MOCK_ADMIN_USERS[idx].status = "ACTIVE";
+    //     MOCK_ADMIN_USERS[idx].suspensionReason = null;
+    //   }
+    //   return;
+    // }
     // Swagger chỉ có /suspend, unsuspend thường dùng lại endpoint đó với reason rỗng
     // hoặc có endpoint riêng — điều chỉnh theo BE thực tế
-    await apiClient.patch(`/users/${id}/suspend`, { reason: '' });
+    await apiClient.patch(`/users/${id}/suspend`, { reason: "" });
   },
 
-  async updateUserRole(id: string, payload: UpdateUserRoleRequest): Promise<void> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(400);
-      const idx = MOCK_ADMIN_USERS.findIndex((u) => u.id === id);
-      if (idx !== -1) {
-        MOCK_ADMIN_USERS[idx].roles = [payload.roleName];
-      }
-      return;
-    }
+  async updateUserRole(
+    id: string,
+    payload: UpdateUserRoleRequest,
+  ): Promise<void> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(400);
+    //   const idx = MOCK_ADMIN_USERS.findIndex((u) => u.id === id);
+    //   if (idx !== -1) {
+    //     MOCK_ADMIN_USERS[idx].roles = [payload.roleName];
+    //   }
+    //   return;
+    // }
     await apiClient.patch(`/users/${id}/role`, payload);
   },
 
@@ -126,11 +143,30 @@ export const adminUserService = {
       await mockDelay(400);
       const idx = MOCK_ADMIN_USERS.findIndex((u) => u.id === id);
       if (idx !== -1) {
-        MOCK_ADMIN_USERS[idx].roles = ['USER'];
+        MOCK_ADMIN_USERS[idx].roles = ["USER"];
       }
       return;
     }
     await apiClient.patch(`/users/${id}/ctv-demotion`);
+  },
+};
+
+// ============================================================
+// ADMIN EVENTS SERVICE
+// ============================================================
+export const adminEventService = {
+  async getEvents(params?: EventQueryParams): Promise<PageResponse<Event>> {
+    const apiParams = {
+      ...params,
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 10,
+    };
+
+    const { data } = await apiClient.get<PageResponse<Event>>("/events", {
+      params: apiParams,
+    });
+
+    return data;
   },
 };
 
@@ -141,18 +177,6 @@ export const adminActionService = {
   async createActionType(
     payload: CreateActionTypeRequest,
   ): Promise<GreenActionType> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(600);
-
-      const newAction: GreenActionType = {
-        id: `act-${Date.now()}`,
-        ...payload,
-      };
-
-      MOCK_ACTION_TYPES.unshift(newAction);
-
-      return newAction;
-    }
     const { data } = await apiClient.post<GreenActionType>(
       "/admin/green-action/action-types",
       payload,
@@ -163,22 +187,6 @@ export const adminActionService = {
     id: string,
     payload: UpdateActionTypeRequest,
   ): Promise<GreenActionType> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
-
-      const idx = MOCK_ACTION_TYPES.findIndex((a) => a.id === id);
-      if (idx === -1) throw new Error("Action type not found");
-
-      // Ghi đè dữ liệu mới lên dữ liệu cũ
-      const updatedAction: GreenActionType = {
-        ...MOCK_ACTION_TYPES[idx],
-        ...payload,
-      };
-
-      MOCK_ACTION_TYPES[idx] = updatedAction;
-      return updatedAction;
-    }
-
     const { data } = await apiClient.patch<GreenActionType>(
       `/admin/green-action/action-types/${id}`,
       payload,
@@ -192,32 +200,48 @@ export const adminActionService = {
 // ADMIN VOUCHER SERVICE
 // ============================================================
 export const adminVoucherService = {
+  async getVouchers(
+    params?: AdminVouchersQueryParams,
+  ): Promise<AvailableVouchersResponse> {
+    const { data } = await apiClient.get<AvailableVouchersResponse>(
+      "/admin/vouchers",
+      {
+        params: {
+          page: params?.page ? params.page - 1 : 0,
+          size: params?.size ?? 20,
+          status: params?.status && params.status !== "ALL" ? params.status : undefined,
+        },
+      },
+    );
+    return data;
+  },
+
   async createVoucher(
     payload: CreateVoucherTemplateRequest,
-  ): Promise<ApiResponse<VoucherTemplate>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(700);
+  ): Promise<VoucherTemplate> {
+    // if (IS_MOCK_MODE) {
+    //   await mockDelay(700);
 
-      const newVoucher: VoucherTemplate = {
-        id: `vt-${Date.now()}`,
-        name: payload.name,
-        partnerName: payload.partnerName,
-        description: payload.description,
-        requiredPoints: payload.requiredPoints,
-        totalStock: payload.totalStock,
-        remainingStock: payload.totalStock, // Mới tạo thì còn nguyên kho
-        usageConditions: payload.usageConditions,
-        validUntil: payload.validUntil,
-        status: "DRAFT",
-        // Map từ Object thành String để render UI
-        partnerLogoUrl: payload.partnerLogo?.imageUrl || null,
-        thumbnailUrl: payload.thumbnail?.imageUrl || null,
-      };
-      MOCK_VOUCHER_TEMPLATES_ADMIN.push(newVoucher);
-      return mockSuccess(newVoucher);
-    }
+    //   const newVoucher: VoucherTemplate = {
+    //     id: `vt-${Date.now()}`,
+    //     name: payload.name,
+    //     partnerName: payload.partnerName,
+    //     description: payload.description,
+    //     requiredPoints: payload.requiredPoints,
+    //     totalStock: payload.totalStock,
+    //     remainingStock: payload.totalStock, // Mới tạo thì còn nguyên kho
+    //     usageConditions: payload.usageConditions,
+    //     validUntil: payload.validUntil,
+    //     status: "DRAFT",
+    //     // Map từ Object thành String để render UI
+    //     partnerLogoUrl: payload.partnerLogo?.imageUrl || null,
+    //     thumbnailUrl: payload.thumbnail?.imageUrl || null,
+    //   };
+    //   MOCK_VOUCHER_TEMPLATES_ADMIN.push(newVoucher);
+    //   return mockSuccess(newVoucher);
+    // }
 
-    const { data } = await apiClient.post<ApiResponse<VoucherTemplate>>(
+    const { data } = await apiClient.post<VoucherTemplate>(
       "/admin/vouchers",
       payload,
     );
@@ -227,43 +251,9 @@ export const adminVoucherService = {
   async updateVoucher(
     id: string,
     payload: UpdateVoucherTemplateRequest,
-  ): Promise<ApiResponse<VoucherTemplate>> {
-    // 1. XỬ LÝ MOCK DATA
-    if (IS_MOCK_MODE) {
-      await mockDelay(600);
-      const idx = MOCK_VOUCHER_TEMPLATES_ADMIN.findIndex((v) => v.id === id);
-      if (idx === -1) throw new Error("Voucher not found");
+  ): Promise<VoucherTemplate> {
 
-      const currentVoucher = MOCK_VOUCHER_TEMPLATES_ADMIN[idx];
-
-      // Logic tính toán kho: Cộng dồn nếu có nhập thêm
-      const addedStock = payload.additionalStock || 0;
-
-      const updatedVoucher: VoucherTemplate = {
-        ...currentVoucher,
-        ...payload, // Đè các field cơ bản (name, description, status...)
-
-        // Cập nhật kho
-        totalStock: currentVoucher.totalStock + addedStock,
-        remainingStock: currentVoucher.remainingStock + addedStock,
-
-        // Bóc tách Object ảnh ra thành dạng String cho UI render
-        partnerLogoUrl:
-          payload.partnerLogo !== undefined
-            ? payload.partnerLogo?.imageUrl || null
-            : currentVoucher.partnerLogoUrl,
-        thumbnailUrl:
-          payload.thumbnail !== undefined
-            ? payload.thumbnail?.imageUrl || null
-            : currentVoucher.thumbnailUrl,
-      };
-
-      MOCK_VOUCHER_TEMPLATES_ADMIN[idx] = updatedVoucher;
-      return mockSuccess(updatedVoucher);
-    }
-
-    // 2. GỌI API THẬT
-    const { data } = await apiClient.patch<ApiResponse<VoucherTemplate>>(
+    const { data } = await apiClient.patch<VoucherTemplate>(
       `/admin/vouchers/${id}`,
       payload,
     );
@@ -273,21 +263,8 @@ export const adminVoucherService = {
   async updateVoucherStatus(
     id: string,
     payload: UpdateVoucherStatusRequest,
-  ): Promise<ApiResponse<VoucherTemplate>> {
-    // 1. XỬ LÝ MOCK DATA
-    if (IS_MOCK_MODE) {
-      await mockDelay(400);
-      const idx = MOCK_VOUCHER_TEMPLATES_ADMIN.findIndex((v) => v.id === id);
-      if (idx === -1) throw new Error("Voucher not found");
-
-      // Cập nhật trạng thái
-      MOCK_VOUCHER_TEMPLATES_ADMIN[idx].status = payload.status;
-
-      return mockSuccess(MOCK_VOUCHER_TEMPLATES_ADMIN[idx]);
-    }
-
-    // 2. GỌI API THẬT
-    const { data } = await apiClient.patch<ApiResponse<VoucherTemplate>>(
+  ): Promise<VoucherTemplate> {
+    const { data } = await apiClient.patch<VoucherTemplate>(
       `/admin/vouchers/${id}/status`,
       null,
       {
@@ -304,25 +281,29 @@ export const adminVoucherService = {
 // ADMIN LEADERBOARD SERVICE
 // ============================================================
 export const adminLeaderboardService = {
-  async getPrizes(): Promise<ApiResponse<LeaderboardPrize[]>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(400);
-      return mockSuccess(MOCK_PRIZES);
-    }
-    const { data } = await apiClient.get<ApiResponse<LeaderboardPrize[]>>(
+  async getPrizes(
+    params?: LeaderboardPrizeQueryParams,
+  ): Promise<PageResponse<LeaderboardPrize>> {
+    const apiParams = {
+      weekStartDate: params?.weekStartDate,
+      status: params?.status === "ALL" ? undefined : params?.status,
+      page: params?.page ? params.page - 1 : 0,
+      size: params?.size ?? 10,
+    };
+
+    // 2. Gọi API với kiểu trả về là PageResponse
+    const { data } = await apiClient.get<PageResponse<LeaderboardPrize>>(
       "/admin/leaderboard/prizes",
+      {
+        params: apiParams,
+      },
     );
+
     return data;
   },
 
-  async getPrizeById(id: string): Promise<ApiResponse<LeaderboardPrize>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(300);
-      const prize = MOCK_PRIZES.find((p) => p.id === id);
-      if (!prize) throw new Error("Prize not found");
-      return mockSuccess(prize);
-    }
-    const { data } = await apiClient.get<ApiResponse<LeaderboardPrize>>(
+  async getPrizeById(id: string): Promise<LeaderboardPrize> {
+    const { data } = await apiClient.get<LeaderboardPrize>(
       `/admin/leaderboard/prizes/${id}`,
     );
     return data;
@@ -330,22 +311,8 @@ export const adminLeaderboardService = {
 
   async createPrize(
     payload: CreateLeaderboardPrizeRequest,
-  ): Promise<ApiResponse<LeaderboardPrize>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(600);
-      const template = MOCK_VOUCHER_TEMPLATES_ADMIN.find(
-        (v) => v.id === payload.voucherTemplateId,
-      );
-      const newPrize: LeaderboardPrize = {
-        id: `prize-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        voucherTemplate: template,
-        ...payload,
-      };
-      MOCK_PRIZES.push(newPrize);
-      return mockSuccess(newPrize);
-    }
-    const { data } = await apiClient.post<ApiResponse<LeaderboardPrize>>(
+  ): Promise<LeaderboardPrize> {
+    const { data } = await apiClient.post<LeaderboardPrize>(
       "/admin/leaderboard/prizes",
       payload,
     );
@@ -353,10 +320,6 @@ export const adminLeaderboardService = {
   },
 
   async distributePrize(id: string): Promise<ApiResponse<null>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(800);
-      return mockSuccess(null);
-    }
     const { data } = await apiClient.post<ApiResponse<null>>(
       `/admin/leaderboard/prizes/${id}/distribute`,
     );
@@ -364,12 +327,6 @@ export const adminLeaderboardService = {
   },
 
   async deletePrize(id: string): Promise<ApiResponse<null>> {
-    if (IS_MOCK_MODE) {
-      await mockDelay(500);
-      const idx = MOCK_PRIZES.findIndex((p) => p.id === id);
-      if (idx !== -1) MOCK_PRIZES.splice(idx, 1);
-      return mockSuccess(null);
-    }
     const { data } = await apiClient.delete<ApiResponse<null>>(
       `/admin/leaderboard/prizes/${id}`,
     );

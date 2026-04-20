@@ -16,17 +16,19 @@ import {
   UpdateActionTypeRequest,
 } from "@/types/action.types";
 import { QUERY_KEYS } from "@/constants/queryKeys";
-import {
-  SuspendUserRequest,
-  UpdateUserRoleRequest,
-} from '@/types/user.type';
+import { SuspendUserRequest, UpdateUserRoleRequest } from "@/types/user.type";
 
 // ── User mutations ───────────────────────────────────────────
 export const useSuspendUser = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: SuspendUserRequest }) =>
-      adminUserService.suspendUser(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: SuspendUserRequest;
+    }) => adminUserService.suspendUser(id, payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEYS.users.all }),
   });
 };
@@ -42,8 +44,13 @@ export const useUnsuspendUser = () => {
 export const useUpdateUserRole = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdateUserRoleRequest }) =>
-      adminUserService.updateUserRole(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: UpdateUserRoleRequest;
+    }) => adminUserService.updateUserRole(id, payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEYS.users.all }),
   });
 };
@@ -80,7 +87,9 @@ export const useUpdateActionType = () => {
     }) => adminActionService.updateActionType(id, payload),
     onSuccess: (_, variables) => {
       qc.invalidateQueries({ queryKey: QUERY_KEYS.actionTypes.all });
-      qc.invalidateQueries({ queryKey: QUERY_KEYS.actionTypes.detail(variables.id) });
+      qc.invalidateQueries({
+        queryKey: QUERY_KEYS.actionTypes.detail(variables.id),
+      });
     },
   });
 };
@@ -91,8 +100,10 @@ export const useCreateVoucher = () => {
   return useMutation({
     mutationFn: (p: CreateVoucherTemplateRequest) =>
       adminVoucherService.createVoucher(p),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: QUERY_KEYS.admin.vouchers.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.admin.vouchers.all });
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.vouchers.available() });
+    },
   });
 };
 
@@ -108,7 +119,12 @@ export const useUpdateVoucher = () => {
     }) => adminVoucherService.updateVoucher(id, payload),
     onSuccess: (_, variables) => {
       qc.invalidateQueries({ queryKey: QUERY_KEYS.admin.vouchers.all });
-      qc.invalidateQueries({ queryKey: QUERY_KEYS.admin.vouchers.detail(variables.id) });
+
+      qc.invalidateQueries({
+        queryKey: QUERY_KEYS.admin.vouchers.detail(variables.id),
+      });
+
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.vouchers.available() });
     },
   });
 };
@@ -125,7 +141,7 @@ export const useUpdateVoucherStatus = () => {
     }) => adminVoucherService.updateVoucherStatus(id, payload),
     onSuccess: (_, variables) => {
       qc.invalidateQueries({ queryKey: QUERY_KEYS.admin.vouchers.all });
-      qc.invalidateQueries({ queryKey: QUERY_KEYS.admin.vouchers.detail(variables.id) });
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.vouchers.available() });
     },
   });
 };

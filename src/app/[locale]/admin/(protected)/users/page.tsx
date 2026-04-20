@@ -9,7 +9,7 @@ import {
   UserCog,
   ChevronLeft,
   ChevronRight,
-  Eye
+  Eye,
 } from "lucide-react";
 import { useAdminUsers } from "@/hooks/queries/useAdmin";
 import {
@@ -54,30 +54,36 @@ export default function UsersPage() {
   const tCommon = useTranslations("common");
 
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<UserStatus | "ALL">("ALL");
+  const [roleFilter, setRoleFilter] = useState<UserRole | "ALL">("ALL");
   const [page, setPage] = useState(1);
 
   const [suspendTarget, setSuspendTarget] = useState<AdminUserDto | null>(null);
   const [roleTarget, setRoleTarget] = useState<AdminUserDto | null>(null);
   const [detailUser, setDetailUser] = useState<AdminUserDto | null>(null);
 
-  // Debounce search — 400ms
-  const handleSearchChange = (v: string) => {
-    setSearch(v);
-    clearTimeout((handleSearchChange as any)._t);
-    (handleSearchChange as any)._t = setTimeout(() => {
-      setDebouncedSearch(v);
-      setPage(1);
-    }, 400);
-  };
-
-  const { data, isLoading, isFetching } = useAdminUsers({
+  const { data, isLoading, isFetching, refetch } = useAdminUsers({
     page,
     size: PAGE_SIZE,
-    name: debouncedSearch || undefined,
+    search: appliedSearch || undefined,
     status: statusFilter,
+    role: roleFilter,
   });
+
+  const handleSearch = () => {
+    const nextSearch = search.trim();
+    const isSameSearch = nextSearch === appliedSearch;
+
+    setPage(1);
+
+    if (isSameSearch) {
+      void refetch();
+      return;
+    }
+
+    setAppliedSearch(nextSearch);
+  };
 
   const users = data?.content ?? [];
   const totalPages = data?.totalPages ?? 1;
@@ -120,49 +126,106 @@ export default function UsersPage() {
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold text-primary-heading tracking-tight">{t("title")}</h2>
+        <h2 className="text-3xl font-bold text-primary-heading tracking-tight">
+          {t("title")}
+        </h2>
         <p className="mt-1 font-medium text-sm text-gray-500">
-          {totalElements > 0 ? t("subtitle", { count: totalElements }) : t("loading")}
+          {totalElements > 0
+            ? t("subtitle", { count: totalElements })
+            : t("loading")}
         </p>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-4 3xl:flex-row 3xl:items-end">
         {/* Search */}
-        <div className="relative flex-1">
-          <Search
-            size={16}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder={t("searchPlaceholder")}
-            className="w-full rounded-2xl border border-border bg-card py-2.5 pl-11 pr-4 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition-all shadow-sm"
-          />
-          {isFetching && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
-          )}
+        <div className="space-y-2 2xl:flex-1">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            {t("filters.search")}
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="relative flex-1">
+              <Search
+                size={16}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSearch();
+                  }
+                }}
+                placeholder={t("searchPlaceholder")}
+                className="w-full rounded-2xl border border-border bg-card py-2.5 pl-11 pr-4 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition-all shadow-sm"
+              />
+              {isFetching && (
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
+              )}
+            </div>
+
+            <button
+              onClick={handleSearch}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary-600/20 transition-colors hover:bg-primary-700 sm:w-auto"
+            >
+              <Search size={16} />
+              {t("searchButton")}
+            </button>
+          </div>
         </div>
 
         {/* Status filter */}
-        <div className="flex flex-wrap gap-2 scrollbar-hide overflow-x-auto">
-          {(["ALL", "ACTIVE", "SUSPENDED", "FLAGGED"] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => {
-                setStatusFilter(s);
-                setPage(1);
-              }}
-              className={`rounded-full border px-5 py-2 text-sm font-medium transition-all ${
-                statusFilter === s
-                  ? "border-primary-500 bg-primary-600 text-white shadow-sm shadow-primary-600/20"
-                  : "border-border bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              {tCommon(`status.${s}`)}
-            </button>
-          ))}
+        <div className="space-y-2 2xl:flex-1">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            {t("filters.status")}
+          </p>
+          <div className="flex flex-wrap gap-2 scrollbar-hide overflow-x-auto">
+            {(["ALL", "ACTIVE", "SUSPENDED", "FLAGGED"] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => {
+                  setStatusFilter(s);
+                  setPage(1);
+                }}
+                className={`rounded-full border px-5 py-2 text-sm font-medium transition-all ${
+                  statusFilter === s
+                    ? "border-primary-500 bg-primary-600 text-white shadow-sm shadow-primary-600/20"
+                    : "border-border bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                {tCommon(`status.${s}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Role filter */}
+        <div className="space-y-2 2xl:flex-1">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            {t("filters.role")}
+          </p>
+          <div className="flex flex-wrap gap-2 scrollbar-hide overflow-x-auto">
+            {(["ALL", "USER", "CTV", "NGO", "ADMIN"] as const).map((role) => (
+              <button
+                key={role}
+                onClick={() => {
+                  setRoleFilter(role);
+                  setPage(1);
+                }}
+                className={`rounded-full border px-5 py-2 text-sm font-medium transition-all ${
+                  roleFilter === role
+                    ? "border-primary-500 bg-primary-600 text-white shadow-sm shadow-primary-600/20"
+                    : "border-border bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                {role === "ALL"
+                  ? tCommon("status.ALL")
+                  : tCommon(`roles.${role}`)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -175,20 +238,22 @@ export default function UsersPage() {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead>{t('table.user')}</TableHead>
-                <TableHead>{t('table.email')}</TableHead>
-                <TableHead>{t('table.role')}</TableHead>
-                <TableHead>{t('table.status')}</TableHead>
-                <TableHead>{t('table.points')}</TableHead>
-                <TableHead>{t('table.posts')}</TableHead>
-                <TableHead className="text-right">{t('table.actions')}</TableHead>
+                <TableHead>{t("table.user")}</TableHead>
+                <TableHead>{t("table.email")}</TableHead>
+                <TableHead>{t("table.role")}</TableHead>
+                <TableHead>{t("table.status")}</TableHead>
+                <TableHead>{t("table.points")}</TableHead>
+                <TableHead>{t("table.posts")}</TableHead>
+                <TableHead className="text-right">
+                  {t("table.actions")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {users.map((user) => {
                 const sLabel = tCommon(`status.${user.status}`);
                 const sCls = STATUS_CLS[user.status] || STATUS_CLS.ACTIVE;
-                
+
                 return (
                   <TableRow
                     key={user.id}
@@ -208,7 +273,9 @@ export default function UsersPage() {
                             {user.name}
                           </p>
                           <p className="text-xs font-medium text-foreground/60 group-hover:text-foreground transition-colors tracking-wide mt-0.5">
-                            {new Date(user.createdAt).toLocaleDateString("vi-VN")}
+                            {new Date(user.createdAt).toLocaleDateString(
+                              "vi-VN",
+                            )}
                           </p>
                         </div>
                       </button>
@@ -249,13 +316,13 @@ export default function UsersPage() {
                     {/* Actions */}
                     <TableCell>
                       <div className="flex items-center justify-end gap-2">
-                         <button
-                           onClick={() => setDetailUser(user)}
-                           title={t("tooltip.viewDetails") || "Xem chi tiết"}
-                           className="rounded-xl bg-gray-50 p-2 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900"
-                         >
-                           <Eye size={16} />
-                         </button>
+                        <button
+                          onClick={() => setDetailUser(user)}
+                          title={t("tooltip.viewDetails") || "Xem chi tiết"}
+                          className="rounded-xl bg-gray-50 p-2 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900"
+                        >
+                          <Eye size={16} />
+                        </button>
 
                         {/* Suspend / Unsuspend */}
                         {user.status === "ACTIVE" ||
@@ -298,10 +365,12 @@ export default function UsersPage() {
         {/* Empty */}
         {!isLoading && users.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-50 mb-4 animate-float">
-               <UserCog size={32} className="text-primary-400" />
-             </div>
-            <h3 className="text-lg font-semibold text-gray-900">{t("empty")}</h3>
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-50 mb-4 animate-float">
+              <UserCog size={32} className="text-primary-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground/70">
+              {t("empty")}
+            </h3>
           </div>
         )}
 
@@ -309,7 +378,11 @@ export default function UsersPage() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-table-border px-6 py-4 bg-table-header-bg">
             <span className="text-sm font-medium text-table-header-text">
-              {t("pagination", { page, total: totalPages, count: totalElements })}
+              {t("pagination", {
+                page,
+                total: totalPages,
+                count: totalElements,
+              })}
             </span>
             <div className="flex gap-2">
               <button
@@ -369,8 +442,8 @@ export default function UsersPage() {
 
       {detailUser && (
         <UserDetailModal
-           user={detailUser}
-           onClose={() => setDetailUser(null)}
+          user={detailUser}
+          onClose={() => setDetailUser(null)}
         />
       )}
     </div>

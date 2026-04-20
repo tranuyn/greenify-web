@@ -1,6 +1,8 @@
 import { Leaf } from "lucide-react";
 import { FEATURES } from "@/services/mock/home.mock";
 import { useTranslations } from "next-intl";
+import LOGO_URL from "@/constants/logoUrl";
+import Image from "next/image";
 
 export function Features() {
   const t = useTranslations("landing.features");
@@ -9,7 +11,7 @@ export function Features() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-15 text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary-50 px-4 py-2">
-            <Leaf size={14} className="text-primary-600" />
+            <Image src={LOGO_URL} alt="Greenify Logo" width={25} height={25} />
             <span className="font-mono text-xs uppercase tracking-wider text-primary-600">
               {t("title")}
             </span>

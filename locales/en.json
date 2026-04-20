@@ -86,6 +86,12 @@
         "subtitle": "{count} accounts",
         "loading": "Loading...",
         "searchPlaceholder": "Search by name or email...",
+        "searchButton": "Search",
+        "filters": {
+          "search": "Search",
+          "status": "Filter by status",
+          "role": "Filter by role"
+        },
         "table": {
           "user": "User",
           "email": "Email",
@@ -100,7 +106,8 @@
         "tooltip": {
           "suspend": "Suspend account",
           "unsuspend": "Unsuspend",
-          "changeRole": "Change role"
+          "changeRole": "Change role",
+          "viewDetails": "View details"
         },
         "modals": {
           "suspend": {
@@ -163,6 +170,8 @@
         "pointsPlaceholder": "100",
         "stock": "Total Stock *",
         "stockPlaceholder": "500",
+        "additionalStock": "Additional Stock",
+        "additionalStockPlaceholder": "Enter quantity to add",
         "conditions": "Usage Conditions",
         "condPlaceholder": "Applies to...",
         "validUntil": "Valid Until *",
@@ -203,6 +212,10 @@
       "addFirstPrize": "Add your first prize",
       "form": {
         "title": "Add Prize",
+        "weekStartDate": "Week Start Date *",
+        "lockAt": "Lock At *",
+        "nationalVoucher": "National Voucher *",
+        "provincialVoucher": "Provincial Voucher *",
         "rank": "Target Rank *",
         "scope": "Scope *",
         "voucher": "Voucher *",
