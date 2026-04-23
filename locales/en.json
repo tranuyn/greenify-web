@@ -316,10 +316,20 @@
         "conditions": "Usage Conditions",
         "condPlaceholder": "Applies to...",
         "validUntil": "Valid Until *",
+        "partnerLogo": "Partner Logo *",
+        "thumbnail": "Voucher Thumbnail *",
         "cancel": "Cancel",
         "create": "Create",
         "save": "Save Changes",
-        "saving": "Saving..."
+        "saving": "Saving...",
+        "uploading": "Uploading images..."
+      },
+      "toast": {
+        "createSuccess": "Voucher created successfully.",
+        "updateSuccess": "Voucher updated successfully.",
+        "saveError": "Failed to save voucher. Please try again.",
+        "mediaRequired": "Please upload both partner logo and voucher thumbnail.",
+        "uploadError": "Failed to upload {field}."
       }
     },
     "leaderboard": {
@@ -329,6 +339,12 @@
       "tabs": {
         "ranking": "Ranking",
         "prizes": "Prize Config"
+      },
+      "filters": {
+        "week": "Week",
+        "scope": "Scope",
+        "province": "Province",
+        "allProvinces": "All provinces"
       },
       "rankingTable": {
         "rank": "Rank",
@@ -357,6 +373,8 @@
         "CANCELLED": "Cancelled"
       },
       "emptyPrizes": "No prize configurations yet.",
+      "emptyRanking": "No participants in the leaderboard for this week.",
+      "emptyPrizesDescription": "No prize setup has been created for this weekly cycle.",
       "addFirstPrize": "Add your first prize",
       "form": {
         "title": "Add Prize",
@@ -378,7 +396,9 @@
           "lockAtRequired": "Please select lock time.",
           "lockAtInvalid": "Lock time must follow yyyy-MM-dd'T'HH:mm:ss.",
           "nationalVoucherRequired": "Please select a national voucher.",
-          "provincialVoucherRequired": "Please select a provincial voucher."
+          "provincialVoucherRequired": "Please select a provincial voucher.",
+          "weekStartNotMonday": "Week start date must be a Monday.",
+          "lockAtBeforeWeekStart": "Lock time must be after week start date."
         }
       }
     }

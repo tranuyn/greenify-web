@@ -1,10 +1,15 @@
 export interface Province {
-  code: string;
+  code: number;
+  codename: string;
+  divisionType: string;
   name: string;
+  phoneCode: number;
 }
 
 export interface Ward {
-  code: string;
+  code: number;
+  codename: string;
+  divisionType: string;
   name: string;
-  province_code: string;
+  provinceCode: number;
 }

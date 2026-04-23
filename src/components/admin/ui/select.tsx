@@ -86,7 +86,10 @@ export function Select<T extends string = string>({
   };
 
   return (
-    <div ref={dropdownRef} className={`relative inline-block w-full min-w-[80px] text-left ${className}`}>
+    <div
+      ref={dropdownRef}
+      className={`relative inline-block w-full min-w-[80px] text-left ${className}`}
+    >
       {/* ── NÚT BẤM (Trông giống thẻ select) ── */}
       <button
         ref={triggerRef}
@@ -94,16 +97,17 @@ export function Select<T extends string = string>({
         disabled={disabled || isLoading}
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          flex w-full items-center justify-between rounded-lg border bg-white py-2 pl-3 pr-3 text-sm font-medium transition-all duration-200
-          ${disabled || isLoading 
-            ? "cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400" 
-            : "cursor-pointer border-gray-300 text-gray-700 shadow-sm hover:border-primary-400"
+          flex w-full items-center justify-between rounded-lg border bg-card py-2 pl-3 pr-3 text-sm font-medium transition-all duration-200
+          ${
+            disabled || isLoading
+              ? "cursor-not-allowed border-border bg-gray-50 text-foreground/50"
+              : "cursor-pointer border-border text-foreground/70 shadow-sm hover:border-primary-400 hover:text-foreground"
           }
-          ${isOpen ? "border-primary-500 ring-[3px] ring-primary-100" : ""}
+          ${isOpen ? "ring-[3px] ring-primary-100" : ""}
         `}
       >
         <span className="truncate">{selectedOption?.label || placeholder}</span>
-        <div className="ml-2 flex shrink-0 items-center text-gray-400">
+        <div className="ml-2 flex shrink-0 items-center text-foreground/70">
           {isLoading ? (
             <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
           ) : (
@@ -122,7 +126,7 @@ export function Select<T extends string = string>({
         createPortal(
           <div
             ref={menuRef}
-            className="fixed z-[220] origin-top rounded-lg bg-white shadow-lg ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-100"
+            className="fixed z-[9999] origin-top rounded-lg bg-card shadow-lg ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-100"
             style={{
               top: menuStyle.top,
               left: menuStyle.left,
@@ -138,7 +142,7 @@ export function Select<T extends string = string>({
                     onClick={() => handleSelect(opt.value, opt.disabled)}
                     className={`
                       relative flex cursor-pointer select-none items-center py-2 pl-3 pr-9 transition-colors
-                      ${opt.disabled ? "cursor-not-allowed text-gray-400" : "text-gray-700 hover:bg-gray-100"}
+                      ${opt.disabled ? "cursor-not-allowed text-foreground/50" : "text-foreground/70 hover:bg-primary-hover/40 hover:text-foreground"}
                       ${isSelected ? "bg-primary-50 font-bold text-primary-700 hover:bg-primary-100" : ""}
                     `}
                   >

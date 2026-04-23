@@ -17,6 +17,7 @@ import {
   useUpdateVoucher,
   useUpdateVoucherStatus,
 } from "@/hooks/mutations/useAdmin";
+import { toast } from "sonner";
 import type {
   AdminVoucherStatus,
   VoucherTemplate,
@@ -89,8 +90,8 @@ export default function VouchersAdminPage() {
   const { data, isLoading } = useAdminVouchers();
   const vouchers = data?.content || [];
 
-  const { mutate: createVoucher, isPending: isCreating } = useCreateVoucher();
-  const { mutate: updateVoucher, isPending: isUpdating } = useUpdateVoucher();
+  const { mutateAsync: createVoucher, isPending: isCreating } = useCreateVoucher();
+  const { mutateAsync: updateVoucher, isPending: isUpdating } = useUpdateVoucher();
   const {
     mutate: updateStatus,
     isPending: isUpdatingStatus,
@@ -114,21 +115,24 @@ export default function VouchersAdminPage() {
   vouchers.forEach((v) => {
     counts[v.status] = (counts[v.status] ?? 0) + 1;
   });
-  const handleSubmit = (
+  const handleSubmit = async (
     formData: CreateVoucherTemplateRequest | UpdateVoucherTemplateRequest,
   ) => {
-    if (editTarget) {
-      updateVoucher(
-        {
+    try {
+      if (editTarget) {
+        await updateVoucher({
           id: editTarget.id,
           payload: formData as UpdateVoucherTemplateRequest,
-        },
-        { onSuccess: closeForm },
-      );
-    } else {
-      createVoucher(formData as CreateVoucherTemplateRequest, {
-        onSuccess: closeForm,
-      });
+        });
+        toast.success(t("toast.updateSuccess"));
+      } else {
+        await createVoucher(formData as CreateVoucherTemplateRequest);
+        toast.success(t("toast.createSuccess"));
+      }
+
+      closeForm();
+    } catch {
+      toast.error(t("toast.saveError"));
     }
   };
 
@@ -181,7 +185,7 @@ export default function VouchersAdminPage() {
       </div>
 
       {/* Status filter */}
-      <ChipFilterGroup
+      <ChipFilterGroup className=""
         value={statusFilter}
         onChange={setStatusFilter}
         options={ADMIN_VOUCHER_STATUS_FILTERS.map((s) => ({

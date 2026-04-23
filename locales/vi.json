@@ -317,10 +317,20 @@
         "conditions": "Điều kiện sử dụng",
         "condPlaceholder": "Áp dụng cho...",
         "validUntil": "Ngày hết hạn *",
+        "partnerLogo": "Logo đối tác *",
+        "thumbnail": "Ảnh thumbnail voucher *",
         "cancel": "Hủy",
         "create": "Tạo voucher",
         "save": "Lưu thay đổi",
-        "saving": "Đang lưu..."
+        "saving": "Đang lưu...",
+        "uploading": "Đang tải ảnh lên..."
+      },
+      "toast": {
+        "createSuccess": "Tạo voucher thành công.",
+        "updateSuccess": "Cập nhật voucher thành công.",
+        "saveError": "Không thể lưu voucher. Vui lòng thử lại.",
+        "mediaRequired": "Vui lòng tải lên đầy đủ logo đối tác và ảnh thumbnail voucher.",
+        "uploadError": "Tải lên {field} thất bại."
       }
     },
     "leaderboard": {
@@ -330,6 +340,12 @@
       "tabs": {
         "ranking": "Bảng xếp hạng",
         "prizes": "Cấu hình thưởng"
+      },
+      "filters": {
+        "week": "Tuần",
+        "scope": "Phạm vi",
+        "province": "Tỉnh/Thành",
+        "allProvinces": "Tất cả tỉnh/thành"
       },
       "rankingTable": {
         "rank": "Hạng",
@@ -358,6 +374,8 @@
         "CANCELLED": "Đã hủy"
       },
       "emptyPrizes": "Chưa có cấu hình phần thưởng nào.",
+      "emptyRanking": "Chưa có người dùng nào trong bảng xếp hạng tuần này.",
+      "emptyPrizesDescription": "Hệ thống chưa thiết lập phần thưởng cho chu kỳ này.",
       "addFirstPrize": "Thêm phần thưởng đầu tiên",
       "form": {
         "title": "Thêm phần thưởng",
@@ -379,7 +397,9 @@
           "lockAtRequired": "Vui lòng chọn thời điểm khóa.",
           "lockAtInvalid": "Thời điểm khóa phải đúng định dạng yyyy-MM-dd'T'HH:mm:ss.",
           "nationalVoucherRequired": "Vui lòng chọn voucher toàn quốc.",
-          "provincialVoucherRequired": "Vui lòng chọn voucher tỉnh/thành."
+          "provincialVoucherRequired": "Vui lòng chọn voucher tỉnh/thành.",
+          "weekStartNotMonday": "Ngày bắt đầu tuần bắt buộc phải là Thứ 2.",
+          "lockAtOutOfRange": "Thời điểm khóa phải nằm trong tuần đã chọn (Thứ 2 - Chủ Nhật)."
         }
       }
     }

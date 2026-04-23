@@ -21,6 +21,7 @@ import type {
 import { SuspendModal } from "@/components/admin/users/SuspendModal";
 import { RoleModal } from "@/components/admin/users/RoleModal";
 import { UserDetailModal } from "@/components/admin/users/UserDetailModal";
+import { UserAvatar } from "@/components/admin/users/UserAvatar";
 import {
   TableContainer,
   Table,
@@ -234,9 +235,13 @@ export default function UsersPage() {
                         onClick={() => setDetailUser(user)}
                         className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity"
                       >
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-content">
-                          {user.name.charAt(0).toUpperCase()}
-                        </div>
+                        <UserAvatar
+                          name={user.name}
+                          avatarUrl={user.avatarUrl}
+                          sizeClassName="h-10 w-10"
+                          textClassName="text-sm"
+                          className="shrink-0"
+                        />
                         <div>
                           <p className="text-sm font-semibold text-primary-content transition-colors">
                             {user.name}

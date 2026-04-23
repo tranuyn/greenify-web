@@ -18,12 +18,14 @@ import {
   useDistributePrize,
   useDeletePrize,
 } from "@/hooks/mutations/useAdmin";
+import { LeaderboardScope } from "@/types/gamification.types";
 import type {
   CreateLeaderboardPrizeRequest,
   LeaderboardEntry,
-  LeaderboardPrize
+  LeaderboardPrize,
 } from "@/types/gamification.types";
 import { useAvailableVouchers } from "@/hooks/queries/useGamification";
+import { useProvinces } from "@/hooks/queries/useLocation";
 import { PrizeFormModal } from "@/components/admin/leaderboard/PrizeFormModal";
 import {
   TableContainer,
@@ -37,6 +39,17 @@ import {
 import { Tag } from "@/components/admin/ui/tag";
 import { Tooltip } from "@/components/admin/ui/tooltip";
 import { Popconfirm } from "@/components/admin/ui/popconfirm";
+import { Select } from "@/components/admin/ui/select";
+import { WeekPicker } from "@/components/admin/ui/week-picker";
+
+const getCurrentWeekStartDate = () => {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diff);
+  return monday.toISOString().split("T")[0];
+};
 
 const formatDate = (value?: string | null) => {
   if (!value) return "-";
@@ -69,28 +82,54 @@ function RankBadge({ rank }: { rank: number }) {
 // ── Page ──────────────────────────────────────────────────────
 export default function LeaderboardAdminPage() {
   const t = useTranslations("admin.leaderboard");
+  const [showPrizeForm, setShowPrizeForm] = useState(false);
+  const [activeTab, setActiveTab] = useState<"ranking" | "prizes">("ranking");
+  const [weekStartDate, setWeekStartDate] = useState(getCurrentWeekStartDate());
 
-  const {
-    data: weeklyLeaderboard,
-    isLoading: isLoadingLB,
-  } = useWeeklyLeaderboard();
+  const [scope, setScope] = useState<LeaderboardScope>(
+    LeaderboardScope.NATIONAL,
+  );
+  const [provinceName, setProvinceName] = useState("");
 
-  const {
-    data: prizesData,
-    isLoading: isLoadingPrizes,
-  } = useAdminPrizes({
-    weekStartDate: weeklyLeaderboard?.weekStartDate,
+  const effectiveProvince =
+    scope === LeaderboardScope.PROVINCIAL && provinceName
+      ? provinceName
+      : undefined;
+
+  const { data: weeklyLeaderboard, isLoading: isLoadingLB } =
+    useWeeklyLeaderboard({
+      weekStartDate,
+      scope,
+      province: effectiveProvince,
+    });
+
+  const { data: prizesData, isLoading: isLoadingPrizes } = useAdminPrizes({
+    weekStartDate,
     page: 1,
     size: 20,
   });
   const { data: vouchersData } = useAvailableVouchers();
+  const {
+    data: provincesData,
+    isLoading: isLoadingProvinces,
+    isError,
+  } = useProvinces();
 
   const leaderboard = weeklyLeaderboard?.entries ?? [];
-
   const prizes = prizesData?.content ?? [];
-
   const vouchers = vouchersData?.content ?? [];
 
+  const scopeOptions = [
+    { value: LeaderboardScope.NATIONAL, label: t("scopes.NATIONAL") },
+    { value: LeaderboardScope.PROVINCIAL, label: t("scopes.PROVINCIAL") },
+  ];
+  const provinceOptions = [
+    { value: "", label: t("filters.allProvinces") },
+    ...(provincesData ?? []).map((province) => ({
+      value: province.name,
+      label: province.name,
+    })),
+  ];
   const { mutate: createPrize, isPending: isCreatingPrize } = useCreatePrize();
   const {
     mutate: distributePrize,
@@ -103,11 +142,9 @@ export default function LeaderboardAdminPage() {
     variables: deletingId,
   } = useDeletePrize();
 
-  const [showPrizeForm, setShowPrizeForm] = useState(false);
-  const [activeTab, setActiveTab] = useState<"ranking" | "prizes">("ranking");
-
   const activeVouchers = vouchers.filter((v) => v.status === "ACTIVE");
-  const effectiveWeekStartDate = weeklyLeaderboard?.weekStartDate ?? [];
+  const effectiveWeekStartDate =
+    weeklyLeaderboard?.weekStartDate ?? weekStartDate;
   const currentPrizeConfig =
     prizes.find(
       (p: LeaderboardPrize) => p.weekStartDate === effectiveWeekStartDate,
@@ -173,6 +210,49 @@ export default function LeaderboardAdminPage() {
             <Icon size={16} /> {label}
           </button>
         ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 rounded-2xl border border-border bg-card/80 p-4 md:grid-cols-3">
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
+            {t("filters.week")}
+          </label>
+          <WeekPicker
+            value={weekStartDate}
+            onChange={(val) => setWeekStartDate(val)}
+          />
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
+            {t("filters.scope")}
+          </label>
+          <Select
+            value={scope}
+            options={scopeOptions}
+            onChange={(val) => {
+              const nextScope = val as LeaderboardScope;
+              setScope(nextScope);
+              if (nextScope === LeaderboardScope.NATIONAL) {
+                setProvinceName(""); // Tự động reset tỉnh khi chọn National
+              }
+            }}
+          />
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
+            {t("filters.province")}
+          </label>
+          <Select
+            value={provinceName}
+            options={provinceOptions}
+            onChange={(val) => setProvinceName(val)}
+            disabled={scope !== LeaderboardScope.PROVINCIAL}
+            isLoading={isLoadingProvinces}
+            placeholder={t("filters.allProvinces")}
+          />
+        </div>
       </div>
 
       {/* ── Tab: Ranking ── */}
@@ -291,14 +371,14 @@ export default function LeaderboardAdminPage() {
                 </TableHeader>
                 <TableBody>
                   {prizes.map((prize: LeaderboardPrize) => (
-                    <TableRow key={prize.id}>
+                    <TableRow key={prize.id} className="group">
                       <TableCell>
-                        <span className="text-sm font-semibold text-gray-900">
+                        <span className="text-sm font-semibold text-primary-heading">
                           {formatDate(prize.weekStartDate)}
                         </span>
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm font-medium text-gray-700">
+                        <span className="text-sm font-medium text-foreground/70 group-hover:text-foreground">
                           {formatDateTime(prize.lockAt)}
                         </span>
                       </TableCell>
@@ -308,21 +388,21 @@ export default function LeaderboardAdminPage() {
                         </Tag>
                       </TableCell>
                       <TableCell>
-                        <p className="text-sm font-bold text-gray-900">
+                        <p className="text-sm font-bold text-primary-heading group-hover:text-primary transition-colors">
                           {prize.nationalVoucher?.name ?? "-"}
                         </p>
                         {prize.nationalVoucher?.partnerName && (
-                          <p className="mt-1 text-xs font-medium text-gray-500">
+                          <p className="mt-1 text-xs font-medium text-foreground/70 group-hover:text-foreground">
                             {prize.nationalVoucher.partnerName}
                           </p>
                         )}
                       </TableCell>
                       <TableCell>
-                        <p className="text-sm font-bold text-gray-900">
+                        <p className="text-sm font-bold text-primary-heading group-hover:text-primary transition-colors">
                           {prize.provincialVoucher?.name ?? "-"}
                         </p>
                         {prize.provincialVoucher?.partnerName && (
-                          <p className="mt-1 text-xs font-medium text-gray-500">
+                          <p className="mt-1 text-xs font-medium text-foreground/70 group-hover:text-foreground">
                             {prize.provincialVoucher.partnerName}
                           </p>
                         )}
@@ -384,10 +464,10 @@ export default function LeaderboardAdminPage() {
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-50 mb-4 animate-float">
                     <Gift size={32} className="text-primary-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-primary-heading mb-1">
                     {t("emptyPrizes")}
                   </h3>
-                  <p className="mt-1.5 text-sm text-gray-500 mb-6">
+                  <p className="mt-1.5 text-sm text-foreground/70 mb-6">
                     {t("emptyPrizesDescription")}
                   </p>
                   <button

@@ -82,8 +82,8 @@ export interface CreateVoucherTemplateRequest {
   totalStock: number;
   usageConditions: string;
   validUntil: string; // ISO 8601
-  partnerLogo?: MediaDto | null;
-  thumbnail?: MediaDto | null;
+  partnerLogo: MediaDto | null;
+  thumbnail: MediaDto | null;
 }
 
 // Request body cho PATCH /api/v1/admin/vouchers/{id}

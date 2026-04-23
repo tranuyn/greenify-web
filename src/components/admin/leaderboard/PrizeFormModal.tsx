@@ -6,6 +6,27 @@ import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import type { CreateLeaderboardPrizeRequest } from "@/types/gamification.types";
 import { createLeaderboardPrizeSchema } from "@/validations/leaderboard.schema";
+import { normalizeLockAtForApi } from "@/common/utils/date-time";
+import { WeekPicker } from "@/components/admin/ui/week-picker";
+import { Select } from "@/components/admin/ui/select";
+
+// Lấy ngày Thứ 2 của tuần tiếp theo (chặn chọn quá khứ)
+const getNextMondayStr = () => {
+  const now = new Date();
+  const day = now.getDay();
+  // Nếu hnay là CN(0) thì mai là T2 (+1). Các ngày khác thì lấy 8 - ngày hiện tại
+  const diff = day === 0 ? 1 : 8 - day; 
+  const nextMonday = new Date(now);
+  nextMonday.setDate(now.getDate() + diff);
+  
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${nextMonday.getFullYear()}-${pad(nextMonday.getMonth() + 1)}-${pad(nextMonday.getDate())}`;
+};
+
+const formatForDateTimeInput = (date: Date) => {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T00:00`;
+};
 
 interface PrizeFormModalProps {
   vouchers: { id: string; name: string }[];
@@ -32,31 +53,39 @@ export function PrizeFormModal({
     nationalVoucherTemplateId: "",
     provincialVoucherTemplateId: "",
   });
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof CreateLeaderboardPrizeRequest, string>>
-  >({});
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleSubmit = () => {
+  const handleFormSubmit = () => {
     const parsed = schema.safeParse(form);
 
     if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors;
-      setErrors({
-        weekStartDate: fieldErrors.weekStartDate?.[0],
-        lockAt: fieldErrors.lockAt?.[0],
-        nationalVoucherTemplateId: fieldErrors.nationalVoucherTemplateId?.[0],
-        provincialVoucherTemplateId:
-          fieldErrors.provincialVoucherTemplateId?.[0],
+      const newErrors: Record<string, string> = {};
+
+      parsed.error.issues.forEach((issue) => {
+        const fieldName = String(issue.path[issue.path.length - 1]);
+        if (!newErrors[fieldName]) {
+          newErrors[fieldName] = issue.message;
+        }
       });
+
+      setErrors(newErrors);
       return;
     }
 
     setErrors({});
-    onSubmit(parsed.data);
+
+    // Nắn lại format giờ theo đúng ý Backend trước khi gọi API
+    const finalPayload: CreateLeaderboardPrizeRequest = {
+      ...parsed.data,
+      lockAt: normalizeLockAtForApi(parsed.data.lockAt),
+    };
+
+    onSubmit(finalPayload);
   };
 
   const setField = <K extends keyof CreateLeaderboardPrizeRequest>(
@@ -64,12 +93,35 @@ export function PrizeFormModal({
     value: CreateLeaderboardPrizeRequest[K],
   ) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    // Xóa lỗi khi user gõ/chọn lại
     if (errors[key]) {
-      setErrors((prev) => ({ ...prev, [key]: undefined }));
+      setErrors((prev) => ({ ...prev, [key]: "" }));
     }
   };
 
+  const voucherOptions = [
+    { value: "", label: t("selectVoucher") }, // Placeholder
+    ...vouchers.map((v) => ({
+      value: v.id,
+      label: v.name,
+    })),
+  ];
+
   if (!mounted) return null;
+
+  // Tính toán giới hạn cho lịch WeekPicker và LockAt
+  const minFutureMonday = getNextMondayStr();
+
+  const minLockDate = form.weekStartDate
+    ? formatForDateTimeInput(new Date(form.weekStartDate))
+    : "";
+
+  let maxLockDate = "";
+  if (form.weekStartDate) {
+    const d = new Date(form.weekStartDate);
+    d.setDate(d.getDate() + 6); // Cộng thêm 6 ngày là đến Chủ nhật
+    maxLockDate = `${formatForDateTimeInput(d).split("T")[0]}T23:59`; // Cuối ngày CN
+  }
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
@@ -99,11 +151,11 @@ export function PrizeFormModal({
             <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
               {t("weekStartDate")}
             </label>
-            <input
-              type="date"
+            <WeekPicker
               value={form.weekStartDate}
-              onChange={(e) => setField("weekStartDate", e.target.value)}
-              className="w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm outline-none transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
+              onChange={(val) => setField("weekStartDate", val)}
+              minDate={minFutureMonday}
+              className={errors.weekStartDate ? "ring-2 ring-rose-500 rounded-xl" : ""}
             />
             {errors.weekStartDate && (
               <p className="mt-1 text-xs text-rose-600">
@@ -121,7 +173,14 @@ export function PrizeFormModal({
               type="datetime-local"
               value={form.lockAt}
               onChange={(e) => setField("lockAt", e.target.value)}
-              className="w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm outline-none transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
+              min={minLockDate}
+              max={maxLockDate}
+              disabled={!form.weekStartDate}
+              className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none focus:ring-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                errors.lockAt
+                  ? "border-rose-500 bg-rose-50 focus:ring-rose-100"
+                  : "border-gray-200 bg-gray-50/50 focus:border-primary-500 focus:bg-white focus:ring-primary-500/10"
+              }`}
             />
             {errors.lockAt && (
               <p className="mt-1 text-xs text-rose-600">{errors.lockAt}</p>
@@ -133,20 +192,12 @@ export function PrizeFormModal({
             <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
               {t("nationalVoucher")}
             </label>
-            <select
+            <Select
               value={form.nationalVoucherTemplateId}
-              onChange={(e) =>
-                setField("nationalVoucherTemplateId", e.target.value)
-              }
-              className="w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm outline-none transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
-            >
-              <option value="">{t("selectVoucher")}</option>
-              {vouchers.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.name}
-                </option>
-              ))}
-            </select>
+              options={voucherOptions}
+              onChange={(val) => setField("nationalVoucherTemplateId", val)}
+              className={errors.nationalVoucherTemplateId ? "ring-2 ring-rose-500 rounded-xl" : ""}
+            />
             {errors.nationalVoucherTemplateId && (
               <p className="mt-1 text-xs text-rose-600">
                 {errors.nationalVoucherTemplateId}
@@ -159,20 +210,12 @@ export function PrizeFormModal({
             <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
               {t("provincialVoucher")}
             </label>
-            <select
+            <Select
               value={form.provincialVoucherTemplateId}
-              onChange={(e) =>
-                setField("provincialVoucherTemplateId", e.target.value)
-              }
-              className="w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm outline-none transition-all focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/10"
-            >
-              <option value="">{t("selectVoucher")}</option>
-              {vouchers.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.name}
-                </option>
-              ))}
-            </select>
+              options={voucherOptions}
+              onChange={(val) => setField("provincialVoucherTemplateId", val)}
+              className={errors.provincialVoucherTemplateId ? "ring-2 ring-rose-500 rounded-xl" : ""}
+            />
             {errors.provincialVoucherTemplateId && (
               <p className="mt-1 text-xs text-rose-600">
                 {errors.provincialVoucherTemplateId}
@@ -190,14 +233,8 @@ export function PrizeFormModal({
             {t("cancel")}
           </button>
           <button
-            onClick={handleSubmit}
-            disabled={
-              isPending ||
-              !form.weekStartDate ||
-              !form.lockAt ||
-              !form.nationalVoucherTemplateId ||
-              !form.provincialVoucherTemplateId
-            }
+            onClick={handleFormSubmit}
+            disabled={isPending}
             className="flex-1 rounded-2xl bg-primary-600 py-3 text-sm font-bold text-white shadow-md shadow-primary-600/20 transition-all hover:bg-primary-700 hover:shadow-lg disabled:opacity-50 disabled:shadow-none"
           >
             {isPending ? t("saving") : t("submit")}

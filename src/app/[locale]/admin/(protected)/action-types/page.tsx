@@ -83,10 +83,10 @@ function ActionTypeFormModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl">
+      <div className="w-full max-w-md overflow-hidden rounded-3xl bg-card shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-primary-heading">
             {isEdit ? "Chỉnh sửa loại hành động" : "Thêm loại hành động mới"}
           </h3>
           <button
@@ -149,7 +149,7 @@ function ActionTypeFormModal({
           </div>
 
           {/* Toggles */}
-          <div className="space-y-3 rounded-2xl bg-gray-50 p-4">
+          <div className="space-y-3 rounded-2xl bg-card p-4">
             {/* Location required */}
             <button
               type="button"
@@ -172,7 +172,7 @@ function ActionTypeFormModal({
                   />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-primary-content">
                     Bắt buộc vị trí
                   </p>
                   <p className="text-xs text-gray-400">
@@ -213,7 +213,7 @@ function ActionTypeFormModal({
                   />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">Kích hoạt</p>
+                  <p className="text-sm font-medium text-primary-content">Kích hoạt</p>
                   <p className="text-xs text-gray-400">
                     Hiển thị cho người dùng
                   </p>

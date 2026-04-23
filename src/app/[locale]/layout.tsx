@@ -1,6 +1,7 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import QueryProvider from "@/providers/QueryProvider";
+import ToasterProvider from "@/providers/ToasterProvider";
 
 export default async function LocaleLayout({
   children,
@@ -15,7 +16,10 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <QueryProvider>{children}</QueryProvider>
+      <QueryProvider>
+        {children}
+        <ToasterProvider />
+      </QueryProvider>
     </NextIntlClientProvider>
   );
 }
