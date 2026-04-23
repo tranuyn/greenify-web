@@ -21,7 +21,7 @@ import {
 import type {
   CreateLeaderboardPrizeRequest,
   LeaderboardEntry,
-  LeaderboardPrize,
+  LeaderboardPrize
 } from "@/types/gamification.types";
 import { useAvailableVouchers } from "@/hooks/queries/useGamification";
 import { PrizeFormModal } from "@/components/admin/leaderboard/PrizeFormModal";
@@ -34,11 +34,16 @@ import {
   TableRow,
   TableCell,
 } from "@/components/admin/ui/table";
+import { Tag } from "@/components/admin/ui/tag";
+import { Tooltip } from "@/components/admin/ui/tooltip";
+import { Popconfirm } from "@/components/admin/ui/popconfirm";
 
 const formatDate = (value?: string | null) => {
   if (!value) return "-";
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("vi-VN");
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString("vi-VN");
 };
 
 const formatDateTime = (value?: string | null) => {
@@ -65,20 +70,26 @@ function RankBadge({ rank }: { rank: number }) {
 export default function LeaderboardAdminPage() {
   const t = useTranslations("admin.leaderboard");
 
-  const { data: weeklyLeaderboard, isLoading: isLoadingLB } =
-    useWeeklyLeaderboard();
-  const leaderboard = weeklyLeaderboard?.entries ?? [];
+  const {
+    data: weeklyLeaderboard,
+    isLoading: isLoadingLB,
+  } = useWeeklyLeaderboard();
 
-  const { data: prizesData, isLoading: isLoadingPrizes } = useAdminPrizes({
+  const {
+    data: prizesData,
+    isLoading: isLoadingPrizes,
+  } = useAdminPrizes({
     weekStartDate: weeklyLeaderboard?.weekStartDate,
     page: 1,
     size: 20,
   });
-  const prizes = prizesData?.content || [];
   const { data: vouchersData } = useAvailableVouchers();
-  const vouchers = Array.isArray(vouchersData)
-    ? vouchersData
-    : (vouchersData?.content ?? []);
+
+  const leaderboard = weeklyLeaderboard?.entries ?? [];
+
+  const prizes = prizesData?.content ?? [];
+
+  const vouchers = vouchersData?.content ?? [];
 
   const { mutate: createPrize, isPending: isCreatingPrize } = useCreatePrize();
   const {
@@ -95,13 +106,31 @@ export default function LeaderboardAdminPage() {
   const [showPrizeForm, setShowPrizeForm] = useState(false);
   const [activeTab, setActiveTab] = useState<"ranking" | "prizes">("ranking");
 
-  const activeVouchers = vouchers.filter((v: any) => v.status === "ACTIVE");
+  const activeVouchers = vouchers.filter((v) => v.status === "ACTIVE");
+  const effectiveWeekStartDate = weeklyLeaderboard?.weekStartDate ?? [];
   const currentPrizeConfig =
-    prizes.find((p: LeaderboardPrize) => p.weekStartDate === weeklyLeaderboard?.weekStartDate) ??
-    prizes[0];
+    prizes.find(
+      (p: LeaderboardPrize) => p.weekStartDate === effectiveWeekStartDate,
+    ) ?? prizes[0];
 
   const handleCreatePrize = (data: CreateLeaderboardPrizeRequest) => {
     createPrize(data, { onSuccess: () => setShowPrizeForm(false) });
+  };
+
+  const handleDistributePrize = (id: string) => {
+    distributePrize(id);
+  };
+
+  const handleDeletePrize = (id: string) => {
+    deletePrize(id);
+  };
+
+  const getPrizeStatusTone = (
+    status: LeaderboardPrize["status"],
+  ): "success" | "danger" | "warning" => {
+    if (status === "DISTRIBUTED") return "success";
+    if (status === "CANCELLED") return "danger";
+    return "warning";
   };
 
   return (
@@ -274,17 +303,9 @@ export default function LeaderboardAdminPage() {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-bold border ${
-                            prize.status === "DISTRIBUTED"
-                              ? "bg-primary-50 text-primary-700 border-primary-200/50"
-                              : prize.status === "CANCELLED"
-                                ? "bg-rose-50 text-rose-700 border-rose-200/50"
-                                : "bg-amber-50 text-amber-700 border-amber-200/50"
-                          }`}
-                        >
+                        <Tag size="sm" tone={getPrizeStatusTone(prize.status)}>
                           {t(`statuses.${prize.status}`)}
-                        </span>
+                        </Tag>
                       </TableCell>
                       <TableCell>
                         <p className="text-sm font-bold text-gray-900">
@@ -308,36 +329,49 @@ export default function LeaderboardAdminPage() {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1 text-xs font-semibold text-gray-700">
-                          <p>N: {prize.nationalReservedCount.toLocaleString()}</p>
-                          <p>P: {prize.provincialReservedCount.toLocaleString()}</p>
+                          <p>
+                            N: {prize.nationalReservedCount.toLocaleString()}
+                          </p>
+                          <p>
+                            P: {prize.provincialReservedCount.toLocaleString()}
+                          </p>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => distributePrize(prize.id)}
-                            disabled={
-                              prize.status !== "CONFIGURED" ||
-                              (isDistributing && distributingId === prize.id)
-                            }
-                            className="flex items-center gap-1.5 rounded-2xl bg-primary-50 px-3.5 py-2 text-xs font-bold text-primary-700 hover:bg-primary-100 disabled:opacity-50 transition-colors"
-                            title={t("distribute")}
-                          >
-                            {isDistributing && distributingId === prize.id ? (
-                              <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
-                            ) : (
-                              <Send size={14} />
-                            )}
-                            {t("distribute")}
-                          </button>
-                          <button
-                            onClick={() => deletePrize(prize.id)}
-                            disabled={isDeleting && deletingId === prize.id}
-                            className="rounded-2xl bg-gray-50 p-2 text-gray-500 transition-colors hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
+                          <Tooltip content={t("distribute")}>
+                            <button
+                              onClick={() => handleDistributePrize(prize.id)}
+                              disabled={
+                                prize.status !== "CONFIGURED" ||
+                                (isDistributing && distributingId === prize.id)
+                              }
+                              className="flex items-center gap-1.5 rounded-2xl bg-primary-50 px-3.5 py-2 text-xs font-bold text-primary-700 hover:bg-primary-100 disabled:opacity-50 transition-colors"
+                            >
+                              {isDistributing && distributingId === prize.id ? (
+                                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
+                              ) : (
+                                <Send size={14} />
+                              )}
+                              {t("distribute")}
+                            </button>
+                          </Tooltip>
+
+                          <Popconfirm
                             title={t("delete")}
+                            description={t("delete")}
+                            confirmText={t("delete")}
+                            danger
+                            disabled={
+                              prize.status === "DISTRIBUTED" ||
+                              (isDeleting && deletingId === prize.id)
+                            }
+                            onConfirm={() => handleDeletePrize(prize.id)}
                           >
-                            <Trash2 size={18} />
-                          </button>
+                            <button className="rounded-2xl bg-gray-50 p-2 text-gray-500 transition-colors hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50">
+                              <Trash2 size={18} />
+                            </button>
+                          </Popconfirm>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -372,7 +406,7 @@ export default function LeaderboardAdminPage() {
       {/* Prize form modal */}
       {showPrizeForm && (
         <PrizeFormModal
-          vouchers={activeVouchers.map((v: any) => ({
+          vouchers={activeVouchers.map((v) => ({
             id: v.id,
             name: v.name,
           }))}

@@ -20,16 +20,16 @@ export function SuspendModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 transition-opacity">
-      <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl animate-fade-up">
+      <div className="w-full max-w-sm rounded-3xl bg-card p-6 shadow-2xl animate-fade-up">
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100">
             <AlertTriangle size={18} className="text-rose-500" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-gray-900">
+            <h3 className="text-base font-semibold text-primary-heading">
               {t("title")}
             </h3>
-            <p className="text-xs text-gray-500">{user.name}</p>
+            <p className="text-xs text-foreground/80">{user.name}</p>
           </div>
           <button
             onClick={onClose}
@@ -48,14 +48,14 @@ export function SuspendModal({
             onChange={(e) => setReason(e.target.value)}
             placeholder={t("reasonPlaceholder")}
             rows={3}
-            className="w-full resize-none rounded-xl border border-border px-4 py-2.5 text-sm outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100 transition-all"
+            className=" w-full resize-none rounded-xl border border-border px-4 py-2.5 text-sm outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100 transition-all"
           />
         </div>
 
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 rounded-xl border border-border py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+            className="flex-1 rounded-xl border border-border py-2.5 text-sm font-medium text-background bg-foreground/60 hover:bg-foreground/80 transition-colors"
           >
             {tCommon("cancel")}
           </button>

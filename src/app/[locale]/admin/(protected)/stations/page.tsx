@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Plus, Recycle, Search, X } from "lucide-react";
+import { Plus, Recycle } from "lucide-react";
 import { useStations, useWasteTypes } from "@/hooks/queries/useStations";
 import {
   useCreateStation,
@@ -10,21 +10,28 @@ import {
   useDeleteStation,
 } from "@/hooks/mutations/useStations";
 
-import type {
-  RecyclingStation,
-  StationStatus,
+import {
+  ADMIN_STATION_STATUS_FILTER,
+  ADMIN_STATION_STATUS_FILTERS,
   CreateStationRequest,
+  RecyclingStation,
+  type AdminStationStatus,
 } from "@/types/station.types";
 import { STATUS_CFG } from "./_components/StationStatusBadge";
 import { StationCard } from "./_components/StationCard";
 import { StationFormModal } from "./_components/StationFormModal";
+import { SearchBar } from "@/components/admin/ui/search-bar";
+import { ChipFilterGroup } from "@/components/admin/ui/filter-chip-group";
 
 export default function StationsAdminPage() {
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<StationStatus | "ALL">(
-    "ALL",
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<AdminStationStatus>(
+    ADMIN_STATION_STATUS_FILTER.ALL,
   );
-  const [wasteTypeFilter, setWasteTypeFilter] = useState<string>("ALL");
+  const [wasteTypeFilter, setWasteTypeFilter] = useState<string>(
+    ADMIN_STATION_STATUS_FILTER.ALL,
+  );
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState<RecyclingStation | null>(null);
 
@@ -43,24 +50,28 @@ export default function StationsAdminPage() {
   const filtered = useMemo(() => {
     return stations.filter((s) => {
       const matchSearch =
-        search.trim() === "" ||
-        s.name.toLowerCase().includes(search.toLowerCase()) ||
-        s.address.addressDetail.toLowerCase().includes(search.toLowerCase()) ||
-        s.address.province.toLowerCase().includes(search.toLowerCase());
+        appliedSearch.trim() === "" ||
+        s.name.toLowerCase().includes(appliedSearch.toLowerCase()) ||
+        s.address.addressDetail
+          .toLowerCase()
+          .includes(appliedSearch.toLowerCase()) ||
+        s.address.province.toLowerCase().includes(appliedSearch.toLowerCase());
 
-      const matchStatus = statusFilter === "ALL" || s.status === statusFilter;
+      const matchStatus =
+        statusFilter === ADMIN_STATION_STATUS_FILTER.ALL ||
+        s.status === statusFilter;
 
       const matchWaste =
-        wasteTypeFilter === "ALL" ||
+        wasteTypeFilter === ADMIN_STATION_STATUS_FILTER.ALL ||
         s.wasteTypes.some((w) => w.id === wasteTypeFilter);
 
       return matchSearch && matchStatus && matchWaste;
     });
-  }, [stations, search, statusFilter, wasteTypeFilter]);
+  }, [stations, appliedSearch, statusFilter, wasteTypeFilter]);
 
   const counts = useMemo(() => {
-    const c: Partial<Record<StationStatus | "ALL", number>> = {
-      ALL: stations.length,
+    const c: Partial<Record<AdminStationStatus, number>> = {
+      [ADMIN_STATION_STATUS_FILTER.ALL]: stations.length,
     };
     stations.forEach((s) => {
       c[s.status] = (c[s.status] ?? 0) + 1;
@@ -82,6 +93,10 @@ export default function StationsAdminPage() {
     } else {
       createStation(data, { onSuccess: closeForm });
     }
+  };
+
+  const handleSearch = (submittedSearch: string) => {
+    setAppliedSearch(submittedSearch);
   };
 
   return (
@@ -108,87 +123,51 @@ export default function StationsAdminPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
         {/* Search */}
-        <div className="relative flex-1">
-          <Search
-            size={15}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm theo tên, địa chỉ, tỉnh/thành..."
-            className="w-full rounded-xl border border-border bg-card py-2.5 pl-11 pr-4 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <X size={15} />
-            </button>
-          )}
-        </div>
+        <SearchBar
+          className="flex-1"
+          value={search}
+          onValueChange={setSearch}
+          onSearch={handleSearch}
+          placeholder="Tìm theo tên, địa chỉ, tỉnh/thành..."
+          buttonLabel="Tìm kiếm"
+          inputClassName="rounded-xl"
+          buttonClassName="rounded-xl"
+        />
 
         {/* Status filter */}
-        <div className="flex flex-wrap gap-2">
-          {(
-            ["ALL", "ACTIVE", "INACTIVE", "DRAFT", "TEMPORARY_CLOSED"] as const
-          ).map((s) => (
-            <button
-              key={s}
-              onClick={() => setStatusFilter(s)}
-              className={`flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all ${
-                statusFilter === s
-                  ? "border-primary-500 bg-primary-600 text-white"
-                  : "border-border bg-white text-gray-600 hover:border-primary-300"
-              }`}
-            >
-              {s === "ALL" ? "Tất cả" : STATUS_CFG[s].label}
-              <span
-                className={`rounded-full px-1.5 py-0.5 font-mono text-[10px] ${
-                  statusFilter === s
-                    ? "bg-white/20 text-white"
-                    : "bg-gray-100 text-gray-500"
-                }`}
-              >
-                {counts[s] ?? 0}
-              </span>
-            </button>
-          ))}
-        </div>
+        <ChipFilterGroup
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={ADMIN_STATION_STATUS_FILTERS.map((s) => ({
+            value: s,
+            label:
+              s === ADMIN_STATION_STATUS_FILTER.ALL
+                ? "Tất cả"
+                : STATUS_CFG[s].label,
+            count: counts[s] ?? 0,
+          }))}
+          layout="scroll"
+          size="sm"
+        />
       </div>
 
       {/* Waste type filter */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-gray-400">Lọc loại rác:</span>
-        <button
-          onClick={() => setWasteTypeFilter("ALL")}
-          className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
-            wasteTypeFilter === "ALL"
-              ? "border-primary-500 bg-primary-100 text-primary-content"
-              : "border-border text-gray-500 hover:border-primary-300"
-          }`}
-        >
-          Tất cả loại
-        </button>
-        {allWasteTypes.map((wt) => (
-          <button
-            key={wt.id}
-            onClick={() =>
-              setWasteTypeFilter(wt.id === wasteTypeFilter ? "ALL" : wt.id)
-            }
-            className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
-              wasteTypeFilter === wt.id
-                ? "border-primary-500 bg-primary-100 text-primary-content"
-                : "border-border text-gray-500 hover:border-primary-300"
-            }`}
-          >
-            {wt.name}
-          </button>
-        ))}
-      </div>
+      <ChipFilterGroup
+        label="Lọc loại rác"
+        value={wasteTypeFilter}
+        onChange={setWasteTypeFilter}
+        options={[
+          { value: ADMIN_STATION_STATUS_FILTER.ALL, label: "Tất cả loại" },
+          ...allWasteTypes.map((wt) => ({
+            value: wt.id,
+            label: wt.name,
+          })),
+        ]}
+        layout="wrap"
+        size="sm"
+      />
 
       {/* Loading */}
       {isLoading && (
@@ -225,16 +204,21 @@ export default function StationsAdminPage() {
             <Recycle size={28} className="text-primary-300" />
           </div>
           <p className="text-gray-500">
-            {search || statusFilter !== "ALL" || wasteTypeFilter !== "ALL"
+            {appliedSearch ||
+            statusFilter !== ADMIN_STATION_STATUS_FILTER.ALL ||
+            wasteTypeFilter !== ADMIN_STATION_STATUS_FILTER.ALL
               ? "Không tìm thấy điểm thu gom phù hợp."
               : "Chưa có điểm thu gom nào."}
           </p>
-          {(search || statusFilter !== "ALL" || wasteTypeFilter !== "ALL") && (
+          {(appliedSearch ||
+            statusFilter !== ADMIN_STATION_STATUS_FILTER.ALL ||
+            wasteTypeFilter !== ADMIN_STATION_STATUS_FILTER.ALL) && (
             <button
               onClick={() => {
                 setSearch("");
-                setStatusFilter("ALL");
-                setWasteTypeFilter("ALL");
+                setAppliedSearch("");
+                setStatusFilter(ADMIN_STATION_STATUS_FILTER.ALL);
+                setWasteTypeFilter(ADMIN_STATION_STATUS_FILTER.ALL);
               }}
               className="mt-3 text-sm font-medium text-primary-content hover:underline"
             >

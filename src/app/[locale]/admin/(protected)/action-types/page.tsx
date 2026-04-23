@@ -1,16 +1,27 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
-  Plus, Pencil, ToggleLeft, ToggleRight,
-  Leaf, MapPin, Coins, X, Check,
-} from 'lucide-react';
-import { useCreateActionType, useUpdateActionType } from '@/hooks/mutations/useAdmin';
+  Plus,
+  Pencil,
+  ToggleLeft,
+  ToggleRight,
+  Leaf,
+  MapPin,
+  Coins,
+  X,
+  Check,
+} from "lucide-react";
+import {
+  useCreateActionType,
+  useUpdateActionType,
+} from "@/hooks/mutations/useAdmin";
 import type {
   GreenActionType,
   CreateActionTypeRequest,
-} from '@/types/action.types';
-import { useActionTypes } from '@/hooks/queries/usePosts';
+} from "@/types/action.types";
+import { useActionTypes } from "@/hooks/queries/usePosts";
+import { ChipFilterGroup } from "@/components/admin/ui/filter-chip-group";
 import {
   TableContainer,
   Table,
@@ -25,12 +36,12 @@ import {
 // Tự động gán màu theo groupName hash — không hardcode
 function getGroupColor(groupName: string): string {
   const colors = [
-    'bg-primary-100 text-primary-content',
-    'bg-blue-100 text-blue-700',
-    'bg-violet-100 text-violet-700',
-    'bg-amber-100 text-amber-700',
-    'bg-rose-100 text-rose-700',
-    'bg-cyan-100 text-cyan-700',
+    "bg-primary-100 text-primary-content",
+    "bg-blue-100 text-blue-700",
+    "bg-violet-100 text-violet-700",
+    "bg-amber-100 text-amber-700",
+    "bg-rose-100 text-rose-700",
+    "bg-cyan-100 text-cyan-700",
   ];
   let hash = 0;
   for (let i = 0; i < groupName.length; i++) {
@@ -53,11 +64,11 @@ function ActionTypeFormModal({
 }) {
   const isEdit = !!initial;
   const [form, setForm] = useState<CreateActionTypeRequest>({
-    groupName:        initial?.groupName        ?? '',
-    actionName:       initial?.actionName       ?? '',
-    suggestedPoints:  initial?.suggestedPoints  ?? 10,
+    groupName: initial?.groupName ?? "",
+    actionName: initial?.actionName ?? "",
+    suggestedPoints: initial?.suggestedPoints ?? 10,
     locationRequired: initial?.locationRequired ?? false,
-    isActive:         initial?.isActive         ?? true,
+    isActive: initial?.isActive ?? true,
   });
 
   const set = <K extends keyof CreateActionTypeRequest>(
@@ -76,9 +87,12 @@ function ActionTypeFormModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h3 className="text-lg font-semibold text-gray-900">
-            {isEdit ? 'Chỉnh sửa loại hành động' : 'Thêm loại hành động mới'}
+            {isEdit ? "Chỉnh sửa loại hành động" : "Thêm loại hành động mới"}
           </h3>
-          <button onClick={onClose} className="rounded-full p-1.5 hover:bg-gray-100">
+          <button
+            onClick={onClose}
+            className="rounded-full p-1.5 hover:bg-gray-100"
+          >
             <X size={18} className="text-gray-500" />
           </button>
         </div>
@@ -92,7 +106,7 @@ function ActionTypeFormModal({
             </label>
             <input
               value={form.groupName}
-              onChange={(e) => set('groupName', e.target.value)}
+              onChange={(e) => set("groupName", e.target.value)}
               placeholder="Ví dụ: Tái chế, Giảm nhựa, Dọn dẹp..."
               className="w-full rounded-xl border border-border px-4 py-2.5 text-sm outline-none transition focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
             />
@@ -108,7 +122,7 @@ function ActionTypeFormModal({
             </label>
             <input
               value={form.actionName}
-              onChange={(e) => set('actionName', e.target.value)}
+              onChange={(e) => set("actionName", e.target.value)}
               placeholder="Ví dụ: Phân loại rác tại nhà..."
               className="w-full rounded-xl border border-border px-4 py-2.5 text-sm outline-none transition focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
             />
@@ -125,7 +139,7 @@ function ActionTypeFormModal({
                 min={1}
                 max={1000}
                 value={form.suggestedPoints}
-                onChange={(e) => set('suggestedPoints', Number(e.target.value))}
+                onChange={(e) => set("suggestedPoints", Number(e.target.value))}
                 className="w-full rounded-xl border border-border py-2.5 pl-4 pr-14 text-sm outline-none transition focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-primary-content">
@@ -139,52 +153,82 @@ function ActionTypeFormModal({
             {/* Location required */}
             <button
               type="button"
-              onClick={() => set('locationRequired', !form.locationRequired)}
+              onClick={() => set("locationRequired", !form.locationRequired)}
               className="flex w-full items-center justify-between"
             >
               <div className="flex items-center gap-3">
-                <div className={`flex h-8 w-8 items-center justify-center rounded-xl ${
-                  form.locationRequired ? 'bg-primary-100' : 'bg-gray-200'
-                }`}>
-                  <MapPin size={15} className={form.locationRequired ? 'text-primary-content' : 'text-gray-400'} />
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-xl ${
+                    form.locationRequired ? "bg-primary-100" : "bg-gray-200"
+                  }`}
+                >
+                  <MapPin
+                    size={15}
+                    className={
+                      form.locationRequired
+                        ? "text-primary-content"
+                        : "text-gray-400"
+                    }
+                  />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">Bắt buộc vị trí</p>
-                  <p className="text-xs text-gray-400">Yêu cầu GPS khi đăng bài</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    Bắt buộc vị trí
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Yêu cầu GPS khi đăng bài
+                  </p>
                 </div>
               </div>
-              <div className={`relative h-6 w-11 rounded-full transition-colors ${
-                form.locationRequired ? 'bg-primary-600' : 'bg-gray-300'
-              }`}>
-                <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                  form.locationRequired ? 'translate-x-5' : 'translate-x-0.5'
-                }`} />
+              <div
+                className={`relative h-6 w-11 rounded-full transition-colors ${
+                  form.locationRequired ? "bg-primary-600" : "bg-gray-300"
+                }`}
+              >
+                <div
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                    form.locationRequired ? "translate-x-5" : "translate-x-0.5"
+                  }`}
+                />
               </div>
             </button>
 
             {/* Is active */}
             <button
               type="button"
-              onClick={() => set('isActive', !form.isActive)}
+              onClick={() => set("isActive", !form.isActive)}
               className="flex w-full items-center justify-between"
             >
               <div className="flex items-center gap-3">
-                <div className={`flex h-8 w-8 items-center justify-center rounded-xl ${
-                  form.isActive ? 'bg-primary-100' : 'bg-gray-200'
-                }`}>
-                  <Leaf size={15} className={form.isActive ? 'text-primary-content' : 'text-gray-400'} />
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-xl ${
+                    form.isActive ? "bg-primary-100" : "bg-gray-200"
+                  }`}
+                >
+                  <Leaf
+                    size={15}
+                    className={
+                      form.isActive ? "text-primary-content" : "text-gray-400"
+                    }
+                  />
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-medium text-gray-900">Kích hoạt</p>
-                  <p className="text-xs text-gray-400">Hiển thị cho người dùng</p>
+                  <p className="text-xs text-gray-400">
+                    Hiển thị cho người dùng
+                  </p>
                 </div>
               </div>
-              <div className={`relative h-6 w-11 rounded-full transition-colors ${
-                form.isActive ? 'bg-primary-600' : 'bg-gray-300'
-              }`}>
-                <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                  form.isActive ? 'translate-x-5' : 'translate-x-0.5'
-                }`} />
+              <div
+                className={`relative h-6 w-11 rounded-full transition-colors ${
+                  form.isActive ? "bg-primary-600" : "bg-gray-300"
+                }`}
+              >
+                <div
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                    form.isActive ? "translate-x-5" : "translate-x-0.5"
+                  }`}
+                />
               </div>
             </button>
           </div>
@@ -204,10 +248,10 @@ function ActionTypeFormModal({
             className="flex-1 rounded-xl bg-primary-600 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-50"
           >
             {isPending
-              ? 'Đang lưu...'
+              ? "Đang lưu..."
               : isEdit
-                ? 'Lưu thay đổi'
-                : 'Thêm hành động'}
+                ? "Lưu thay đổi"
+                : "Thêm hành động"}
           </button>
         </div>
       </div>
@@ -221,21 +265,27 @@ export default function ActionTypesAdminPage() {
   const { mutate: createAction, isPending: isCreating } = useCreateActionType();
   const { mutate: updateAction, isPending: isUpdating } = useUpdateActionType();
 
-  const [showForm, setShowForm]     = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState<GreenActionType | null>(null);
-  const [groupFilter, setGroupFilter] = useState<string>('ALL');
+  const [groupFilter, setGroupFilter] = useState<string>("ALL");
   const [showInactive, setShowInactive] = useState(false);
 
   // Lấy tất cả groups để render filter chips
-  const groups = ['ALL', ...Array.from(new Set(actionTypes.map((a) => a.groupName))).sort()];
+  const groups = [
+    "ALL",
+    ...Array.from(new Set(actionTypes.map((a) => a.groupName))).sort(),
+  ];
 
   const filtered = actionTypes.filter((a) => {
-    const matchGroup = groupFilter === 'ALL' || a.groupName === groupFilter;
+    const matchGroup = groupFilter === "ALL" || a.groupName === groupFilter;
     const matchActive = showInactive ? true : a.isActive;
     return matchGroup && matchActive;
   });
 
-  const closeForm = () => { setShowForm(false); setEditTarget(null); };
+  const closeForm = () => {
+    setShowForm(false);
+    setEditTarget(null);
+  };
 
   const handleSubmit = (data: CreateActionTypeRequest) => {
     if (editTarget) {
@@ -256,9 +306,9 @@ export default function ActionTypesAdminPage() {
   };
 
   // Stats
-  const totalActive   = actionTypes.filter((a) => a.isActive).length;
+  const totalActive = actionTypes.filter((a) => a.isActive).length;
   const totalInactive = actionTypes.filter((a) => !a.isActive).length;
-  const totalGroups   = new Set(actionTypes.map((a) => a.groupName)).size;
+  const totalGroups = new Set(actionTypes.map((a) => a.groupName)).size;
 
   return (
     <div className="space-y-6">
@@ -269,11 +319,15 @@ export default function ActionTypesAdminPage() {
             Loại hành động xanh
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            {totalActive} đang hoạt động · {totalInactive} tạm dừng · {totalGroups} nhóm
+            {totalActive} đang hoạt động · {totalInactive} tạm dừng ·{" "}
+            {totalGroups} nhóm
           </p>
         </div>
         <button
-          onClick={() => { setEditTarget(null); setShowForm(true); }}
+          onClick={() => {
+            setEditTarget(null);
+            setShowForm(true);
+          }}
           className="flex items-center gap-2 rounded-2xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-700"
         >
           <Plus size={16} /> Thêm mới
@@ -283,15 +337,34 @@ export default function ActionTypesAdminPage() {
       {/* Stats cards */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Tổng loại hành động', value: actionTypes.length, color: 'bg-primary-50 text-primary-content' },
-          { label: 'Đang hoạt động',      value: totalActive,         color: 'bg-primary-50 text-primary-content' },
-          { label: 'Số nhóm',             value: totalGroups,         color: 'bg-blue-50 text-blue-700' },
+          {
+            label: "Tổng loại hành động",
+            value: actionTypes.length,
+            color: "bg-primary-50 text-primary-content",
+          },
+          {
+            label: "Đang hoạt động",
+            value: totalActive,
+            color: "bg-primary-50 text-primary-content",
+          },
+          {
+            label: "Số nhóm",
+            value: totalGroups,
+            color: "bg-blue-50 text-blue-700",
+          },
         ].map((s) => (
-          <div key={s.label} className="rounded-2xl border border-border bg-white p-5 shadow-sm">
-            <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl ${s.color}`}>
+          <div
+            key={s.label}
+            className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+          >
+            <div
+              className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl ${s.color}`}
+            >
               <Leaf size={18} />
             </div>
-            <div className="text-2xl font-bold text-gray-900">{s.value}</div>
+            <div className="text-2xl font-bold text-primary-heading">
+              {s.value}
+            </div>
             <div className="mt-0.5 text-xs text-gray-500">{s.label}</div>
           </div>
         ))}
@@ -300,29 +373,24 @@ export default function ActionTypesAdminPage() {
       {/* Filters row */}
       <div className="flex flex-wrap items-center gap-3">
         {/* Group filter chips */}
-        <div className="flex flex-wrap gap-2">
-          {groups.map((g) => (
-            <button
-              key={g}
-              onClick={() => setGroupFilter(g)}
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
-                groupFilter === g
-                  ? 'border-primary-500 bg-primary-600 text-white'
-                  : 'border-border bg-white text-gray-600 hover:border-primary-300'
-              }`}
-            >
-              {g === 'ALL' ? 'Tất cả nhóm' : g}
-            </button>
-          ))}
-        </div>
+        <ChipFilterGroup
+          value={groupFilter}
+          onChange={setGroupFilter}
+          options={groups.map((g) => ({
+            value: g,
+            label: g === "ALL" ? "Tất cả nhóm" : g,
+          }))}
+          layout="wrap"
+          size="sm"
+        />
 
         {/* Show inactive toggle */}
         <button
           onClick={() => setShowInactive((p) => !p)}
           className={`ml-auto flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
             showInactive
-              ? 'border-amber-400 bg-amber-50 text-amber-700'
-              : 'border-border bg-white text-gray-500'
+              ? "border-amber-400 bg-amber-50 text-amber-700"
+              : "border-border bg-white text-gray-500"
           }`}
         >
           {showInactive ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
@@ -343,10 +411,15 @@ export default function ActionTypesAdminPage() {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                {['Nhóm', 'Tên hành động', 'Điểm GP', 'Vị trí', 'Trạng thái', 'Hành động'].map((h) => (
-                  <TableHead key={h}>
-                    {h}
-                  </TableHead>
+                {[
+                  "Nhóm",
+                  "Tên hành động",
+                  "Điểm GP",
+                  "Vị trí",
+                  "Trạng thái",
+                  "Hành động",
+                ].map((h) => (
+                  <TableHead key={h}>{h}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -354,11 +427,13 @@ export default function ActionTypesAdminPage() {
               {filtered.map((action) => (
                 <TableRow
                   key={action.id}
-                  className={!action.isActive ? 'opacity-50 group' : 'group'}
+                  className={!action.isActive ? "opacity-50 group" : "group"}
                 >
                   {/* Group */}
                   <TableCell>
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getGroupColor(action.groupName)}`}>
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getGroupColor(action.groupName)}`}
+                    >
                       {action.groupName}
                     </span>
                   </TableCell>
@@ -385,21 +460,29 @@ export default function ActionTypesAdminPage() {
                         <MapPin size={13} /> Bắt buộc
                       </span>
                     ) : (
-                      <span className="text-xs text-gray-400">Không yêu cầu</span>
+                      <span className="text-xs text-gray-400">
+                        Không yêu cầu
+                      </span>
                     )}
                   </TableCell>
 
                   {/* Status */}
                   <TableCell>
-                    <span className={`flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                      action.isActive
-                        ? 'bg-primary-100 text-primary-content'
-                        : 'bg-gray-100 text-gray-500'
-                    }`}>
+                    <span
+                      className={`flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        action.isActive
+                          ? "bg-primary-100 text-primary-content"
+                          : "bg-gray-100 text-gray-500"
+                      }`}
+                    >
                       {action.isActive ? (
-                        <><Check size={11} /> Hoạt động</>
+                        <>
+                          <Check size={11} /> Hoạt động
+                        </>
                       ) : (
-                        <><X size={11} /> Tạm dừng</>
+                        <>
+                          <X size={11} /> Tạm dừng
+                        </>
                       )}
                     </span>
                   </TableCell>
@@ -411,21 +494,26 @@ export default function ActionTypesAdminPage() {
                       <button
                         onClick={() => handleToggleActive(action)}
                         disabled={isUpdating}
-                        title={action.isActive ? 'Tạm dừng' : 'Kích hoạt'}
+                        title={action.isActive ? "Tạm dừng" : "Kích hoạt"}
                         className={`rounded-lg p-2 transition-colors disabled:opacity-50 ${
                           action.isActive
-                            ? 'text-primary-content hover:bg-primary-50'
-                            : 'text-gray-400 hover:bg-gray-100'
+                            ? "text-primary-content hover:bg-primary-50"
+                            : "text-gray-400 hover:bg-gray-100"
                         }`}
                       >
-                        {action.isActive
-                          ? <ToggleRight size={18} />
-                          : <ToggleLeft size={18} />}
+                        {action.isActive ? (
+                          <ToggleRight size={18} />
+                        ) : (
+                          <ToggleLeft size={18} />
+                        )}
                       </button>
 
                       {/* Edit */}
                       <button
-                        onClick={() => { setEditTarget(action); setShowForm(true); }}
+                        onClick={() => {
+                          setEditTarget(action);
+                          setShowForm(true);
+                        }}
                         className="rounded-lg p-2 text-gray-400 hover:bg-primary-50 hover:text-primary-content"
                         title="Chỉnh sửa"
                       >
@@ -445,13 +533,13 @@ export default function ActionTypesAdminPage() {
                 <Leaf size={24} className="text-primary-300" />
               </div>
               <p className="text-sm text-gray-500">
-                {groupFilter !== 'ALL'
+                {groupFilter !== "ALL"
                   ? `Không có hành động nào trong nhóm "${groupFilter}".`
-                  : 'Chưa có loại hành động nào.'}
+                  : "Chưa có loại hành động nào."}
               </p>
-              {groupFilter !== 'ALL' && (
+              {groupFilter !== "ALL" && (
                 <button
-                  onClick={() => setGroupFilter('ALL')}
+                  onClick={() => setGroupFilter("ALL")}
                   className="mt-3 text-sm font-medium text-primary-content hover:underline"
                 >
                   Xem tất cả

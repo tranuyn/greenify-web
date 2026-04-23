@@ -5,8 +5,6 @@ import { useTranslations } from "next-intl";
 import {
   Plus,
   Pencil,
-  ToggleLeft,
-  ToggleRight,
   Package,
   Coins,
   Clock,
@@ -20,10 +18,16 @@ import {
   useUpdateVoucherStatus,
 } from "@/hooks/mutations/useAdmin";
 import type {
+  AdminVoucherStatus,
   VoucherTemplate,
   VoucherTemplateStatus,
   CreateVoucherTemplateRequest,
   UpdateVoucherTemplateRequest,
+} from "@/types/gamification.types";
+import {
+  ADMIN_VOUCHER_STATUS_FILTER,
+  ADMIN_VOUCHER_STATUS_FILTERS,
+  VOUCHER_TEMPLATE_STATUS,
 } from "@/types/gamification.types";
 import { VoucherFormModal } from "@/components/admin/vouchers/VoucherFormModal";
 import {
@@ -36,34 +40,44 @@ import {
   TableCell,
 } from "@/components/admin/ui/table";
 import { useAdminVouchers } from "@/hooks/queries/useAdmin";
+import { Select } from "@/components/admin/ui/select";
+import type { SelectOption } from "@/components/admin/ui/select";
+import { ChipFilterGroup } from "@/components/admin/ui/filter-chip-group";
 
 const getStatusIcon = (status: VoucherTemplateStatus) => {
   switch (status) {
-    case "ACTIVE":
+    case VOUCHER_TEMPLATE_STATUS.ACTIVE:
       return CheckCircle;
-    case "INACTIVE":
+    case VOUCHER_TEMPLATE_STATUS.INACTIVE:
       return AlertCircle;
-    case "EXPIRED":
+    case VOUCHER_TEMPLATE_STATUS.EXPIRED:
       return X;
-    case "DEPLETED":
+    case VOUCHER_TEMPLATE_STATUS.DEPLETED:
       return Package;
-    case "DRAFT":
+    case VOUCHER_TEMPLATE_STATUS.DRAFT:
     default:
       return Clock;
   }
 };
 
+const EDITABLE_VOUCHER_STATUSES: readonly VoucherTemplateStatus[] = [
+  VOUCHER_TEMPLATE_STATUS.DRAFT,
+  VOUCHER_TEMPLATE_STATUS.ACTIVE,
+  VOUCHER_TEMPLATE_STATUS.INACTIVE,
+  VOUCHER_TEMPLATE_STATUS.DEPLETED,
+];
+
 const getStatusCls = (status: VoucherTemplateStatus) => {
   switch (status) {
-    case "ACTIVE":
+    case VOUCHER_TEMPLATE_STATUS.ACTIVE:
       return "bg-primary-100 text-primary-content";
-    case "INACTIVE":
+    case VOUCHER_TEMPLATE_STATUS.INACTIVE:
       return "bg-amber-50 text-amber-600 border border-amber-200/50";
-    case "EXPIRED":
+    case VOUCHER_TEMPLATE_STATUS.EXPIRED:
       return "bg-rose-50 text-rose-500 border border-rose-200/50";
-    case "DEPLETED":
+    case VOUCHER_TEMPLATE_STATUS.DEPLETED:
       return "bg-orange-50 text-orange-500 border border-orange-200/50";
-    case "DRAFT":
+    case VOUCHER_TEMPLATE_STATUS.DRAFT:
     default:
       return "bg-gray-100 text-gray-500 border border-gray-200";
   }
@@ -77,33 +91,39 @@ export default function VouchersAdminPage() {
 
   const { mutate: createVoucher, isPending: isCreating } = useCreateVoucher();
   const { mutate: updateVoucher, isPending: isUpdating } = useUpdateVoucher();
-  const { mutate: updateStatus } = useUpdateVoucherStatus();
+  const {
+    mutate: updateStatus,
+    isPending: isUpdatingStatus,
+    variables: updatingVariables,
+  } = useUpdateVoucherStatus();
 
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState<VoucherTemplate | null>(null);
-  const [statusFilter, setStatusFilter] = useState<
-    VoucherTemplateStatus | "ALL"
-  >("ALL");
+  const [statusFilter, setStatusFilter] = useState<AdminVoucherStatus>(
+    ADMIN_VOUCHER_STATUS_FILTER.ALL,
+  );
 
   const filtered =
-    statusFilter === "ALL"
+    statusFilter === ADMIN_VOUCHER_STATUS_FILTER.ALL
       ? vouchers
       : vouchers.filter((v) => v.status === statusFilter);
 
-  const counts: Partial<Record<VoucherTemplateStatus | "ALL", number>> = {
+  const counts: Partial<Record<AdminVoucherStatus, number>> = {
     ALL: vouchers.length,
   };
   vouchers.forEach((v) => {
-    const status = v.status as VoucherTemplateStatus;
-    counts[status] = (counts[status] ?? 0) + 1;
+    counts[v.status] = (counts[v.status] ?? 0) + 1;
   });
   const handleSubmit = (
     formData: CreateVoucherTemplateRequest | UpdateVoucherTemplateRequest,
   ) => {
     if (editTarget) {
       updateVoucher(
-        { id: editTarget.id, payload: formData as UpdateVoucherTemplateRequest },
-        { onSuccess: closeForm }
+        {
+          id: editTarget.id,
+          payload: formData as UpdateVoucherTemplateRequest,
+        },
+        { onSuccess: closeForm },
       );
     } else {
       createVoucher(formData as CreateVoucherTemplateRequest, {
@@ -117,11 +137,18 @@ export default function VouchersAdminPage() {
     setEditTarget(null);
   };
 
-  const toggleStatus = (v: VoucherTemplate) => {
-    const next: VoucherTemplateStatus =
-      v.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-    updateStatus({ id: v.id, payload: { status: next } });
+  const changeStatus = (
+    voucherId: string,
+    nextStatus: VoucherTemplateStatus,
+  ) => {
+    updateStatus({ id: voucherId, payload: { status: nextStatus } });
   };
+
+  const statusOptions: SelectOption<VoucherTemplateStatus>[] =
+    EDITABLE_VOUCHER_STATUSES.map((status) => ({
+      value: status,
+      label: t(`status.${status}`),
+    }));
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString(undefined, {
@@ -154,32 +181,17 @@ export default function VouchersAdminPage() {
       </div>
 
       {/* Status filter */}
-      <div className="scrollbar-hide flex flex-wrap gap-2 overflow-x-auto pb-2">
-        {(
-          ["ALL", "ACTIVE", "INACTIVE", "DRAFT", "DEPLETED", "EXPIRED"] as const
-        ).map((s) => (
-          <button
-            key={s}
-            onClick={() => setStatusFilter(s)}
-            className={`flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${
-              statusFilter === s
-                ? "border-primary-500 bg-primary-600 text-white shadow-sm shadow-primary-600/20"
-                : "border-border bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-            }`}
-          >
-            {t(`status.${s}`)}
-            <span
-              className={`rounded-full px-2 py-0.5 font-mono text-[11px] font-semibold ${
-                statusFilter === s
-                  ? "bg-black/20 text-white"
-                  : "bg-gray-100 text-gray-500"
-              }`}
-            >
-              {counts[s] ?? 0}
-            </span>
-          </button>
-        ))}
-      </div>
+      <ChipFilterGroup
+        value={statusFilter}
+        onChange={setStatusFilter}
+        options={ADMIN_VOUCHER_STATUS_FILTERS.map((s) => ({
+          value: s,
+          label: t(`status.${s}`),
+          count: counts[s] ?? 0,
+        }))}
+        layout="scroll"
+        size="md"
+      />
 
       {/* Loading */}
       {isLoading ? (
@@ -210,7 +222,8 @@ export default function VouchersAdminPage() {
                     ? Math.round((v.remainingStock / v.totalStock) * 100)
                     : 0;
                 const Icon = getStatusIcon(v.status);
-
+                const isThisVoucherUpdating =
+                  isUpdatingStatus && updatingVariables?.id === v.id;
                 return (
                   <TableRow key={v.id} className={"group"}>
                     <TableCell>
@@ -262,37 +275,41 @@ export default function VouchersAdminPage() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center justify-end gap-2">
-                        {(v.status === "ACTIVE" || v.status === "INACTIVE") && (
+                      <div className="flex items-center justify-end gap-3">
+                        {/* Nút X khi hết hạn */}
+                        {v.status === VOUCHER_TEMPLATE_STATUS.EXPIRED ? (
                           <button
-                            onClick={() => toggleStatus(v)}
-                            title={
-                              v.status === "ACTIVE"
-                                ? t("toggleDeactivate")
-                                : t("toggleActivate")
-                            }
-                            className={`rounded-xl p-2.5 transition-colors ${
-                              v.status === "ACTIVE"
-                                ? "text-primary-700 bg-primary-50 hover:bg-primary-100"
-                                : "text-gray-500 bg-gray-50 hover:bg-gray-200"
-                            }`}
+                            disabled
+                            className="flex h-9 w-9 cursor-not-allowed items-center justify-center rounded-lg bg-gray-50 text-gray-400 border border-gray-100"
+                            title={t("status.EXPIRED")}
                           >
-                            {v.status === "ACTIVE" ? (
-                              <ToggleRight size={18} />
-                            ) : (
-                              <ToggleLeft size={18} />
-                            )}
+                            <X size={16} strokeWidth={2.5} />
                           </button>
+                        ) : (
+                          <Select
+                            value={v.status}
+                            options={statusOptions}
+                            disabled={isThisVoucherUpdating}
+                            isLoading={isUpdatingStatus}
+                            onChange={(nextStatus) => {
+                              if (nextStatus !== v.status) {
+                                changeStatus(v.id, nextStatus);
+                              }
+                            }}
+                            className="w-[100px]"
+                          />
                         )}
+
+                        {/* Nút Edit */}
                         <button
                           onClick={() => {
                             setEditTarget(v);
                             setShowForm(true);
                           }}
-                          className="rounded-xl bg-gray-50 p-2.5 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900"
+                          className="flex h-9 w-9 items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-500 transition-all hover:border-primary-400 hover:text-primary-600 shadow-sm"
                           title={t("edit")}
                         >
-                          <Pencil size={18} />
+                          <Pencil size={16} strokeWidth={2.5} />
                         </button>
                       </div>
                     </TableCell>
@@ -311,7 +328,7 @@ export default function VouchersAdminPage() {
                 {t("empty")}
               </h3>
               <p className="mt-1.5 text-sm text-gray-500">
-                {statusFilter !== "ALL"
+                {statusFilter !== ADMIN_VOUCHER_STATUS_FILTER.ALL
                   ? `Không tìm thấy voucher nào đang ${String(t(`status.${statusFilter}`)).toLowerCase()}.`
                   : "Hãy tạo voucher mới để bắt đầu."}
               </p>

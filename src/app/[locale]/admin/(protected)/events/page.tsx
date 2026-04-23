@@ -12,16 +12,17 @@ import { EventDetailModal } from "./_components/EventDetailModal";
 export default function EventsAdminPage() {
   const [statusFilter, setStatusFilter] = useState<EventStatus | "ALL">("ALL");
   const [search, setSearch] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   // Fetch tất cả events — dùng useEvents (không lọc status để có đủ data cho count badges)
-  const { data, isLoading } = useEvents({
-    title: search.trim() || undefined,
+  const { data, isLoading, isFetching } = useEvents({
+    title: appliedSearch.trim() || undefined,
     // Không truyền status để lấy tất cả, filter ở client
     // Khi BE sẵn sàng phân trang, chuyển status filter xuống đây
   });
 
-  const allEvents = data?.content ?? [];
+  const allEvents = useMemo(() => data?.content ?? [], [data]);
 
   // Client-side filter theo status tab
   const filteredEvents = useMemo(() => {
@@ -88,9 +89,9 @@ export default function EventsAdminPage() {
         activeStatus={statusFilter}
         onStatusChange={setStatusFilter}
         searchValue={search}
-        onSearchChange={(v) => {
-          setSearch(v);
-        }}
+        onSearchChange={setSearch}
+        onSearchSubmit={setAppliedSearch}
+        isSearching={isFetching}
         counts={counts}
       />
 
@@ -123,8 +124,8 @@ export default function EventsAdminPage() {
         <div className="flex flex-col items-center justify-center py-24">
           <Calendar size={40} className="mb-4 text-primary-200" />
           <p className="text-gray-500">
-            {search
-              ? `Không tìm thấy sự kiện nào với "${search}"`
+            {appliedSearch
+              ? `Không tìm thấy sự kiện nào với "${appliedSearch}"`
               : "Không có sự kiện nào."}
           </p>
         </div>

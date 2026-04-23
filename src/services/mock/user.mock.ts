@@ -1,35 +1,4 @@
-import { User, UserProfile, NgoProfile, AuthenticatedUser, LoginResponse, AdminUserDto } from 'types/user.type';
-
-export const MOCK_USER: User = {
-  id: 'usr-001',
-  phone: '0901234567',
-  email: 'uyen@greenify.vn',
-  role: 'CTV',
-  status: 'ACTIVE',
-  ctv_status: 'NOT_ELIGIBLE',
-  created_at: '2026-01-10T08:00:00Z',
-};
-
-export const MOCK_CTV_USER: User = {
-  id: 'usr-002',
-  phone: '0912345678',
-  email: 'ctv@greenify.vn',
-  role: 'CTV',
-  status: 'ACTIVE',
-  ctv_status: 'ACTIVE_CTV',
-  created_at: '2025-11-01T08:00:00Z',
-};
-
-export const MOCK_NGO_USER: User = {
-  id: 'usr-003',
-  phone: '0923456789',
-  email: 'ngo@greenfuture.vn',
-  role: 'NGO',
-  status: 'ACTIVE',
-  ctv_status: 'NOT_ELIGIBLE',
-  created_at: '2025-09-15T08:00:00Z',
-};
-
+import { UserProfile, NgoProfile, AuthenticatedUser, LoginResponse, AdminUserDto } from 'types/user.type';
 export const MOCK_USER_PROFILE: UserProfile = {
   id: 'prof-001',
   firstName: 'Nhã',

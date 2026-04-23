@@ -2,29 +2,34 @@ import { PaginationParams } from "./common.types";
 import { AddressDto } from "./community.types";
 import { MediaDto } from "./media.types";
 
-export type UserRole = 'USER' | 'CTV' | 'NGO' | 'ADMIN';
-export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'DELETED' | 'FLAGGED';
+export type UserRole = "USER" | "CTV" | "NGO" | "ADMIN";
+export const USER_STATUS = {
+  ACTIVE: "ACTIVE",
+  SUSPENDED: "SUSPENDED",
+  DELETED: "DELETED",
+  FLAGGED: "FLAGGED",
+} as const;
+
+export type UserStatus = (typeof USER_STATUS)[keyof typeof USER_STATUS];
+export type AdminUserStatusFilter = UserStatus | "ALL";
+
+export const ADMIN_USER_STATUS_FILTERS: readonly AdminUserStatusFilter[] = [
+  "ALL",
+  USER_STATUS.ACTIVE,
+  USER_STATUS.SUSPENDED,
+  USER_STATUS.FLAGGED,
+] as const;
+
 export type CtvStatus =
-  | 'NOT_ELIGIBLE'
-  | 'ELIGIBLE'
-  | 'PENDING_UPGRADE'
-  | 'ACTIVE_CTV'
-  | 'DOWNGRADED';
+  | "NOT_ELIGIBLE"
+  | "ELIGIBLE"
+  | "PENDING_UPGRADE"
+  | "ACTIVE_CTV"
+  | "DOWNGRADED";
 
-export type OtpStatus = 'PENDING' | 'VERIFIED' | 'EXPIRED' | 'FAILED';
+export type OtpStatus = "PENDING" | "VERIFIED" | "EXPIRED" | "FAILED";
 
-export type NgoVerifyStatus = 'PENDING_VERIFY' | 'VERIFIED' | 'REJECTED';
-
-// ---- Entities ----
-export interface User {
-  id: string;
-  phone: string;
-  email: string;
-  role: UserRole;
-  status: UserStatus;
-  ctv_status: CtvStatus;
-  created_at: string;
-}
+export type NgoVerifyStatus = "PENDING_VERIFY" | "VERIFIED" | "REJECTED";
 
 export interface UserProfile {
   id: string;
@@ -42,8 +47,8 @@ export interface UserProfile {
 
 export interface AdminUserQueryParams extends PaginationParams {
   search?: string;
-  status?: UserStatus | 'ALL';
-  role?: UserRole | 'ALL';
+  status?: AdminUserStatusFilter;
+  role?: UserRole | "ALL";
 }
 
 export interface AdminUserDto {
@@ -68,7 +73,7 @@ export interface UpdateUserRoleRequest {
 }
 
 export interface FreeTimeSlot {
-  day: 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
+  day: "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN";
   from: string; // "08:00"
   to: string; // "12:00"
 }
@@ -152,7 +157,7 @@ export interface CompleteProfileRequest {
   };
 }
 
-export type NgoProfileAddress = Omit<AddressDto, 'id'>;
+export type NgoProfileAddress = Omit<AddressDto, "id">;
 
 export interface CreateNgoProfileRequest {
   orgName: string;
@@ -175,12 +180,9 @@ export interface AuthenticatedUser {
   ngoProfile?: NgoProfile;
 }
 
-
 export interface CreateUserInput {
   phone: string;
   email: string;
   password: string;
   role?: UserRole;
 }
-
-export type UpdateUserInput = Partial<Pick<User, 'phone' | 'status' | 'ctv_status'>>;

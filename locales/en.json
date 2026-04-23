@@ -15,11 +15,35 @@
       "DELETED": "Deleted",
       "ALL": "All"
     },
+    "resolveRequestStatus": {
+      "PENDING_ADMIN_REVIEW": "Pending review",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "trashSpotStatus": {
+      "PENDING_VERIFY": "Pending verification",
+      "VERIFIED": "Verified",
+      "IN_PROGRESS": "In progress",
+      "RESOLVED": "Resolved",
+      "REOPENED": "Reopened"
+    },
+    "severity": {
+      "SEVERITY_LOW": "Low",
+      "SEVERITY_MEDIUM": "Medium",
+      "SEVERITY_HIGH": "High"
+    },
     "actions": {
       "cancel": "Cancel",
       "save": "Save Changes",
       "confirm": "Confirm",
-      "processing": "Processing..."
+      "processing": "Processing...",
+      "close": "Close",
+      "details": "Details",
+      "viewDetails": "View details",
+      "approve": "Approve",
+      "reject": "Reject",
+      "delete": "Delete",
+      "reopen": "Reopen"
     }
   },
   "metadata": {
@@ -132,6 +156,122 @@
           }
         }
     },
+    "appeals": {
+      "title": "Appeals Management",
+      "subtitle": "{count} appeals",
+      "loading": "Loading...",
+      "filters": {
+        "status": "Filter by status"
+      },
+      "statuses": {
+        "APPEAL_SUBMITTED": "Pending review",
+        "UNDER_REVIEW": "Under review",
+        "APPEAL_ACCEPTED": "Accepted",
+        "APPEAL_REJECTED": "Rejected"
+      },
+      "table": {
+        "postId": "Post ID",
+        "userId": "User",
+        "reason": "Appeal reason",
+        "attempt": "Attempt",
+        "status": "Status",
+        "createdAt": "Created at",
+        "actions": "Actions"
+      },
+      "actions": {
+        "review": "Review"
+      },
+      "empty": {
+        "title": "No appeals found",
+        "filtered": "No appeals with status \"{status}\" yet",
+        "unfiltered": "No appeals have been submitted yet"
+      },
+      "pagination": {
+        "summary": "Page {page}/{totalPages} • {totalElements} appeals"
+      },
+      "modal": {
+        "title": "Review appeal",
+        "attempt": "Attempt {count}",
+        "reason": "Appeal reason",
+        "evidence": "Evidence",
+        "evidenceItem": "Evidence {index}",
+        "previousNote": "Previous admin note",
+        "createdAt": "Created at",
+        "decision": "Decision",
+        "adminNoteLabel": "Admin note",
+        "adminNotePlaceholder": "Enter the reason for this decision..."
+      }
+    },
+    "trashSpots": {
+      "title": "Trash Spot Management",
+      "subtitle": "Review NGO resolve requests, browse trash spots, and monitor community reports.",
+      "tabs": {
+        "requests": "Resolve Requests",
+        "spots": "Trash Spots",
+        "reports": "Reports"
+      },
+      "actions": {
+        "confirmReject": "Confirm rejection"
+      },
+      "pagination": {
+        "summary": "{label} • Page {page}/{totalPages} • {totalElements} results"
+      },
+      "requests": {
+        "empty": "No requests available",
+        "table": {
+          "ngo": "NGO",
+          "trashSpot": "Trash Spot",
+          "description": "Description",
+          "cleanedAt": "Cleaned date",
+          "status": "Status",
+          "actions": "Actions"
+        }
+      },
+      "spots": {
+        "empty": "No trash spots yet",
+        "table": {
+          "location": "Location",
+          "province": "Province/City",
+          "severity": "Severity",
+          "status": "Status",
+          "hotScore": "Hot score",
+          "createdAt": "Created date",
+          "actions": "Actions"
+        },
+        "deleteModal": {
+          "title": "Delete this trash spot?",
+          "description": "{name} will be permanently deleted and cannot be restored."
+        }
+      },
+      "reports": {
+        "empty": "No reports yet",
+        "emptyNote": "No note",
+        "table": {
+          "reporter": "Reporter",
+          "trashSpot": "Trash Spot",
+          "note": "Note",
+          "severity": "Severity",
+          "spotStatus": "Spot status",
+          "createdAt": "Report date"
+        }
+      },
+      "modals": {
+        "reject": {
+          "title": "Reject resolve request",
+          "reasonLabel": "Rejection reason",
+          "reasonPlaceholder": "Clearly explain why this request is rejected so the NGO can improve."
+        },
+        "detail": {
+          "title": "Resolve request details",
+          "ngo": "NGO",
+          "cleanedAt": "Cleaned at",
+          "description": "Description",
+          "evidenceImages": "Evidence images ({count})",
+          "evidenceAlt": "Evidence {index}",
+          "previousRejectReason": "Previous reject reason"
+        }
+      }
+    },
     "vouchers": {
       "title": "Voucher Management",
       "subtitle": "{count} vouchers managed",
@@ -231,7 +371,15 @@
         "quantity": "Quantity *",
         "cancel": "Cancel",
         "submit": "Add Prize",
-        "saving": "Saving..."
+        "saving": "Saving...",
+        "validation": {
+          "weekStartDateRequired": "Please select a week start date.",
+          "weekStartDateInvalid": "Week start date must follow YYYY-MM-DD.",
+          "lockAtRequired": "Please select lock time.",
+          "lockAtInvalid": "Lock time must follow yyyy-MM-dd'T'HH:mm:ss.",
+          "nationalVoucherRequired": "Please select a national voucher.",
+          "provincialVoucherRequired": "Please select a provincial voucher."
+        }
       }
     }
   }
