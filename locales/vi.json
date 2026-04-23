@@ -15,11 +15,35 @@
       "DELETED": "Đã xóa",
       "ALL": "Tất cả"
     },
+    "resolveRequestStatus": {
+      "PENDING_ADMIN_REVIEW": "Chờ duyệt",
+      "APPROVED": "Đã duyệt",
+      "REJECTED": "Từ chối"
+    },
+    "trashSpotStatus": {
+      "PENDING_VERIFY": "Chờ xác minh",
+      "VERIFIED": "Đã xác minh",
+      "IN_PROGRESS": "Đang xử lý",
+      "RESOLVED": "Đã giải quyết",
+      "REOPENED": "Mở lại"
+    },
+    "severity": {
+      "SEVERITY_LOW": "Thấp",
+      "SEVERITY_MEDIUM": "Trung bình",
+      "SEVERITY_HIGH": "Cao"
+    },
     "actions": {
       "cancel": "Hủy",
       "save": "Lưu thay đổi",
       "confirm": "Xác nhận",
-      "processing": "Đang xử lý..."
+      "processing": "Đang xử lý...",
+      "close": "Đóng",
+      "details": "Chi tiết",
+      "viewDetails": "Xem chi tiết",
+      "approve": "Chấp thuận",
+      "reject": "Từ chối",
+      "delete": "Xóa",
+      "reopen": "Mở lại"
     }
   },
   "metadata": {
@@ -133,6 +157,122 @@
         }
       }
     },
+    "appeals": {
+      "title": "Quản lý khiếu nại",
+      "subtitle": "{count} khiếu nại",
+      "loading": "Đang tải...",
+      "filters": {
+        "status": "Lọc theo trạng thái"
+      },
+      "statuses": {
+        "APPEAL_SUBMITTED": "Chờ xét",
+        "UNDER_REVIEW": "Đang xét",
+        "APPEAL_ACCEPTED": "Chấp thuận",
+        "APPEAL_REJECTED": "Từ chối"
+      },
+      "table": {
+        "postId": "ID Bài viết",
+        "userId": "Người dùng",
+        "reason": "Lý do khiếu nại",
+        "attempt": "Lần",
+        "status": "Trạng thái",
+        "createdAt": "Ngày tạo",
+        "actions": "Hành động"
+      },
+      "actions": {
+        "review": "Xét duyệt"
+      },
+      "empty": {
+        "title": "Không có khiếu nại nào",
+        "filtered": "Chưa có khiếu nại \"{status}\"",
+        "unfiltered": "Chưa có khiếu nại nào được gửi"
+      },
+      "pagination": {
+        "summary": "Trang {page}/{totalPages} • {totalElements} khiếu nại"
+      },
+      "modal": {
+        "title": "Xét duyệt khiếu nại",
+        "attempt": "Lần {count}",
+        "reason": "Lý do khiếu nại",
+        "evidence": "Bằng chứng",
+        "evidenceItem": "Bằng chứng {index}",
+        "previousNote": "Ghi chú admin trước đó",
+        "createdAt": "Ngày tạo",
+        "decision": "Quyết định",
+        "adminNoteLabel": "Ghi chú admin",
+        "adminNotePlaceholder": "Nhập lý do quyết định..."
+      }
+    },
+    "trashSpots": {
+      "title": "Quản lý điểm rác",
+      "subtitle": "Duyệt yêu cầu giải quyết từ NGO, xem danh sách điểm rác và báo cáo từ cộng đồng.",
+      "tabs": {
+        "requests": "Yêu cầu giải quyết",
+        "spots": "Điểm rác",
+        "reports": "Báo cáo"
+      },
+      "actions": {
+        "confirmReject": "Xác nhận từ chối"
+      },
+      "pagination": {
+        "summary": "{label} • Trang {page}/{totalPages} • {totalElements} kết quả"
+      },
+      "requests": {
+        "empty": "Không có yêu cầu nào",
+        "table": {
+          "ngo": "NGO",
+          "trashSpot": "Điểm rác",
+          "description": "Mô tả",
+          "cleanedAt": "Ngày dọn",
+          "status": "Trạng thái",
+          "actions": "Hành động"
+        }
+      },
+      "spots": {
+        "empty": "Chưa có điểm rác nào",
+        "table": {
+          "location": "Địa điểm",
+          "province": "Tỉnh/Thành",
+          "severity": "Mức độ",
+          "status": "Trạng thái",
+          "hotScore": "Hot score",
+          "createdAt": "Ngày tạo",
+          "actions": "Hành động"
+        },
+        "deleteModal": {
+          "title": "Xóa điểm rác?",
+          "description": "{name} sẽ bị xóa vĩnh viễn và không thể khôi phục."
+        }
+      },
+      "reports": {
+        "empty": "Chưa có báo cáo nào",
+        "emptyNote": "Không có ghi chú",
+        "table": {
+          "reporter": "Người báo cáo",
+          "trashSpot": "Điểm rác",
+          "note": "Ghi chú",
+          "severity": "Mức độ",
+          "spotStatus": "Trạng thái spot",
+          "createdAt": "Ngày báo cáo"
+        }
+      },
+      "modals": {
+        "reject": {
+          "title": "Từ chối yêu cầu giải quyết",
+          "reasonLabel": "Lý do từ chối",
+          "reasonPlaceholder": "Nêu rõ lý do từ chối để NGO biết cần cải thiện gì..."
+        },
+        "detail": {
+          "title": "Chi tiết yêu cầu giải quyết",
+          "ngo": "NGO",
+          "cleanedAt": "Ngày dọn sạch",
+          "description": "Mô tả",
+          "evidenceImages": "Hình ảnh bằng chứng ({count})",
+          "evidenceAlt": "Bằng chứng {index}",
+          "previousRejectReason": "Lý do từ chối trước đó"
+        }
+      }
+    },
     "vouchers": {
       "title": "Quản lý Voucher",
       "subtitle": "{count} voucher đang quản lý",
@@ -232,7 +372,15 @@
         "quantity": "Số lượng phát *",
         "cancel": "Hủy",
         "submit": "Thêm phần thưởng",
-        "saving": "Đang lưu..."
+        "saving": "Đang lưu...",
+        "validation": {
+          "weekStartDateRequired": "Vui lòng chọn ngày bắt đầu tuần.",
+          "weekStartDateInvalid": "Ngày bắt đầu tuần không đúng định dạng YYYY-MM-DD.",
+          "lockAtRequired": "Vui lòng chọn thời điểm khóa.",
+          "lockAtInvalid": "Thời điểm khóa phải đúng định dạng yyyy-MM-dd'T'HH:mm:ss.",
+          "nationalVoucherRequired": "Vui lòng chọn voucher toàn quốc.",
+          "provincialVoucherRequired": "Vui lòng chọn voucher tỉnh/thành."
+        }
       }
     }
   }

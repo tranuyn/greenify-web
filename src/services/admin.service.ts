@@ -29,9 +29,9 @@ import {
   SuspendUserRequest,
   UpdateUserRoleRequest,
 } from "@/types/user.type";
+import { normalizeLockAtForApi } from "@/common/utils/date-time";
 import { MOCK_ADMIN_USERS } from "./mock/user.mock";
 import { EventQueryParams } from "@/types/community.types";
-import { get } from "http";
 
 // ============================================================
 // ADMIN USER SERVICE
@@ -40,37 +40,6 @@ export const adminUserService = {
   async getUsers(
     params?: AdminUserQueryParams,
   ): Promise<PageResponse<AdminUserDto>> {
-    // if (IS_MOCK_MODE) {
-    //   await mockDelay(500);
-
-    //   let filtered = [...MOCK_ADMIN_USERS];
-
-    //   if (params?.name) {
-    //     const q = params.name.toLowerCase();
-    //     filtered = filtered.filter(
-    //       (u) =>
-    //         u.name.toLowerCase().includes(q) ||
-    //         u.email.toLowerCase().includes(q),
-    //     );
-    //   }
-
-    //   if (params?.status && params.status !== "ALL") {
-    //     filtered = filtered.filter((u) => u.status === params.status);
-    //   }
-
-    //   const page = params?.page ?? 1;
-    //   const size = params?.size ?? 10;
-    //   const start = (page - 1) * size;
-    //   const content = filtered.slice(start, start + size);
-
-    //   return {
-    //     content,
-    //     page,
-    //     size,
-    //     totalElements: filtered.length,
-    //     totalPages: Math.ceil(filtered.length / size),
-    //   };
-    // }
 
     const { data } = await apiClient.get<PageResponse<AdminUserDto>>("/users", {
       params: {
@@ -312,9 +281,14 @@ export const adminLeaderboardService = {
   async createPrize(
     payload: CreateLeaderboardPrizeRequest,
   ): Promise<LeaderboardPrize> {
+    const normalizedPayload: CreateLeaderboardPrizeRequest = {
+      ...payload,
+      lockAt: normalizeLockAtForApi(payload.lockAt),
+    };
+
     const { data } = await apiClient.post<LeaderboardPrize>(
       "/admin/leaderboard/prizes",
-      payload,
+      normalizedPayload,
     );
     return data;
   },

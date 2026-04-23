@@ -5,12 +5,33 @@
 import { PageResponse, PaginationParams } from "./common.types";
 import { MediaDto } from "./media.types";
 
+export const VOUCHER_TEMPLATE_STATUS = {
+  DRAFT: "DRAFT",
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+  EXPIRED: "EXPIRED",
+  DEPLETED: "DEPLETED",
+} as const;
+
 export type VoucherTemplateStatus =
-  | "DRAFT"
-  | "ACTIVE"
-  | "INACTIVE"
-  | "EXPIRED"
-  | "DEPLETED";
+  (typeof VOUCHER_TEMPLATE_STATUS)[keyof typeof VOUCHER_TEMPLATE_STATUS];
+
+export const ADMIN_VOUCHER_STATUS_FILTER = {
+  ALL: "ALL",
+  ...VOUCHER_TEMPLATE_STATUS,
+} as const;
+
+export type AdminVoucherStatus =
+  (typeof ADMIN_VOUCHER_STATUS_FILTER)[keyof typeof ADMIN_VOUCHER_STATUS_FILTER];
+
+export const ADMIN_VOUCHER_STATUS_FILTERS: readonly AdminVoucherStatus[] = [
+  ADMIN_VOUCHER_STATUS_FILTER.ALL,
+  ADMIN_VOUCHER_STATUS_FILTER.ACTIVE,
+  ADMIN_VOUCHER_STATUS_FILTER.INACTIVE,
+  ADMIN_VOUCHER_STATUS_FILTER.DRAFT,
+  ADMIN_VOUCHER_STATUS_FILTER.DEPLETED,
+  ADMIN_VOUCHER_STATUS_FILTER.EXPIRED,
+];
 
 export const USER_VOUCHER_STATUS = {
   AVAILABLE: "AVAILABLE",
@@ -50,7 +71,7 @@ export interface AvailableVouchersQueryParams extends PaginationParams {
   maxRequiredPoints?: number;
 }
 export interface AdminVouchersQueryParams extends PaginationParams {
-  status?: VoucherTemplateStatus | "ALL";
+  status?: AdminVoucherStatus;
 }
 
 export interface CreateVoucherTemplateRequest {

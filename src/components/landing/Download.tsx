@@ -1,7 +1,7 @@
 "use client";
 
 import LOGO_URL from "@/constants/logoUrl";
-import { Smartphone, ArrowRight, Leaf } from "lucide-react";
+import { Smartphone, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 
@@ -61,30 +61,24 @@ export function Download() {
           {/* QR box */}
           <div className="flex flex-col items-center gap-4">
             <div className="relative rounded-3xl border border-white/10 bg-white p-6 shadow-2xl">
-              {/* QR pattern placeholder — replace with real QR image */}
               <div className="flex h-48 w-48 flex-col items-center justify-center gap-3 rounded-2xl bg-primary-50">
-                <div className="grid grid-cols-6 gap-1.5">
-                  {[...Array(36)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`h-5 w-5 rounded-sm ${
-                        [
-                          0, 1, 2, 5, 6, 12, 14, 18, 21, 23, 24, 25, 26, 29, 30,
-                          31, 32, 35,
-                        ].includes(i)
-                          ? "bg-forest"
-                          : Math.random() > 0.4
-                            ? "bg-forest"
-                            : "bg-transparent"
-                      }`}
-                    />
-                  ))}
+                
+                {/* ẢNH QR THẬT SẼ NẰM Ở ĐÂY */}
+                <div className="relative h-36 w-36 overflow-hidden rounded-xl">
+                  <Image
+                    src="/your-real-qr-code.png" // <-- BẠN ĐỔI LINK ẢNH Ở ĐÂY NHÉ
+                    alt="Scan to download"
+                    fill
+                    className="object-contain"
+                  />
                 </div>
+
                 <p className="font-mono text-xs text-primary-600">
                   {t("qr_label")}
                 </p>
               </div>
-              {/* Logo overlay */}
+              
+              {/* Logo overlay (nằm đè lên giữa mã QR) */}
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-background p-2 shadow-lg">
                 <Image
                   src={LOGO_URL}

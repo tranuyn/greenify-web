@@ -2,15 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Search,
-  Lock,
-  Unlock,
-  UserCog,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-} from "lucide-react";
+import { Lock, Unlock, UserCog, Eye } from "lucide-react";
 import { useAdminUsers } from "@/hooks/queries/useAdmin";
 import {
   useSuspendUser,
@@ -18,7 +10,13 @@ import {
   useUpdateUserRole,
   useDemoteCTV,
 } from "@/hooks/mutations/useAdmin";
-import type { AdminUserDto, UserRole, UserStatus } from "@/types/user.type";
+import { ADMIN_USER_STATUS_FILTERS, USER_STATUS } from "@/types/user.type";
+import type {
+  AdminUserDto,
+  AdminUserStatusFilter,
+  UserRole,
+  UserStatus,
+} from "@/types/user.type";
 
 import { SuspendModal } from "@/components/admin/users/SuspendModal";
 import { RoleModal } from "@/components/admin/users/RoleModal";
@@ -32,19 +30,28 @@ import {
   TableRow,
   TableCell,
 } from "@/components/admin/ui/table";
+import { Tag } from "@/components/admin/ui/tag";
+import { Tooltip } from "@/components/admin/ui/tooltip";
+import { Popconfirm } from "@/components/admin/ui/popconfirm";
+import { TablePagination } from "@/components/admin/ui/table-pagination";
+import { SearchBar } from "@/components/admin/ui/search-bar";
+import { ChipFilterGroup } from "@/components/admin/ui/filter-chip-group";
 
-const ROLE_CLS: Record<string, string> = {
-  USER: "bg-gray-100 text-gray-600 border border-border",
-  CTV: "bg-blue-50 text-blue-700 border border-blue-200/50",
-  NGO: "bg-violet-50 text-violet-700 border border-violet-200/50",
-  ADMIN: "bg-amber-50 text-amber-700 border border-amber-200/50",
+const ROLE_TONE: Record<string, "default" | "info" | "warning"> = {
+  USER: "default",
+  CTV: "info",
+  NGO: "info",
+  ADMIN: "warning",
 };
 
-const STATUS_CLS: Record<string, string> = {
-  ACTIVE: "bg-primary-100 text-primary-content",
-  SUSPENDED: "bg-rose-100 text-rose-600",
-  FLAGGED: "bg-orange-100 text-orange-600",
-  DELETED: "bg-gray-100 text-gray-500",
+const STATUS_TONE: Record<
+  UserStatus,
+  "success" | "danger" | "warning" | "default"
+> = {
+  [USER_STATUS.ACTIVE]: "success",
+  [USER_STATUS.SUSPENDED]: "danger",
+  [USER_STATUS.FLAGGED]: "warning",
+  [USER_STATUS.DELETED]: "default",
 };
 
 const PAGE_SIZE = 5;
@@ -55,7 +62,8 @@ export default function UsersPage() {
 
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<UserStatus | "ALL">("ALL");
+  const [statusFilter, setStatusFilter] =
+    useState<AdminUserStatusFilter>("ALL");
   const [roleFilter, setRoleFilter] = useState<UserRole | "ALL">("ALL");
   const [page, setPage] = useState(1);
 
@@ -71,8 +79,8 @@ export default function UsersPage() {
     role: roleFilter,
   });
 
-  const handleSearch = () => {
-    const nextSearch = search.trim();
+  const handleSearch = (submittedSearch?: string) => {
+    const nextSearch = (submittedSearch ?? search).trim();
     const isSameSearch = nextSearch === appliedSearch;
 
     setPage(1);
@@ -126,9 +134,6 @@ export default function UsersPage() {
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold text-primary-heading tracking-tight">
-          {t("title")}
-        </h2>
         <p className="mt-1 font-medium text-sm text-gray-500">
           {totalElements > 0
             ? t("subtitle", { count: totalElements })
@@ -143,89 +148,53 @@ export default function UsersPage() {
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
             {t("filters.search")}
           </p>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <div className="relative flex-1">
-              <Search
-                size={16}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-              />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleSearch();
-                  }
-                }}
-                placeholder={t("searchPlaceholder")}
-                className="w-full rounded-2xl border border-border bg-card py-2.5 pl-11 pr-4 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition-all shadow-sm"
-              />
-              {isFetching && (
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
-              )}
-            </div>
-
-            <button
-              onClick={handleSearch}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary-600/20 transition-colors hover:bg-primary-700 sm:w-auto"
-            >
-              <Search size={16} />
-              {t("searchButton")}
-            </button>
-          </div>
+          <SearchBar
+            value={search}
+            onValueChange={setSearch}
+            onSearch={handleSearch}
+            placeholder={t("searchPlaceholder")}
+            buttonLabel={t("searchButton")}
+            loading={isFetching}
+          />
         </div>
 
         {/* Status filter */}
         <div className="space-y-2 2xl:flex-1">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-            {t("filters.status")}
-          </p>
-          <div className="flex flex-wrap gap-2 scrollbar-hide overflow-x-auto">
-            {(["ALL", "ACTIVE", "SUSPENDED", "FLAGGED"] as const).map((s) => (
-              <button
-                key={s}
-                onClick={() => {
-                  setStatusFilter(s);
-                  setPage(1);
-                }}
-                className={`rounded-full border px-5 py-2 text-sm font-medium transition-all ${
-                  statusFilter === s
-                    ? "border-primary-500 bg-primary-600 text-white shadow-sm shadow-primary-600/20"
-                    : "border-border bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                {tCommon(`status.${s}`)}
-              </button>
-            ))}
-          </div>
+          <ChipFilterGroup
+            label={t("filters.status")}
+            value={statusFilter}
+            onChange={(s) => {
+              setStatusFilter(s);
+              setPage(1);
+            }}
+            options={ADMIN_USER_STATUS_FILTERS.map((s) => ({
+              value: s,
+              label: tCommon(`status.${s}`),
+            }))}
+            layout="scroll"
+            size="md"
+          />
         </div>
 
         {/* Role filter */}
         <div className="space-y-2 2xl:flex-1">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-            {t("filters.role")}
-          </p>
-          <div className="flex flex-wrap gap-2 scrollbar-hide overflow-x-auto">
-            {(["ALL", "USER", "CTV", "NGO", "ADMIN"] as const).map((role) => (
-              <button
-                key={role}
-                onClick={() => {
-                  setRoleFilter(role);
-                  setPage(1);
-                }}
-                className={`rounded-full border px-5 py-2 text-sm font-medium transition-all ${
-                  roleFilter === role
-                    ? "border-primary-500 bg-primary-600 text-white shadow-sm shadow-primary-600/20"
-                    : "border-border bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                {role === "ALL"
-                  ? tCommon("status.ALL")
-                  : tCommon(`roles.${role}`)}
-              </button>
-            ))}
-          </div>
+          <ChipFilterGroup
+            label={t("filters.role")}
+            value={roleFilter}
+            onChange={(role) => {
+              setRoleFilter(role);
+              setPage(1);
+            }}
+            options={(["ALL", "USER", "CTV", "NGO", "ADMIN"] as const).map(
+              (role) => ({
+                value: role,
+                label:
+                  role === "ALL" ? tCommon("status.ALL") : tCommon(`roles.${role}`),
+              }),
+            )}
+            layout="scroll"
+            size="md"
+          />
         </div>
       </div>
 
@@ -252,7 +221,7 @@ export default function UsersPage() {
             <TableBody>
               {users.map((user) => {
                 const sLabel = tCommon(`status.${user.status}`);
-                const sCls = STATUS_CLS[user.status] || STATUS_CLS.ACTIVE;
+                const sTone = STATUS_TONE[user.status];
 
                 return (
                   <TableRow
@@ -288,71 +257,78 @@ export default function UsersPage() {
                     <TableCell>
                       <div className="flex flex-wrap gap-1.5">
                         {user.roles.map((role) => (
-                          <span
+                          <Tag
                             key={role}
-                            className={`rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide uppercase ${ROLE_CLS[role] ?? "bg-gray-100 text-gray-600"}`}
+                            size="sm"
+                            tone={ROLE_TONE[role] ?? "default"}
+                            // className="uppercase"
                           >
                             {tCommon(`roles.${role}`)}
-                          </span>
+                          </Tag>
                         ))}
                       </div>
                     </TableCell>
                     {/* Status */}
                     <TableCell>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${sCls}`}
-                      >
+                      <Tag size="sm" tone={sTone}>
                         {sLabel}
-                      </span>
+                      </Tag>
                     </TableCell>
                     {/* Points */}
-                    <TableCell className="font-medium text-gray-700">
+                    <TableCell className="font-medium text-foreground/60 group-hover:text-foreground">
                       {user.availableGreenPoints.toLocaleString()}
                     </TableCell>
                     {/* Posts */}
-                    <TableCell className="font-medium text-gray-700">
+                    <TableCell className="font-medium text-foreground/60 group-hover:text-foreground">
                       {user.greenPostCount.toLocaleString()}
                     </TableCell>
                     {/* Actions */}
                     <TableCell>
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => setDetailUser(user)}
-                          title={t("tooltip.viewDetails") || "Xem chi tiết"}
-                          className="rounded-xl bg-gray-50 p-2 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900"
+                        <Tooltip
+                          content={t("tooltip.viewDetails") || "Details"}
                         >
-                          <Eye size={16} />
-                        </button>
+                          <button
+                            onClick={() => setDetailUser(user)}
+                            className="rounded-xl bg-gray-50 p-2 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900"
+                          >
+                            <Eye size={16} />
+                          </button>
+                        </Tooltip>
 
                         {/* Suspend / Unsuspend */}
                         {user.status === "ACTIVE" ||
                         user.status === "FLAGGED" ? (
-                          <button
-                            onClick={() => setSuspendTarget(user)}
-                            title={t("tooltip.suspend")}
-                            className="rounded-xl bg-gray-50 p-2 text-gray-500 transition-colors hover:bg-rose-50 hover:text-rose-500"
-                          >
-                            <Lock size={16} />
-                          </button>
+                          <Tooltip content={t("tooltip.suspend")}>
+                            <button
+                              onClick={() => setSuspendTarget(user)}
+                              className="rounded-xl bg-gray-50 p-2 text-gray-500 transition-colors hover:bg-rose-50 hover:text-rose-500"
+                            >
+                              <Lock size={16} />
+                            </button>
+                          </Tooltip>
                         ) : user.status === "SUSPENDED" ? (
-                          <button
-                            onClick={() => handleUnsuspend(user.id)}
-                            disabled={isUnsuspending}
+                          <Popconfirm
                             title={t("tooltip.unsuspend")}
-                            className="rounded-xl p-2 bg-rose-50 text-rose-500 hover:bg-rose-100 hover:text-rose-600 disabled:opacity-50 transition-colors"
+                            confirmText={t("tooltip.unsuspend")}
+                            onConfirm={() => handleUnsuspend(user.id)}
+                            disabled={isUnsuspending}
                           >
-                            <Unlock size={16} />
-                          </button>
+                            <button className="rounded-xl p-2 bg-rose-50 text-rose-500 hover:bg-rose-100 hover:text-rose-600 disabled:opacity-50 transition-colors">
+                              <Unlock size={16} />
+                            </button>
+                          </Popconfirm>
                         ) : null}
 
                         {/* Change role */}
-                        <button
-                          onClick={() => setRoleTarget(user)}
-                          title={t("tooltip.changeRole")}
-                          className="rounded-xl p-2 bg-gray-50 text-gray-500 hover:bg-primary-50 hover:text-primary-600 transition-colors"
-                        >
-                          <UserCog size={16} />
-                        </button>
+                        <Tooltip content={t("tooltip.changeRole")}>
+                          <button
+                            onClick={() => setRoleTarget(user)}
+                            className="rounded-xl p-2 bg-gray-50 text-gray-500 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                          >
+                            <UserCog size={16} />
+                          </button>
+                        </Tooltip>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -375,50 +351,17 @@ export default function UsersPage() {
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-table-border px-6 py-4 bg-table-header-bg">
-            <span className="text-sm font-medium text-table-header-text">
-              {t("pagination", {
-                page,
-                total: totalPages,
-                count: totalElements,
-              })}
-            </span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="rounded-xl border border-gray-200 bg-white p-2 text-gray-500 hover:bg-gray-50 disabled:opacity-40 transition-colors shadow-sm"
-              >
-                <ChevronLeft size={18} />
-              </button>
-              {/* Page numbers — hiện tối đa 5 page */}
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + i;
-                return (
-                  <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    className={`h-9 w-9 rounded-xl text-sm font-semibold transition-all shadow-sm ${
-                      p === page
-                        ? "bg-primary-600 text-white shadow-primary-600/20 border-primary-600"
-                        : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300"
-                    }`}
-                  >
-                    {p}
-                  </button>
-                );
-              })}
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="rounded-xl border border-gray-200 bg-white p-2 text-gray-500 hover:bg-gray-50 disabled:opacity-40 transition-colors shadow-sm"
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          </div>
-        )}
+        <TablePagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          summary={t("pagination", {
+            page,
+            total: totalPages,
+            count: totalElements,
+          })}
+          maxVisible={5}
+        />
       </TableContainer>
 
       {/* Modals */}

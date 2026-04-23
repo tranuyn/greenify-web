@@ -1,7 +1,9 @@
 "use client";
 
 import { EventStatus, EventType } from "@/types/community.types";
-import { Clock, CheckCircle, XCircle, Search } from "lucide-react";
+import { Clock, CheckCircle, XCircle } from "lucide-react";
+import { SearchBar } from "@/components/admin/ui/search-bar";
+import { ChipFilterGroup, type ChipFilterOption } from "@/components/admin/ui/filter-chip-group";
 
 export const STATUS_CONFIG: Partial<
   Record<
@@ -77,6 +79,8 @@ interface Props {
   onStatusChange: (s: EventStatus | "ALL") => void;
   searchValue: string;
   onSearchChange: (v: string) => void;
+  onSearchSubmit: (v: string) => void;
+  isSearching?: boolean;
   counts: Partial<Record<EventStatus | "ALL", number>>;
 }
 
@@ -85,53 +89,41 @@ export function EventFilterBar({
   onStatusChange,
   searchValue,
   onSearchChange,
+  onSearchSubmit,
+  isSearching,
   counts,
 }: Props) {
+  const filterOptions: ChipFilterOption<EventStatus | "ALL">[] = FILTER_TABS.map(
+    ({ value, label }) => ({
+      value,
+      label,
+      count: counts[value] ?? 0,
+    }),
+  );
+
   return (
     <div className="space-y-4">
       {/* Search */}
-      <div className="relative max-w-sm">
-        <Search
-          size={15}
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-        />
-        <input
-          value={searchValue}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Tìm theo tên sự kiện..."
-          className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
-        />
-      </div>
+      <SearchBar
+        className="max-w-md"
+        value={searchValue}
+        onValueChange={onSearchChange}
+        onSearch={onSearchSubmit}
+        placeholder="Tìm theo tên sự kiện..."
+        buttonLabel="Tìm kiếm"
+        loading={isSearching}
+        inputClassName="rounded-xl"
+        buttonClassName="rounded-xl"
+      />
 
       {/* Status tabs */}
-      <div className="flex flex-wrap gap-2">
-        {FILTER_TABS.map(({ value, label }) => {
-          const count = counts[value] ?? 0;
-          const isActive = activeStatus === value;
-          return (
-            <button
-              key={value}
-              onClick={() => onStatusChange(value)}
-              className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
-                isActive
-                  ? "border-primary-500 bg-primary-600 text-white"
-                  : "border-gray-200 bg-white text-gray-600 hover:border-primary-300"
-              }`}
-            >
-              {label}
-              <span
-                className={`rounded-full px-1.5 py-0.5 font-mono text-[10px] ${
-                  isActive
-                    ? "bg-white/20 text-white"
-                    : "bg-gray-100 text-gray-500"
-                }`}
-              >
-                {count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+      <ChipFilterGroup
+        value={activeStatus}
+        onChange={onStatusChange}
+        options={filterOptions}
+        layout="wrap"
+        size="md"
+      />
     </div>
   );
 }
