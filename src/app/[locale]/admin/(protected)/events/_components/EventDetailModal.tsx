@@ -68,7 +68,7 @@ export function EventDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-card shadow-2xl">
         {/* Cover image */}
         <div className="relative h-52 shrink-0 bg-primary-100">
           {event.thumbnail?.imageUrl ? (
@@ -105,11 +105,11 @@ export function EventDetailModal({
           {/* Title + status */}
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <h3 className="font-bold text-2xl text-gray-900">
+              <h3 className="font-bold text-2xl text-primary-heading">
                 {event.title}
               </h3>
                 {event.organizer?.name && (
-                <p className="mt-1 text-sm font-medium text-primary-700">
+                <p className="mt-1 text-sm font-medium text-primary-content">
                     {event.organizer.name}
                 </p>
               )}

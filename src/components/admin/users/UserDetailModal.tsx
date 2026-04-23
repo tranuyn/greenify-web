@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { AdminUserDto, UserStatus } from "@/types/user.type";
 import { useTranslations } from "next-intl";
+import { UserAvatar } from "@/components/admin/users/UserAvatar";
 
 const STATUS_CFG: Record<UserStatus, string> = {
   ACTIVE: "bg-primary-100 text-primary-content",
@@ -31,9 +32,9 @@ export function UserDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 transition-opacity">
-      <div className="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl animate-fade-up">
+      <div className="w-full max-w-md overflow-hidden rounded-3xl bg-card shadow-2xl animate-fade-up">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-gray-50/50">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-card/50">
           <h3 className="text-lg font-bold text-primary-heading">
             {t("title")}
           </h3>
@@ -49,12 +50,16 @@ export function UserDetailModal({
         <div className="px-6 py-6 space-y-6">
           {/* Avatar + name */}
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary-100 text-3xl font-bold text-primary-content shadow-inner">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
+            <UserAvatar
+              name={user.name}
+              avatarUrl={user.avatarUrl}
+              sizeClassName="h-20 w-20"
+              textClassName="text-3xl"
+              className="shadow-inner"
+            />
             <div>
-              <p className="text-xl font-semibold text-gray-900">{user.name}</p>
-              <p className="text-sm text-gray-500">{user.email}</p>
+              <p className="text-xl font-semibold text-primary">{user.name}</p>
+              <p className="text-sm text-foreground/70">{user.email}</p>
             </div>
             <span
               className={`rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${sCls}`}
@@ -64,7 +69,7 @@ export function UserDetailModal({
           </div>
 
           {/* Info list */}
-          <div className="space-y-3 rounded-2xl border border-gray-100 bg-gray-50 p-5">
+          <div className="space-y-3 rounded-2xl border border-gray-100 bg-card p-5">
             {[
               { label: t("phone"), value: user.phoneNumber || "—" },
               { label: t("roles"), value: user.roles.map(r => tCommon(`roles.${r}`)).join(", ") },
@@ -73,8 +78,8 @@ export function UserDetailModal({
               { label: t("joined"), value: formatDate(user.createdAt) },
             ].map(({ label, value }) => (
               <div key={label} className="flex items-center justify-between">
-                <span className="text-sm text-gray-500 font-medium">{label}</span>
-                <span className="text-sm font-semibold text-gray-900">
+                <span className="text-sm text-foreground/70 font-medium">{label}</span>
+                <span className="text-sm font-semibold text-foreground">
                   {value}
                 </span>
               </div>

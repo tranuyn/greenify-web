@@ -188,28 +188,6 @@ export const adminVoucherService = {
   async createVoucher(
     payload: CreateVoucherTemplateRequest,
   ): Promise<VoucherTemplate> {
-    // if (IS_MOCK_MODE) {
-    //   await mockDelay(700);
-
-    //   const newVoucher: VoucherTemplate = {
-    //     id: `vt-${Date.now()}`,
-    //     name: payload.name,
-    //     partnerName: payload.partnerName,
-    //     description: payload.description,
-    //     requiredPoints: payload.requiredPoints,
-    //     totalStock: payload.totalStock,
-    //     remainingStock: payload.totalStock, // Mới tạo thì còn nguyên kho
-    //     usageConditions: payload.usageConditions,
-    //     validUntil: payload.validUntil,
-    //     status: "DRAFT",
-    //     // Map từ Object thành String để render UI
-    //     partnerLogoUrl: payload.partnerLogo?.imageUrl || null,
-    //     thumbnailUrl: payload.thumbnail?.imageUrl || null,
-    //   };
-    //   MOCK_VOUCHER_TEMPLATES_ADMIN.push(newVoucher);
-    //   return mockSuccess(newVoucher);
-    // }
-
     const { data } = await apiClient.post<VoucherTemplate>(
       "/admin/vouchers",
       payload,

@@ -33,7 +33,7 @@ export function EventCard({
     : '—';
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+    <div className="overflow-hidden rounded-2xl border border-b border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
       {/* Thumbnail */}
       <div className="relative h-36 bg-primary-50">
         {event.thumbnail?.imageUrl ? (
@@ -69,11 +69,11 @@ export function EventCard({
       {/* Content */}
       <div className="p-4">
         {event.organizer?.name && (
-          <p className="text-xs font-medium uppercase tracking-wider text-primary-600">
+          <p className="text-xs font-medium uppercase tracking-wider text-primary-content">
             {event.organizer.name}
           </p>
         )}
-        <h4 className="mt-0.5 line-clamp-1 text-sm font-semibold text-gray-900">
+        <h4 className="mt-0.5 line-clamp-1 text-sm font-semibold text-foreground/70">
           {event.title}
         </h4>
 

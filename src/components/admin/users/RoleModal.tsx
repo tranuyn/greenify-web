@@ -31,11 +31,11 @@ export function RoleModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 transition-opacity">
-      <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl animate-fade-up">
+      <div className="w-full max-w-sm rounded-3xl bg-card p-6 shadow-2xl animate-fade-up">
         <div className="mb-5 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{t("title")}</h3>
-            <p className="text-xs text-gray-500">{user.name}</p>
+            <h3 className="text-lg font-semibold text-primary">{t("title")}</h3>
+            <p className="text-xs text-foreground/70">{user.name}</p>
           </div>
           <button
             onClick={onClose}

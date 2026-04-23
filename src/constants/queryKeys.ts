@@ -21,8 +21,11 @@ export const QUERY_KEYS = {
       detail: (id: string) => ["admin", "vouchers", id] as const,
     },
     leaderboard: {
-      weekly: (weekStartDate?: string) =>
-        ["admin", "leaderboard", "weekly", weekStartDate] as const,
+      weekly: (params?: {
+        weekStartDate?: string;
+        scope?: LeaderboardScope;
+        province?: string;
+      }) => ["admin", "leaderboard", "weekly", params] as const,
     },
     prizes: {
       all: ["admin", "leaderboard", "prizes"] as const,
@@ -141,10 +144,10 @@ export const QUERY_KEYS = {
   },
 
   // Location
-  location: {
-    provinces: () => ["location", "provinces"] as const,
-    wards: (provinceCode: string) =>
-      ["location", "wards", provinceCode] as const,
+  divisions: {
+    provinces: ["divisions", "provinces"] as const,
+    wards: (provinceCode: number) =>
+      ["divisions", "wards", provinceCode] as const,
   },
 
   // Analytics

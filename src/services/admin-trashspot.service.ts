@@ -20,14 +20,64 @@ export const adminTrashSpotService = {
    * GET /api/v1/admin/trash-spots
    * Danh sách tất cả điểm rác (có filter status, province, severity, wasteType).
    */
+  // async getTrashSpots(
+  //   params?: AdminTrashSpotsParams,
+  // ): Promise<PageResponse<TrashSpotSummaryDto>> {
+  //   const { data } = await apiClient.get<PageResponse<TrashSpotSummaryDto>>(
+  //     "/admin/trash-spots",
+  //     { params: { ...params, page: params?.page ?? 0, size: params?.size ?? 20 } },
+  //   );
+  //   return data;
+  // },
   async getTrashSpots(
     params?: AdminTrashSpotsParams,
   ): Promise<PageResponse<TrashSpotSummaryDto>> {
-    const { data } = await apiClient.get<PageResponse<TrashSpotSummaryDto>>(
+    const page = params?.page ?? 0;
+    const size = params?.size ?? 20;
+
+    // Ép kiểu any tạm thời để hứng cả 2 trường hợp: Array hoặc PageResponse
+    const { data } = await apiClient.get<any>(
       "/admin/trash-spots",
-      { params: { ...params, page: params?.page ?? 0, size: params?.size ?? 20 } },
+      { 
+        params: { 
+          ...params,
+          // Mẹo: Nếu BE đang dump nguyên mảng, đôi khi truyền page/size xuống BE sẽ bị lỗi. 
+          // Nếu lỗi, bạn thử comment 2 dòng dưới lại để BE ném hết data lên đây rồi FE tự cắt.
+          page, 
+          size 
+        } 
+      },
     );
-    return data;
+
+    // TRƯỜNG HỢP 1: BE đã lén fix xong và trả về đúng format phân trang có 'content'
+    if (data && !Array.isArray(data) && "content" in data) {
+      return data as PageResponse<TrashSpotSummaryDto>;
+    }
+
+    // TRƯỜNG HỢP 2: BE vẫn ngoan cố trả về mảng thuần -> Frontend tự phân trang
+    const rawArray: TrashSpotSummaryDto[] = Array.isArray(data) ? data : [];
+    
+    // Tính toán các thông số phân trang
+    const totalElements = rawArray.length;
+    const totalPages = Math.ceil(totalElements / size);
+
+    // CẮT MẢNG (Slicing): Lấy đúng số item cho trang hiện tại
+    const startIndex = page * size;
+    const endIndex = startIndex + size;
+    const content = rawArray.slice(startIndex, endIndex);
+
+    // Đóng gói trả về giống hệt cấu trúc PageResponse
+    return {
+      content,
+      page,
+      size,
+      totalElements,
+      totalPages,
+      // Thêm các trường phụ nếu interface PageResponse của bạn yêu cầu
+      // first: page === 0,
+      // last: page >= totalPages - 1,
+      // empty: content.length === 0,
+    };
   },
 
   /**

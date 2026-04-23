@@ -22,6 +22,12 @@ const getCurrentWeekStartDate = () => {
   return monday.toISOString().split("T")[0];
 };
 
+interface WeeklyLeaderboardFilterParams {
+  weekStartDate?: string;
+  scope?: LeaderboardScope;
+  province?: string;
+}
+
 export const useAdminUsers = (params?: AdminUserQueryParams) =>
   useQuery({
     queryKey: QUERY_KEYS.users.list(params),
@@ -43,13 +49,14 @@ export const useAdminUserDetail = (id: string) =>
   });
 
 
-export const useWeeklyLeaderboard = (weekStartDate?: string) =>
+export const useWeeklyLeaderboard = (params?: WeeklyLeaderboardFilterParams) =>
   useQuery({
-    queryKey: QUERY_KEYS.admin.leaderboard.weekly(weekStartDate),
+    queryKey: QUERY_KEYS.admin.leaderboard.weekly(params),
     queryFn: () =>
       leaderboardService.getLeaderboard(
-        LeaderboardScope.NATIONAL,
-        weekStartDate ?? getCurrentWeekStartDate(),
+        params?.scope ?? LeaderboardScope.NATIONAL,
+        params?.weekStartDate ?? getCurrentWeekStartDate(),
+        params?.province,
       ),
   });
 
