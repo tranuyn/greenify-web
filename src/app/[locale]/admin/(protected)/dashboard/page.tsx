@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAdminDashboardOverview } from "@/hooks/queries/useAnalytics";
+import { useTranslations } from "next-intl";
 import { Event, EventStatus } from "@/types/community.types";
 import { AdminUserDto, UserStatus } from "@/types/user.type";
 
@@ -121,6 +122,9 @@ function StatCard({
 }
 
 export default function DashboardPage() {
+  const t = useTranslations("admin.dashboard");
+  const tCommon = useTranslations("common");
+
   const { totals, monthlyBreakdown, recentEvents, recentUsers, isLoading } =
     useAdminDashboardOverview();
 
@@ -137,25 +141,25 @@ export default function DashboardPage() {
 
   const statCards: StatCardItem[] = [
     {
-      label: "Tổng người dùng",
+      label: t("stats.totalUsers"),
       value: formatNumber(totals.totalUsers),
       icon: Users,
       color: "bg-blue-50 text-blue-600 border-blue-500",
     },
     {
-      label: "Bài đăng đã xác minh",
+      label: t("stats.verifiedPosts"),
       value: formatNumber(totals.verifiedPosts),
       icon: Leaf,
       color: "bg-primary-50 text-primary-600 border-primary-100",
     },
     {
-      label: "Tổng sự kiện",
+      label: t("stats.totalEvents"),
       value: formatNumber(totals.totalEvents),
       icon: Calendar,
       color: "bg-violet-50 text-violet-600 border-violet-100",
     },
     {
-      label: "Điểm GP phát ra",
+      label: t("stats.pointsIssued"),
       value: formatNumber(totals.pointsIssued),
       icon: Trophy,
       color: "bg-amber-50 text-amber-600 border-amber-100",
@@ -166,9 +170,9 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Page header */}
       <div>
-        <h2 className="font-bold text-3xl text-primary-heading">Tổng quan</h2>
+        <h2 className="font-bold text-3xl text-primary-heading">{t("title")}</h2>
         <p className="mt-1 font-body text-sm text-gray-500">
-          Dữ liệu được tổng hợp từ analytics và các module quản trị
+          {t("subtitle")}
         </p>
       </div>
 
@@ -185,16 +189,14 @@ export default function DashboardPage() {
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm lg:col-span-2">
           <div className="mb-6 flex items-center justify-between">
             <h3 className="font-body text-base font-semibold text-forest">
-              Hiệu suất theo tháng
+              {t("chart.title")}
             </h3>
             <div className="flex items-center gap-4 font-body text-xs text-gray-500">
               <span className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-primary-500" /> Bài
-                đã xác minh
+                <span className="h-2.5 w-2.5 rounded-full bg-primary-500" /> {t("chart.verifiedPosts")}
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-violet-400" /> Bãi
-                rác đã xử lý
+                <span className="h-2.5 w-2.5 rounded-full bg-violet-400" /> {t("chart.trashResolved")}
               </span>
             </div>
           </div>
@@ -206,7 +208,7 @@ export default function DashboardPage() {
               </div>
             ) : chartItems.length === 0 ? (
               <div className="flex w-full items-center justify-center text-sm text-gray-400">
-                Chưa có dữ liệu analytics theo tháng
+                {t("chart.empty")}
               </div>
             ) : (
               chartItems.map((item) => (
@@ -214,20 +216,20 @@ export default function DashboardPage() {
                   key={item.label}
                   className="flex flex-1 flex-col items-center gap-1"
                 >
-                  <div className="relative flex w-full items-end gap-1">
+                  <div className="relative flex w-full max-w-16 items-end gap-1 justify-center">
                     <div
-                      className="flex-1 rounded-t-lg bg-primary-400 transition-all hover:bg-primary-500"
+                      className="flex-1 rounded-t-md bg-primary-400 transition-all hover:bg-primary-500"
                       style={{
                         height: `${(item.verifiedPosts / maxChartValue) * 176}px`,
                       }}
-                      title={`${item.verifiedPosts} bài đăng đã xác minh`}
+                      title={t("chart.tooltipVerified", { count: item.verifiedPosts })}
                     />
                     <div
-                      className="w-2 rounded-t-md bg-violet-300 transition-all hover:bg-violet-400"
+                      className="flex-1 rounded-t-md bg-violet-300 transition-all hover:bg-violet-400"
                       style={{
                         height: `${(item.trashResolved / maxChartValue) * 176}px`,
                       }}
-                      title={`${item.trashResolved} bãi rác đã xử lý`}
+                      title={t("chart.tooltipTrash", { count: item.trashResolved })}
                     />
                   </div>
                   <span className="font-mono text-[10px] text-gray-400">
@@ -243,25 +245,25 @@ export default function DashboardPage() {
         <div className="space-y-4">
           {[
             {
-              label: "Bài đăng chờ duyệt",
+              label: t("quickStats.pendingPosts"),
               value: totals.pendingPosts,
               icon: Clock,
               cls: "text-amber-500 bg-amber-50",
             },
             {
-              label: "Sự kiện chờ duyệt",
+              label: t("quickStats.pendingEvents"),
               value: totals.pendingEvents,
               icon: Calendar,
               cls: "text-violet-500 bg-violet-50",
             },
             {
-              label: "Báo cáo bãi rác mới",
+              label: t("quickStats.totalTrashReports"),
               value: totals.totalTrashReports,
               icon: AlertTriangle,
               cls: "text-rose-500 bg-rose-50",
             },
             {
-              label: "Điểm thu gom active",
+              label: t("quickStats.activeStations"),
               value: totals.activeStations,
               icon: MapPin,
               cls: "text-primary-600 bg-primary-50",
@@ -293,7 +295,7 @@ export default function DashboardPage() {
         <div className="rounded-2xl border border-border bg-card shadow-sm">
           <div className="border-b border-border px-6 py-4">
             <h3 className="font-body text-base font-semibold text-forest">
-              Sự kiện gần đây
+              {t("recentEvents.title")}
             </h3>
           </div>
           <div className="divide-y divide-gray-50">
@@ -313,7 +315,7 @@ export default function DashboardPage() {
                       {evt.title}
                     </p>
                     <p className="font-body text-xs text-gray-400">
-                      {evt.organizer?.name ?? "N/A"} · {formatDate(evt.startTime)}
+                      {evt.organizer?.name ?? t("recentEvents.na")} · {formatDate(evt.startTime)}
                     </p>
                   </div>
                   <span
@@ -325,7 +327,7 @@ export default function DashboardPage() {
               );
             })}
             {recentEvents.length === 0 && (
-              <div className="px-6 py-8 text-sm text-gray-400">Chưa có sự kiện</div>
+              <div className="px-6 py-8 text-sm text-gray-400">{t("recentEvents.empty")}</div>
             )}
           </div>
         </div>
@@ -334,7 +336,7 @@ export default function DashboardPage() {
         <div className="rounded-2xl border border-border bg-card shadow-sm">
           <div className="border-b border-border px-6 py-4">
             <h3 className="font-body text-base font-semibold text-forest">
-              Người dùng gần đây
+              {t("recentUsers.title")}
             </h3>
           </div>
           <div className="divide-y divide-gray-50">
@@ -355,26 +357,26 @@ export default function DashboardPage() {
                       {user.name}
                     </p>
                     <p className="font-body text-xs text-gray-400">
-                      Tham gia {formatDate(user.createdAt)}
+                      {t("recentUsers.joined", { date: formatDate(user.createdAt) })}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     <span
                       className={`rounded-full px-2 py-0.5 font-body text-[10px] font-semibold ${role.cls}`}
                     >
-                      {primaryRole}
+                      {tCommon(`roles.${primaryRole}`)}
                     </span>
                     <span
                       className={`rounded-full px-2 py-0.5 font-body text-[10px] font-semibold ${status.cls}`}
                     >
-                      {status.label}
+                      {tCommon(`status.${user.status}`)}
                     </span>
                   </div>
                 </div>
               );
             })}
             {recentUsers.length === 0 && (
-              <div className="px-6 py-8 text-sm text-gray-400">Chưa có người dùng</div>
+              <div className="px-6 py-8 text-sm text-gray-400">{t("recentUsers.empty")}</div>
             )}
           </div>
         </div>

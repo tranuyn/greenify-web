@@ -152,6 +152,7 @@ export const QUERY_KEYS = {
 
   // Analytics
   analytics: {
+    landingStats: () => ["analytics", "landing", "stats"] as const,
     adminDashboard: (params?: object) =>
       ["analytics", "admin", "dashboard", params] as const,
     ngoDashboard: (params?: object) =>

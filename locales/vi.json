@@ -72,6 +72,12 @@
       "headline_1": "Mọi thứ bạn cần",
       "headline_2": "để sống xanh hơn"
     },
+    "stats": {
+      "totalPosts": "Hành động xanh",
+      "totalUsers": "Thành viên",
+      "totalStations": "Điểm thu gom",
+      "totalEvents": "Sự kiện"
+    },
     "download": {
       "headline_1": "Tải Greenify",
       "headline_2": "hoàn toàn miễn phí",
@@ -271,6 +277,40 @@
           "evidenceAlt": "Bằng chứng {index}",
           "previousRejectReason": "Lý do từ chối trước đó"
         }
+      }
+    },
+    "dashboard": {
+      "title": "Tổng quan",
+      "subtitle": "Dữ liệu được tổng hợp từ analytics và các module quản trị",
+      "stats": {
+        "totalUsers": "Tổng người dùng",
+        "verifiedPosts": "Bài đăng đã xác minh",
+        "totalEvents": "Tổng sự kiện",
+        "pointsIssued": "Điểm GP phát ra"
+      },
+      "chart": {
+        "title": "Hiệu suất theo tháng",
+        "verifiedPosts": "Bài đã xác minh",
+        "trashResolved": "Bãi rác đã xử lý",
+        "empty": "Chưa có dữ liệu analytics theo tháng",
+        "tooltipVerified": "{count} bài đăng đã xác minh",
+        "tooltipTrash": "{count} bãi rác đã xử lý"
+      },
+      "quickStats": {
+        "pendingPosts": "Bài đăng chờ duyệt",
+        "pendingEvents": "Sự kiện chờ duyệt",
+        "totalTrashReports": "Báo cáo bãi rác mới",
+        "activeStations": "Điểm thu gom active"
+      },
+      "recentEvents": {
+        "title": "Sự kiện gần đây",
+        "empty": "Chưa có sự kiện",
+        "na": "N/A"
+      },
+      "recentUsers": {
+        "title": "Người dùng gần đây",
+        "empty": "Chưa có người dùng",
+        "joined": "Tham gia {date}"
       }
     },
     "vouchers": {

@@ -5,6 +5,7 @@ import { analystService } from "@/services/analytics.service";
 import type {
   AdminDashboardResponse,
   AnalyticsQueryParams,
+  LandingStatsResponse,
   NgoDashboardResponse,
 } from "@/types/analytics.types";
 import { useAdminUsers } from "@/hooks/queries/useAdmin";
@@ -17,6 +18,13 @@ export const useAdminDashboardAnalytics = (params?: AnalyticsQueryParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.analytics.adminDashboard(params),
     queryFn: () => analystService.getAdminDashboard(params),
+  });
+};
+
+export const useLandingStats = () => {
+  return useQuery<LandingStatsResponse>({
+    queryKey: QUERY_KEYS.analytics.landingStats(),
+    queryFn: () => analystService.getLandingStats(),
   });
 };
 

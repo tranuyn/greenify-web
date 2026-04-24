@@ -24,6 +24,13 @@ export interface NgoDashboardResponse {
   monthlyBreakdown: NgoMonthlyBreakdown[];
 }
 
+export interface LandingStatsResponse {
+  totalPosts: number;
+  totalUsers: number;
+  totalStations: number;
+  totalEvents: number;
+}
+
 // ==========================================
 // 2. ADMIN DASHBOARD TYPES
 // ==========================================
