@@ -66,7 +66,7 @@ export function Download() {
                 {/* ẢNH QR THẬT SẼ NẰM Ở ĐÂY */}
                 <div className="relative h-36 w-36 overflow-hidden rounded-xl">
                   <Image
-                    src="/your-real-qr-code.png" // <-- BẠN ĐỔI LINK ẢNH Ở ĐÂY NHÉ
+                    src="/qrcode.svg"
                     alt="Scan to download"
                     fill
                     className="object-contain"
@@ -79,14 +79,14 @@ export function Download() {
               </div>
               
               {/* Logo overlay (nằm đè lên giữa mã QR) */}
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-background p-2 shadow-lg">
+              {/* <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-background p-2 shadow-lg">
                 <Image
                   src={LOGO_URL}
                   alt="Greenify Logo"
                   width={40}
                   height={40}
                 />
-              </div>
+              </div> */}
             </div>
             <p className="font-body text-sm text-primary-content/60">
               {t("qr_instruction")}

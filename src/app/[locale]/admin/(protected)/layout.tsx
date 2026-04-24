@@ -134,10 +134,10 @@ function Topbar({
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="relative rounded-full p-2 text-gray-500 hover:bg-gray-100">
+        {/* <button className="relative rounded-full p-2 text-gray-500 hover:bg-gray-100">
           <Bell size={18} />
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-rose-500" />
-        </button>
+        </button> */}
         <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary-600 font-body text-sm font-bold text-white uppercase">
           {user.userProfile?.avatarUrl ? (
             <img

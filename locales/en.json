@@ -72,6 +72,12 @@
       "headline_1": "Everything You Need",
       "headline_2": "to Live Greener"
     },
+    "stats": {
+      "totalPosts": "Green actions",
+      "totalUsers": "Members",
+      "totalStations": "Collection points",
+      "totalEvents": "Events"
+    },
     "download": {
       "headline_1": "Download Greenify",
       "headline_2": "completely free",
@@ -270,6 +276,40 @@
           "evidenceAlt": "Evidence {index}",
           "previousRejectReason": "Previous reject reason"
         }
+      }
+    },
+    "dashboard": {
+      "title": "Overview",
+      "subtitle": "Data compiled from analytics and admin modules",
+      "stats": {
+        "totalUsers": "Total users",
+        "verifiedPosts": "Verified posts",
+        "totalEvents": "Total events",
+        "pointsIssued": "GP issued"
+      },
+      "chart": {
+        "title": "Monthly Performance",
+        "verifiedPosts": "Verified posts",
+        "trashResolved": "Trash spots resolved",
+        "empty": "No monthly analytics data yet",
+        "tooltipVerified": "{count} verified posts",
+        "tooltipTrash": "{count} trash spots resolved"
+      },
+      "quickStats": {
+        "pendingPosts": "Pending posts",
+        "pendingEvents": "Pending events",
+        "totalTrashReports": "New trash reports",
+        "activeStations": "Active stations"
+      },
+      "recentEvents": {
+        "title": "Recent Events",
+        "empty": "No events yet",
+        "na": "N/A"
+      },
+      "recentUsers": {
+        "title": "Recent Users",
+        "empty": "No users yet",
+        "joined": "Joined {date}"
       }
     },
     "vouchers": {
