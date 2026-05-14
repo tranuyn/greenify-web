@@ -17,6 +17,7 @@ import {
   Recycle,
   MessageSquareWarning,
   MapPinned,
+  Wind,
 } from "lucide-react";
 import Image from "next/image";
 import LOGO_URL from "@/constants/logoUrl";
@@ -26,6 +27,7 @@ import { AuthenticatedUser } from "types/user.type";
 
 const NAV = [
   { href: "/admin/dashboard", icon: LayoutDashboard, label: "Tổng quan" },
+  { href: "/admin/co2", icon: Wind, label: "CO2 & Tác động" },
   { href: "/admin/users", icon: Users, label: "Người dùng" },
   { href: "/admin/events", icon: Calendar, label: "Sự kiện NGO" },
   { href: "/admin/vouchers", icon: Gift, label: "Voucher" },

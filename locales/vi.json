@@ -442,6 +442,50 @@
           "lockAtOutOfRange": "Thời điểm khóa phải nằm trong tuần đã chọn (Thứ 2 - Chủ Nhật)."
         }
       }
+    },
+    "co2": {
+      "title": "Thống kê CO2",
+      "subtitle": "Lượng CO2 giảm thiểu được ghi nhận từ hành động xanh của bạn",
+      "summary": {
+        "total": "Tổng CO2e",
+        "totalUnit": "kg CO2e",
+        "avoided": "CO2 Tránh phát thải",
+        "absorbed": "CO2 Hấp thụ",
+        "avoidedDesc": "Từ tái chế, phân loại, thu gom",
+        "absorbedDesc": "Từ trồng cây, chăm cây"
+      },
+      "chart": {
+        "title": "Phân bổ CO2e",
+        "avoided": "Tránh phát thải",
+        "absorbed": "Hấp thụ",
+        "empty": "Chưa có dữ liệu CO2e"
+      },
+      "history": {
+        "title": "Lịch sử ghi nhận CO2",
+        "subtitle": "{total} mục được ghi nhận",
+        "columns": {
+          "post": "Bài đăng",
+          "material": "Vật liệu",
+          "type": "Loại CO2e",
+          "amount": "CO2e (kg)",
+          "confidence": "Độ tin cậy",
+          "creditedAt": "Ngày ghi nhận"
+        },
+        "empty": "Chưa có lịch sử CO2e nào được ghi nhận",
+        "pagination": "Trang {page}/{totalPages} · {total} mục"
+      },
+      "co2eType": {
+        "AVOIDED": "Tránh phát thải",
+        "ABSORBED": "Hấp thụ"
+      },
+      "status": {
+        "PENDING": "Đang xử lý",
+        "CREDITED": "Đã ghi nhận",
+        "SKIPPED": "Bỏ qua"
+      },
+      "unit": "kg CO2e",
+      "confidenceLabel": "{score}% tin cậy"
     }
   }
 }
+

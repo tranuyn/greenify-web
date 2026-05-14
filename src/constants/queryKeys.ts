@@ -158,4 +158,12 @@ export const QUERY_KEYS = {
     ngoDashboard: (params?: object) =>
       ["analytics", "ngo", "dashboard", params] as const,
   },
+
+  // CO2 Impact
+  co2: {
+    all: ["co2"] as const,
+    walletSummary: () => ["co2", "wallet", "summary"] as const,
+    postDetail: (postId: string) => ["co2", "post", postId] as const,
+    history: (params?: object) => ["co2", "history", params] as const,
+  },
 } as const;
