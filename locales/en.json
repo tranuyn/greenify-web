@@ -43,7 +43,10 @@
       "approve": "Approve",
       "reject": "Reject",
       "delete": "Delete",
-      "reopen": "Reopen"
+      "reopen": "Reopen",
+      "loading": "Loading data...",
+      "empty": "No data",
+      "total": "Total"
     }
   },
   "metadata": {
@@ -441,6 +444,74 @@
           "lockAtBeforeWeekStart": "Lock time must be after week start date."
         }
       }
+    },
+    "co2": {
+      "title": "CO2 Statistics",
+      "badge": "CO2e Analytics",
+      "subtitle": "CO2 reduction recorded from your green actions",
+      "error": {
+        "title": "System Error:",
+        "message": "Failed to connect to the server to load CO2 data. Please try again later."
+      },
+      "summary": {
+        "total": "Total CO2e",
+        "totalUnit": "kg CO2e",
+        "avoided": "CO2 Avoided",
+        "absorbed": "CO2 Absorbed",
+        "avoidedDesc": "From recycling, sorting, collection",
+        "absorbedDesc": "From planting and tending trees"
+      },
+      "chart": {
+        "title": "CO2e Breakdown",
+        "avoided": "Avoided",
+        "absorbed": "Absorbed",
+        "empty": "No CO2e data yet"
+      },
+      "history": {
+        "title": "CO2 Credit History",
+        "subtitle": "{total} entries recorded",
+        "columns": {
+          "post": "Post",
+          "material": "Material",
+          "type": "CO2e Type",
+          "amount": "CO2e (kg)",
+          "confidence": "Confidence",
+          "creditedAt": "Credited At"
+        },
+        "empty": "No CO2e history has been recorded yet",
+        "pagination": "Page {page}/{totalPages} · {total} entries"
+      },
+      "co2eType": {
+        "AVOIDED": "Avoided",
+        "ABSORBED": "Absorbed"
+      },
+      "status": {
+        "PENDING": "Pending",
+        "CREDITED": "Credited",
+        "SKIPPED": "Skipped"
+      },
+      "unit": "kg CO2e",
+      "confidenceLabel": "{score}% confidence",
+      "monthly": {
+        "title": "Monthly Statistics",
+        "description": "Aggregated data over 30-day cycles",
+        "month": "Month",
+        "total": "Total CO2e (kg)",
+        "avoided": "Avoided (kg)",
+        "absorbed": "Absorbed (kg)",
+        "chartView": "Chart",
+        "tableView": "Table",
+        "empty": "No monthly statistics data yet"
+      },
+      "equivalents": {
+        "car": "Car Equivalent",
+        "tree": "Tree Equivalent",
+        "flight": "Flight Equivalent",
+        "carDesc": "21 kg CO2e/100km",
+        "treeDesc": "~22 kg CO2e/tree/year",
+        "flightDesc": "~255 kg CO2e/h flight"
+      }
     }
   }
 }
+

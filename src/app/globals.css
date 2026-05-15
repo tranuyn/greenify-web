@@ -33,6 +33,10 @@
     /* primary-700: Chữ nhấn mạnh, Icon */
     --primary-heading: #052e16;
     /* primary-950: Tiêu đề lớn */
+    --info: #3b82f6;
+    --error: #ef4444;
+    --success: #10b981;
+    --warning: #f59e0b;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -65,6 +69,10 @@
       /* primary-300: Chữ sáng để dễ đọc */
       --primary-heading: #f0fdf4;
       /* primary-50: Tiêu đề lớn sáng chói */
+      --info: #60a5fa;
+      --error: #f87171;
+      --success: #34d399;
+      --warning: #fbbf24;
     }
   }
 
@@ -119,6 +127,11 @@
   --color-primary-800: #166534;
   --color-primary-900: #14532d;
   --color-primary-950: #052e16;
+
+  --color-info: var(--info);
+  --color-error: var(--error);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
 
   --color-primary-surface: var(--primary-surface);
   --color-primary-element: var(--primary-element);

@@ -14,6 +14,7 @@ export const theme = {
       error: '#ef4444',
       warning: '#f59e0b',
       success: '#10b981',
+      info: '#3b82f6',
     },
   },
   dark: {
@@ -31,6 +32,7 @@ export const theme = {
       error: '#f87171',
       warning: '#fbbf24',
       success: '#34d399',
+      info: '#60a5fa',
     },
   },
 } as const;

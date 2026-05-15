@@ -29,6 +29,10 @@ import {
   SuspendUserRequest,
   UpdateUserRoleRequest,
 } from "@/types/user.type";
+import type {
+  AdminCo2eQueryParams,
+  AdminCo2eAnalyticsResponse,
+} from "@/types/co2.types";
 import { normalizeLockAtForApi } from "@/common/utils/date-time";
 import { MOCK_ADMIN_USERS } from "./mock/user.mock";
 import { EventQueryParams } from "@/types/community.types";
@@ -281,6 +285,23 @@ export const adminLeaderboardService = {
   async deletePrize(id: string): Promise<ApiResponse<null>> {
     const { data } = await apiClient.delete<ApiResponse<null>>(
       `/admin/leaderboard/prizes/${id}`,
+    );
+    return data;
+  },
+};
+
+// ============================================================
+// ADMIN CO2 SERVICE
+// ============================================================
+export const adminCo2Service = {
+  async getCo2eAnalytics(
+    params: AdminCo2eQueryParams,
+  ): Promise<AdminCo2eAnalyticsResponse> {
+    const { data } = await apiClient.get<AdminCo2eAnalyticsResponse>(
+      "/analyst/admin/co2e",
+      {
+        params,
+      },
     );
     return data;
   },

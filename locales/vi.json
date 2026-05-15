@@ -43,7 +43,10 @@
       "approve": "Chấp thuận",
       "reject": "Từ chối",
       "delete": "Xóa",
-      "reopen": "Mở lại"
+      "reopen": "Mở lại",
+      "loading": "Đang tải dữ liệu...",
+      "empty": "Không có dữ liệu",
+      "total": "Tổng"
     }
   },
   "metadata": {
@@ -442,6 +445,74 @@
           "lockAtOutOfRange": "Thời điểm khóa phải nằm trong tuần đã chọn (Thứ 2 - Chủ Nhật)."
         }
       }
+    },
+    "co2": {
+      "title": "Thống kê CO2",
+      "badge": "Phân tích CO2e",
+      "subtitle": "Lượng CO2 giảm thiểu được ghi nhận từ hành động xanh của bạn",
+      "error": {
+        "title": "Lỗi hệ thống:",
+        "message": "Không thể kết nối đến máy chủ để tải dữ liệu CO2. Vui lòng thử lại sau."
+      },
+      "summary": {
+        "total": "Tổng CO2e",
+        "totalUnit": "kg CO2e",
+        "avoided": "CO2 Tránh phát thải",
+        "absorbed": "CO2 Hấp thụ",
+        "avoidedDesc": "Từ tái chế, phân loại, thu gom",
+        "absorbedDesc": "Từ trồng cây, chăm cây"
+      },
+      "chart": {
+        "title": "Phân bổ CO2e",
+        "avoided": "Tránh phát thải",
+        "absorbed": "Hấp thụ",
+        "empty": "Chưa có dữ liệu CO2e"
+      },
+      "history": {
+        "title": "Lịch sử ghi nhận CO2",
+        "subtitle": "{total} mục được ghi nhận",
+        "columns": {
+          "post": "Bài đăng",
+          "material": "Vật liệu",
+          "type": "Loại CO2e",
+          "amount": "CO2e (kg)",
+          "confidence": "Độ tin cậy",
+          "creditedAt": "Ngày ghi nhận"
+        },
+        "empty": "Chưa có lịch sử CO2e nào được ghi nhận",
+        "pagination": "Trang {page}/{totalPages} · {total} mục"
+      },
+      "co2eType": {
+        "AVOIDED": "Tránh phát thải",
+        "ABSORBED": "Hấp thụ"
+      },
+      "status": {
+        "PENDING": "Đang xử lý",
+        "CREDITED": "Đã ghi nhận",
+        "SKIPPED": "Bỏ qua"
+      },
+      "unit": "kg CO2e",
+      "confidenceLabel": "{score}% tin cậy",
+      "monthly": {
+        "title": "Thống kê theo tháng",
+        "description": "Dữ liệu tổng hợp theo chu kỳ 30 ngày",
+        "month": "Tháng",
+        "total": "Tổng CO2e (kg)",
+        "avoided": "Tránh phát thải (kg)",
+        "absorbed": "Hấp thụ (kg)",
+        "chartView": "Biểu đồ",
+        "tableView": "Bảng",
+        "empty": "Chưa có dữ liệu thống kê tháng"
+      },
+      "equivalents": {
+        "car": "Tương đương xe hơi",
+        "tree": "Tương đương cây xanh",
+        "flight": "Tương đương chuyến bay",
+        "carDesc": "21 kg CO2e/100km",
+        "treeDesc": "~22 kg CO2e/cây/năm",
+        "flightDesc": "~255 kg CO2e/h bay"
+      }
     }
   }
 }
+
