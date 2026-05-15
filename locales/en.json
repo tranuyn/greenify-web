@@ -43,7 +43,10 @@
       "approve": "Approve",
       "reject": "Reject",
       "delete": "Delete",
-      "reopen": "Reopen"
+      "reopen": "Reopen",
+      "loading": "Loading data...",
+      "empty": "No data",
+      "total": "Total"
     }
   },
   "metadata": {
@@ -444,7 +447,12 @@
     },
     "co2": {
       "title": "CO2 Statistics",
+      "badge": "CO2e Analytics",
       "subtitle": "CO2 reduction recorded from your green actions",
+      "error": {
+        "title": "System Error:",
+        "message": "Failed to connect to the server to load CO2 data. Please try again later."
+      },
       "summary": {
         "total": "Total CO2e",
         "totalUnit": "kg CO2e",
@@ -483,7 +491,26 @@
         "SKIPPED": "Skipped"
       },
       "unit": "kg CO2e",
-      "confidenceLabel": "{score}% confidence"
+      "confidenceLabel": "{score}% confidence",
+      "monthly": {
+        "title": "Monthly Statistics",
+        "description": "Aggregated data over 30-day cycles",
+        "month": "Month",
+        "total": "Total CO2e (kg)",
+        "avoided": "Avoided (kg)",
+        "absorbed": "Absorbed (kg)",
+        "chartView": "Chart",
+        "tableView": "Table",
+        "empty": "No monthly statistics data yet"
+      },
+      "equivalents": {
+        "car": "Car Equivalent",
+        "tree": "Tree Equivalent",
+        "flight": "Flight Equivalent",
+        "carDesc": "21 kg CO2e/100km",
+        "treeDesc": "~22 kg CO2e/tree/year",
+        "flightDesc": "~255 kg CO2e/h flight"
+      }
     }
   }
 }

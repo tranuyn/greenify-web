@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 import {
+  adminCo2Service,
   adminLeaderboardService,
   adminUserService,
   adminVoucherService,
@@ -12,6 +13,7 @@ import {
   LeaderboardScope,
 } from "@/types/gamification.types";
 import { AdminUserQueryParams } from "@/types/user.type";
+import type { AdminCo2eQueryParams } from "@/types/co2.types";
 
 const getCurrentWeekStartDate = () => {
   const now = new Date();
@@ -72,4 +74,11 @@ export const useAdminPrizeDetail = (id: string) =>
     queryKey: QUERY_KEYS.admin.prizes.detail(id),
     queryFn: () => adminLeaderboardService.getPrizeById(id),
     enabled: !!id,
+  });
+
+export const useAdminCo2eAnalytics = (params: AdminCo2eQueryParams) =>
+  useQuery({
+    queryKey: QUERY_KEYS.admin.co2e.analytics(params),
+    queryFn: () => adminCo2Service.getCo2eAnalytics(params),
+    enabled: !!params.startDate && !!params.endDate,
   });

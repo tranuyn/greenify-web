@@ -47,6 +47,10 @@ export const QUERY_KEYS = {
       reports: (params?: object) =>
         ["admin", "trash-spots", "reports", params] as const,
     },
+    co2e: {
+      analytics: (params?: { startDate: string; endDate: string }) =>
+        ["admin", "co2e", "analytics", params] as const,
+    },
   },
 
   // Auth

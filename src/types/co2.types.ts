@@ -54,3 +54,25 @@ export interface Co2eHistoryItem {
 // ---- Query Params ----
 
 export interface Co2eHistoryQueryParams extends PaginationParams {}
+
+// ---- Admin Analytics DTOs ----
+
+export interface AdminCo2eQueryParams {
+  startDate: string; // yyyy-MM-dd
+  endDate: string; // yyyy-MM-dd
+}
+
+export interface AdminCo2eMetrics {
+  totalCo2eKg: number;
+  totalAvoidedKg: number;
+  totalAbsorbedKg: number;
+}
+
+export interface AdminCo2eMonthlyBreakdown extends AdminCo2eMetrics {
+  month: string;
+}
+
+export interface AdminCo2eAnalyticsResponse {
+  totalMetrics: AdminCo2eMetrics;
+  monthlyBreakdown: AdminCo2eMonthlyBreakdown[];
+}
